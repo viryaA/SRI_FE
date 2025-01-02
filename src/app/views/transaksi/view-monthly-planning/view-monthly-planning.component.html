@@ -1,0 +1,105 @@
+<div class="animated fadeIn">
+  <div class="col-md-12">
+    <div class="card">
+      <div class="card-header">
+        <strong>&nbsp;Monthly Planning</strong>
+      </div>
+      <div class="card-body">
+        <div class="d-flex justify-content-between mb-3">
+          <div class="d-flex align-items-center">
+            <input type="text" class="form-control col-md-12 col-lg-12" [(ngModel)]="searchText"
+              (input)="onSearchChange()" placeholder="Find here..." />
+            <button type="submit" class="btn btn-primary ml-2" (click)="resetSearch()">Reset</button>
+          </div>
+          <button class="btn btn-success" (click)="navigateToAdd()" id="addButton">Add</button>
+        </div>
+        <div class="table-responsive">
+          <table mat-table [dataSource]="dataSource" matSort class="table table-bordered table-striped table-sm">
+            <!-- No Column -->
+            <ng-container matColumnDef="no">
+              <th *matHeaderCellDef style="min-width: 50px">No</th>
+              <td *matCellDef="let mp; let i = index">{{ i + 1 }}</td>
+            </ng-container>
+
+            <!-- MP ID Column -->
+            <ng-container matColumnDef="mpCuringId">
+              <th *matHeaderCellDef style="min-width: 170px" mat-sort-header>Monthly Planning Id</th>
+              <td *matCellDef="let mp">{{ mp.mpCuringId }}</td>
+            </ng-container>
+
+            <!-- Doc Number Column -->
+            <ng-container matColumnDef="docNumber">
+              <th *matHeaderCellDef style="min-width: 200px" mat-sort-header>Document Number</th>
+              <td *matCellDef="let mp">{{ mp.docNumber }}</td>
+            </ng-container>
+
+            <!-- Date Column -->
+            <ng-container matColumnDef="effectiveDate">
+              <th *matHeaderCellDef style="min-width: 150px" mat-sort-header>Effective Date</th>
+              <td *matCellDef="let mp">{{ parseDate(mp.effectiveDate) }}</td>
+            </ng-container>
+
+            <!-- Revision PPC Column -->
+            <ng-container matColumnDef="revision">
+              <th *matHeaderCellDef style="min-width: 100px" mat-sort-header>Revision</th>
+              <td *matCellDef="let mp">{{ mp.revision }}</td>
+            </ng-container>
+
+            <!-- Revision Marketing Column -->
+            <ng-container matColumnDef="workDay">
+              <th *matHeaderCellDef style="min-width: 100px" mat-sort-header>Work Day</th>
+              <td *matCellDef="let mp">{{ mp.workDay }}</td>
+            </ng-container>
+
+            <!-- Overtime Column -->
+            <ng-container matColumnDef="overtime">
+              <th *matHeaderCellDef style="min-width: 150px" mat-sort-header>Overtime</th>
+              <td *matCellDef="let mp">{{mp.overtime}}</td>
+            </ng-container>
+
+            <!-- month of Column -->
+            <ng-container matColumnDef="monthOf">
+              <th *matHeaderCellDef style="min-width: 150px" mat-sort-header>Month Of</th>
+              <td *matCellDef="let mp">{{ parseDate(mp.monthOf) }}</td>
+            </ng-container>
+
+            <!-- kadept Column -->
+            <ng-container matColumnDef="kadept">
+              <th *matHeaderCellDef style="min-width: 150px" mat-sort-header>Kadept</th>
+              <td *matCellDef="let mp">{{mp.kadept}}</td>
+            </ng-container>
+
+            <!-- kassiePp Column -->
+            <ng-container matColumnDef="kassiePp">
+              <th *matHeaderCellDef style="min-width: 150px" mat-sort-header>KassiePp</th>
+              <td *matCellDef="let mp">{{mp.kassiePp}}</td>
+            </ng-container>
+
+            <!-- section Column -->
+            <ng-container matColumnDef="section">
+              <th *matHeaderCellDef style="min-width: 150px" mat-sort-header>Section</th>
+              <td *matCellDef="let mp">{{mp.section}}</td>
+            </ng-container>
+
+            <!-- issueDate Column -->
+            <ng-container matColumnDef="issueDate">
+              <th *matHeaderCellDef style="min-width: 150px" mat-sort-header>Issue Date</th>
+              <td *matCellDef="let mp">{{parseDate(mp.issueDate)}}</td>
+            </ng-container>
+
+            <!-- Action Column -->
+            <ng-container matColumnDef="action">
+              <th *matHeaderCellDef style="min-width: 250px">Action</th>
+              <td *matCellDef="let mp">
+                <button type="button" class="btn btn-md btn-secondary" (click)="navigateToDetail(mp.mpCuringId)">Detail</button>
+                <button type="button" class="btn btn-md btn-success ml-2">Print</button>
+              </td>
+            </ng-container>
+            <tr align="center" style="height: 20px" mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr align="center" mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

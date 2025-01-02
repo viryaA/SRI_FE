@@ -1,0 +1,141 @@
+<div class="col-lg-12">
+  <div class="card">
+    <div class="card-header">
+      <strong><i class="fa fa-bars"></i>&nbsp;Master Data Machine Tass Type</strong>
+    </div>
+
+    <div class="card-body">
+      <!-- Wrapper for the input and buttons in one row -->
+      <div class="d-flex justify-content-between mb-3">
+        <div class="d-flex align-items-center">
+          <input type="text" class="form-control col-md-12 col-lg-12" [(ngModel)]="searchText" (input)="onSearchChange()" placeholder="Find here..." />
+          <button type="submit" class="btn btn-primary ml-2" (click)="resetSearch()">Reset</button>
+        </div>
+
+        <!-- Right side: Download Template and Export Excel buttons -->
+        <div>
+          <button type="button" class="btn btn-primary ml-2" (click)="tamplateExcel()"><i class="fa fa-download fa-lg"></i> Download Template</button>
+          <button type="button" class="btn btn-primary ml-2" (click)="downloadExcel()"><i class="fa fa-download fa-lg"></i> Export Excel</button>
+          <button type="button" class="btn btn-success ml-2" data-toggle="modal" data-target="#uploadModal"><i class="fa fa-file-excel-o fa-lg"></i> Upload Excel</button>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div class="table-responsive">
+        <table mat-table [dataSource]="dataSource" matSort class="table table-bordered table-striped table-sm">
+          <!-- No Column -->
+          <ng-container matColumnDef="no">
+            <th *matHeaderCellDef style="min-width: 50px">No</th>
+            <td *matCellDef="let mtt; let i = index">{{ i + 1 }}</td>
+          </ng-container>
+
+          <!-- Machine Curing Type ID Column -->
+          <ng-container matColumnDef="machinetasstype_ID">
+            <th *matHeaderCellDef style="min-width: 150px" mat-sort-header>Machine Tass Type ID</th>
+            <td align="left" *matCellDef="let mtt">{{ mtt.machinetasstype_ID }}</td>
+          </ng-container>
+
+          <!-- Setting ID Column -->
+          <ng-container matColumnDef="setting_ID">
+            <th *matHeaderCellDef style="min-width: 150px" mat-sort-header>Setting</th>
+            <td align="left" *matCellDef="let mtt">{{ mtt.setting_value }}</td>
+          </ng-container>
+
+          <!-- Description Column -->
+          <ng-container matColumnDef="description">
+            <th *matHeaderCellDef style="min-width: 200px" mat-sort-header>Description</th>
+            <td align="left" *matCellDef="let mtt">{{ mtt.description }}</td>
+          </ng-container>
+
+          <!-- Status Column -->
+          <ng-container matColumnDef="status">
+            <th *matHeaderCellDef style="min-width: 100px" mat-sort-header>Status</th>
+            <td *matCellDef="let mtt" [ngClass]="{ 'bg-success text-white': mtt.status === 1, 'bg-danger text-white': mtt.status !== 1 }">
+              {{ mtt.status === 1 ? 'Active' : 'Deactive' }}
+            </td>
+          </ng-container>
+
+          <!-- Action Column -->
+          <ng-container matColumnDef="action">
+            <th *matHeaderCellDef style="min-width: 150px">Action</th>
+            <td *matCellDef="let mtt" align="center">
+              <button type="button" class="btn btn-md btn-secondary" (click)="openModalEdit(mtt.machinetasstype_ID)">Update</button>
+              <button type="button" class="btn btn-md ml-2" [ngClass]="{ 'btn-danger': mtt.status === 1, 'btn-success': mtt.status !== 1 }" (click)="mtt.status === 1 ? deleteData(mtt) : activateData(mtt)">
+                {{ mtt.status === 1 ? 'Delete' : 'Active' }}
+              </button>
+            </td>
+          </ng-container>
+
+          <!-- Header and Row Declaration -->
+          <tr align="center" style="height: 20px" mat-header-row *matHeaderRowDef="displayedColumns" align="center"></tr>
+          <tr align="center" mat-row *matRowDef="let row; columns: displayedColumns" align="center"></tr>
+        </table>
+
+        <!-- Pagination -->
+      </div>
+      <mat-paginator [pageSize]="pageSize" [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons></mat-paginator>
+
+      <!-- Modal edit -->
+      <div class="modal fade" id="editModal" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="addModalLabel">Edit Machine Tass Type</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <!-- Form with Reactive Forms -->
+              <form [formGroup]="editMachineTassTypeForm">
+                <div class="form-group">
+                  <h6 for="setting">Setting</h6>
+                  <div class="col-md-13">
+                    <ng-select2 id="setting" name="setting" formControlName="setting" [(ngModel)]="edtMachineTassTypeObject.setting_ID" [data]="uomOptionData" [options]="options"> </ng-select2>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <h6 for="description">Description</h6>
+                  <input [(ngModel)]="edtMachineTassTypeObject.description" maxlength="254" type="text" class="form-control" id="description" formControlName="description" [ngClass]="{ 'is-invalid': editMachineTassTypeForm.get('description').invalid && editMachineTassTypeForm.get('description').touched }" />
+                  <!-- Error message if plantName is empty -->
+                  <div *ngIf="editMachineTassTypeForm.get('description').invalid && editMachineTassTypeForm.get('description').touched" class="invalid-feedback">Machine Tass Type Description name is required.</div>
+                </div>
+              </form>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              <!-- Disable Update button if form is invalid -->
+              <button type="button" class="btn btn-primary" [disabled]="editMachineTassTypeForm.invalid" (click)="updateMachineTassType()">Update Machine Tass Type</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal for Upload Excel -->
+      <div class="modal fade" id="uploadModal" tabindex="-1" role="dialog" aria-labelledby="uploadModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="uploadModalLabel">Upload Excel File</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <form id="uploadForm">
+                <!-- Manual File Input -->
+                <div class="form-group mt-3">
+                  <input type="file" class="form-control-file" id="manualFileInput" accept=".xls,.xlsx" (change)="onFileChange($event)" />
+                </div>
+              </form>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-md btn-secondary" data-dismiss="modal">Close</button>
+              <button type="button" class="btn btn-md btn-primary" id="uploadButton" (click)="uploadFileExcel()">Upload</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,509 @@
+<div class="animated fadeIn">
+  <div class="col-md-12">
+    <div class="card">
+      <div class="card-header">
+        <strong>Add Header Monthly Palnning</strong>
+      </div>
+      <div class="card-body">
+        <form id="formHeaderMp" class="form form-horizontal">
+          <div class="form-group row">
+            <label class="col-md-3 col-form-label" for="month-input">Month</label>
+            <div class="col-md-9">
+              <input class="form-control" id="month_1" type="month" />
+            </div>
+          </div>
+          <div class="form-group row">
+            <label class="col-md-3 col-form-label" for="text-input">Revision</label>
+            <div class="col-md-9">
+              <input type="number" id="revision" name="text-input" class="form-control" placeholder="1,2,3..." />
+            </div>
+          </div>
+          <div class="form-group row">
+            <label class="col-md-3 col-form-label" for="text-input">Kadept</label>
+            <div class="col-md-9">
+              <input type="text" id="kadept" maxlength="5" name="text-input" class="form-control" />
+            </div>
+          </div>
+          <div class="form-group row">
+            <label class="col-md-3 col-form-label" for="text-input">Kassie pp</label>
+            <div class="col-md-9">
+              <input type="text" id="kassie-pp" maxlength="5" name="text-input" class="form-control" />
+            </div>
+          </div>
+          <div class="form-group row">
+            <label class="col-md-3 col-form-label">Month of</label>
+            <div class="col-md-9">
+              <input class="form-control" id="month-of" type="month" placeholder="month" />
+            </div>
+          </div>
+          <div class="form-group row">
+            <label class="col-md-3 col-form-label" for="text-input">Section</label>
+            <div class="col-md-9">
+              <input type="text" id="section" maxlength="10" name="text-input" class="form-control" />
+            </div>
+          </div>
+          <div class="form-group row">
+            <label class="col-md-3 col-form-label">Issue Date</label>
+            <div class="col-md-9">
+              <input class="form-control" id="issue-date" type="date" placeholder="date" />
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <strong>Limits Presentage and Mould Change</strong>
+      </div>
+      <div class="card-body">
+        <form class="form form-horizontal">
+          <div class="form-group row">
+            <label class="col-md-3 col-form-label">Mould Change</label>
+            <div class="col-md-6">
+              <input class="form-control" [(ngModel)]="objVarLim.limitChange" type="number"  name="mould_change" placeholder="0" />
+            </div>
+          </div>
+  
+          <div class="form-group row">
+            <label class="col-md-3 col-form-label"><strong>Range</strong></label>
+            <label class="col-md-3 col-form-label">Minimum Limit (%)</label>
+            <label class="col-md-3 col-form-label">Maximum Limit (%)</label>
+          </div>
+  
+          <!-- Range 0 - 2000 -->
+          <div class="form-group row">
+            <label class="col-md-3 col-form-label">0 - 2000</label>
+            <div class="col-md-3">
+              <input class="form-control" type="number"  [(ngModel)]="objVarLim.minA" name="minLimit_0_2000" placeholder="0" />
+            </div>
+            <div class="col-md-3">
+              <input class="form-control" type="number"  [(ngModel)]="objVarLim.maxA" name="maxLimit_0_2000" placeholder="0" />
+            </div>
+          </div>
+  
+          <!-- Range 2001 - 10.000 -->
+          <div class="form-group row">
+            <label class="col-md-3 col-form-label">2001 - 10.000</label>
+            <div class="col-md-3">
+              <input class="form-control" type="number"   [(ngModel)]="objVarLim.minB" name="minLimit_2001_10000" placeholder="0" />
+            </div>
+            <div class="col-md-3">
+              <input class="form-control" type="number"  [(ngModel)]="objVarLim.maxB" name="maxLimit_2001_10000" placeholder="0" />
+            </div>
+          </div>
+  
+          <!-- Range 10.001 - 100.000 -->
+          <div class="form-group row">
+            <label class="col-md-3 col-form-label">10.001 - 100.000</label>
+            <div class="col-md-3">
+              <input class="form-control" type="number"   [(ngModel)]="objVarLim.minC" name="minLimit_10001_100000" placeholder="0" />
+            </div>
+            <div class="col-md-3">
+              <input class="form-control" type="number"   [(ngModel)]="objVarLim.maxC" name="maxLimit_10001_100000" placeholder="0" />
+            </div>
+          </div>
+  
+          <!-- Range > 100.000 -->
+          <div class="form-group row">
+            <label class="col-md-3 col-form-label">&gt; 100.000</label>
+            <div class="col-md-3">
+              <input class="form-control" type="number"  [(ngModel)]="objVarLim.minD" name="minLimit_gt_100000" placeholder="0" />
+            </div>
+            <div class="col-md-3">
+              <input class="form-control" type="number"  [(ngModel)]="objVarLim.maxD" name="maxLimit_gt_100000" placeholder="0" />
+            </div>
+          </div>
+          </form>
+      </div>
+    </div>
+
+    <!-- Table Marketing Order -->
+    <div class="card">
+      <div class="card-header">
+        <strong>&nbsp;Marketing Order</strong>
+      </div>
+      <div class="card-body">
+        <div class="d-flex justify-content-between mb-3">
+          <div class="d-flex align-items-center">
+            <input type="text" class="form-control col-md-12 col-lg-12" [(ngModel)]="searchText"
+              (input)="onSearchChange()" placeholder="Find here..." />
+            <button type="submit" class="btn btn-primary ml-2" (click)="resetSearch()">Reset</button>
+          </div>
+        </div>
+        <div class="d-flex justify-content-between mb-3">
+          <div class="d-flex align-items-center">
+          </div>
+        </div>
+        <div class="table-responsive">
+          <table mat-table [dataSource]="dataSourceMO" matSort class="table table-bordered table-striped table-sm">
+
+            <ng-container matColumnDef="select">
+              <th mat-header-cell *matHeaderCellDef>
+                <input type="checkbox" (change)="selectAll($event)" />
+              </th>
+              <td mat-cell *matCellDef="let mo">
+                <input type="checkbox" [(ngModel)]="mo.selected" />
+              </td>
+            </ng-container>
+
+            <!-- No Column -->
+            <ng-container matColumnDef="no">
+              <th *matHeaderCellDef style="min-width: 50px">No</th>
+              <td *matCellDef="let mo; let i = index">{{ i + 1 }}</td>
+            </ng-container>
+
+            <!-- Month 1 Column -->
+            <ng-container matColumnDef="month0">
+              <th *matHeaderCellDef style="min-width: 150px" mat-sort-header>Month 0</th>
+              <td *matCellDef="let mo">{{ parseDate(mo.month0) }}</td>
+            </ng-container>
+
+            <!-- Month 1 Column -->
+            <ng-container matColumnDef="month1">
+              <th *matHeaderCellDef style="min-width: 150px" mat-sort-header>Month 1</th>
+              <td *matCellDef="let mo">{{ parseDate(mo.month1) }}</td>
+            </ng-container>
+
+            <!-- Month 1 Column -->
+            <ng-container matColumnDef="month2">
+              <th *matHeaderCellDef style="min-width: 150px" mat-sort-header>Month 2</th>
+              <td *matCellDef="let mo">{{ parseDate(mo.month2) }}</td>
+            </ng-container>
+
+            <!-- Action Column -->
+            <ng-container matColumnDef="action">
+              <th *matHeaderCellDef style="min-width: 200px">Action</th>
+              <td *matCellDef="let mo">
+                <button type="button" class="btn btn-md btn-warning ml-2"
+                  (click)="navigateToAddArDefectReject(mo.month0, mo.month1, mo.month2)">Finalisasi MO</button>
+                <button type="button" class="btn btn-md btn-primary ml-2"
+                  (click)="navigateToFrontRear(mo.month0, mo.month1, mo.month2)">Mark Front Rear</button>
+              </td>
+            </ng-container>
+
+            <tr align="center" style="height: 20px" mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr align="center" mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+          </table>
+        </div>
+        <!-- Pagination -->
+        <mat-paginator [pageSize]="pageSize" [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons></mat-paginator>
+        <!-- Wrap button in a d-flex div with justify-content-end -->
+        <div class="d-flex justify-content-end mt-3">
+           </div>
+      </div>
+    </div>
+
+    <div *ngIf="showMonthlyPlanning" class="card">
+      <div class="card-header">
+        <strong>Table Detail Monthly Palnning</strong>
+      </div>
+      <div class="card-body">
+        <div class="d-flex justify-content-between mb-3">
+          <div class="d-flex align-items-center">
+            <!-- <input type="text" class="form-control col-md-12 col-lg-12" [(ngModel)]="searchText" (input)="onSearchChange()" placeholder="Find here..." />
+            <button type="submit" class="btn btn-primary ml-2" (click)="resetSearch()">Reset</button> -->
+          
+          </div>
+          <div>
+            <button type="button" class="btn btn-success" (click)="generateMonthlyPlanning()">
+              <i class="fa fa-file"></i> Generate Monthly Planning
+            </button>
+            <button type="button" class="btn btn-primary ml-2" (click)="exportExcelMonthlyPlan()"><i class="fa fa-download fa-lg"></i> Generate to Excel</button>
+         
+            <button type="button" class="btn btn-primary ml-2"  (click)="viewDetail()" id="addButton"> Change Mould Data</button>
+          </div>
+        </div>
+
+        <tabset>
+          <tab heading="CURING">
+            <div class="table-responsive">
+              <table class="table table-bordered table-striped table-sm" [dataSource]="dataSourceMP">
+                <thead>
+                  <tr align="center">
+                    <th rowspan="2" class="align-middle" sticky>No</th>
+                    <th rowspan="2" style="min-width: 150px" class="align-middle" sticky>Partnumber</th>
+                    <th rowspan="2" style="min-width: 250px" class="align-middle" sticky>Size</th>
+                    <th rowspan="2" style="min-width: 250px" class="align-middle" sticky>Pattern</th>
+
+                    <th *ngFor="let hDateTass of dateHeadersTass" style="min-width: 70px" class="sticky-column"
+                      [ngClass]="{ 'off-header': hDateTass.isOff,'semi-off': hDateTass.semiOff, 'overtime-header': hDateTass.isOvertime }"
+                      (click)="handleCellClick(partNumber, hDateTass)">
+                      {{ hDateTass.dateDisplay }}
+                    </th>
+
+                    <th rowspan="2" style="min-width: 120px" class="align-middle">Total</th>
+                    <th rowspan="2" style="min-width: 120px" class="align-middle">Net Full Fillment</th>
+                    <th rowspan="2" style="min-width: 120px" class="align-middle">Gross Req</th>
+                    <th rowspan="2" style="min-width: 120px" class="align-middle">Net Req</th>
+                    <th colspan="3" style="min-width: 120px" class="align-middle">Req Customer</th>
+                    <th colspan="1" style="min-width: 120px" class="align-middle">Selisih</th>
+                  </tr>
+
+                  <!-- Baris kedua -->
+                  <tr align="center">
+                    <th style="min-width: 70px" *ngFor="let cHeaderWo of dateHeadersTass" class="sticky-column">
+                      {{ cHeaderWo.workingDay }}
+                    </th>
+                    <th class="align-middle sticky-column">AHM/OEM</th>
+                    <th class="align-middle sticky-column">AHM/REM</th>
+                    <th class="align-middle sticky-column">AHM/FDR</th>
+                    <th class="align-middle sticky-column">OFS</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let mp of monthlyDailyPlan; let i = index" align="center">
+                    <td  sticky>{{ i + 1 }}</td>
+                    <td  sticky>{{ mp.partNumber }}</td>
+                    <td  sticky>{{ mp.size }}</td>
+                    <td  sticky>{{ mp.pattern }}</td>
+
+                    <!-- Dynamically bind the dates -->
+                    <td *ngFor="let hDateTass of dateHeadersTass" class="hoverable"
+                      (click)="handleCellClick(mp.partNumber, hDateTass.date)">
+                      {{ getTotalPlan(mp.detailIdCuring, hDateTass.date) }}
+                    </td>
+
+                    <td>{{ mp.total }}</td>
+                    <td>
+                      <input type="number" [(ngModel)]="mp.netFulfilment" class="form-control" />
+                    </td>
+                    <td>
+                      <input type="number" [(ngModel)]="mp.grossReq" class="form-control" />
+                    </td>
+                    <td>
+                      <input type="number" [(ngModel)]="mp.netReq" class="form-control" />
+                    </td>
+                    <td>
+                      <input type="number" [(ngModel)]="mp.reqAhmOem" class="form-control" />
+                    </td>
+                    <td>
+                      <input type="number" [(ngModel)]="mp.reqAhmRem" class="form-control" />
+                    </td>
+                    <td>
+                      <input type="number" [(ngModel)]="mp.reqFdr" class="form-control" />
+                    </td>
+                    <td>
+                      <input type="number" [(ngModel)]="mp.differenceOfs" class="form-control" />
+                    </td>
+                  </tr>
+                </tbody>
+                <tr align="center" style="height: 30px" mat-header-row *matHeaderRowDef="monthlyDailyPlan; sticky: true">
+                </tr>
+                <tr style="height: 30px" mat-row *matRowDef="let row; columns: rowDataDmo"></tr>
+              </table>
+            </div>
+            <mat-paginator [pageSize]="pageSize" [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons></mat-paginator>
+          </tab>
+
+          <!-- Tab Tass -->
+          <tab heading="TASS">
+            <div class="table-responsive">
+              <table class="table table-bordered table-striped table-sm">
+                <thead>
+                  <tr align="center">
+                    <th rowspan="2" class="align-middle">No</th>
+                    <th rowspan="2" style="min-width: 150px" class="align-middle">Partnumber</th>
+                    <th rowspan="2" style="min-width: 150px" class="align-middle">Size</th>
+                    <th rowspan="2" style="min-width: 120px" class="align-middle">Pattern</th>
+
+                    <th *ngFor="let hDateTass of dateHeadersTass" style="min-width: 70px" class="align-middle"
+                      [ngClass]="{ 'off-header': hDateTass.isOff, 'overtime-header': hDateTass.isOvertime }"
+                      (click)="handleCellClick(partNumber, hDateTass.date2)">
+                      {{ hDateTass.date }} <!-- Only day part shown in header -->
+                    </th>
+                    <th rowspan="2" style="min-width: 120px" class="align-middle">Total</th>
+                    <th rowspan="2" style="min-width: 120px" class="align-middle">Net Full Fillment</th>
+                    <th rowspan="2" style="min-width: 120px" class="align-middle">Gross Req</th>
+                    <th rowspan="2" style="min-width: 120px" class="align-middle">Net Req</th>
+                    <th colspan="3" style="min-width: 120px" class="align-middle">Req Customer</th>
+                    <th colspan="1" style="min-width: 120px" class="align-middle">Selisih</th>
+                  </tr>
+
+                  <!-- Baris kedua -->
+                  <tr align="center">
+                    <th style="min-width: 70px" *ngFor="let cHeaderWo of dateHeadersTass">
+                      {{ cHeaderWo.workingDay }}
+                    </th>
+                    <th class="align-middle">AHM/OEM</th>
+                    <th class="align-middle">AHM/REM</th>
+                    <th class="align-middle">AHM/FDR</th>
+                    <th class="align-middle">OFS</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let mpTass of monthlyDailyPlan; let i = index" align="center">
+                    <td>{{ i + 1 }}</td>
+                    <td>{{ mpTass.partNumber }}</td>
+                    <td>{{ mpTass.size }}</td>
+                    <td>{{ mpTass.pattern }}</td>
+                    <td *ngFor="let dailyMp of mpTass.detailDailyMp" class="hoverable" (click)="openDmpModal(dailyMp)">
+                      {{ mpTass.totalPlan }}
+                    </td>
+                    <td>{{ mpTass.total }}</td>
+                    <td>
+                      <input type="number" [(ngModel)]="mpTass.netFullFillment" class="form-control" />
+                    </td>
+                    <td>
+                      <input type="number" [(ngModel)]="mpTass.grossReq" class="form-control" />
+                    </td>
+                    <td>
+                      <input type="number" [(ngModel)]="mpTass.netReq" class="form-control" />
+                    </td>
+                    <td>
+                      <input type="number" [(ngModel)]="mpTass.reqAhmRem" class="form-control" />
+                    </td>
+                    <td>
+                      <input type="number" [(ngModel)]="mpTass.reqAhmRem" class="form-control" />
+                    </td>
+                    <td>
+                      <input type="number" [(ngModel)]="mpTass.reqAhmRem" class="form-control" />
+                    </td>
+                    <td>
+                      <input type="number" [(ngModel)]="mpTass.total" class="form-control" />
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </tab>
+        </tabset>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-12 pb-4">
+    <button (click)="navigateToViewMp()" class="btn btn-primary justify-content-start mr-2">Kembali</button>
+    <button type="submit" class="btn btn-success">Submit</button>
+  </div>
+</div>
+
+<!-- Modal Detail Daily -->
+<div class="modal fade" id="dmpModal" tabindex="-1" role="dialog" aria-labelledby="Detail Daily Monthly Planning" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addModalLabel">Detail Production PerShift</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form>
+          <!-- Shift Table -->
+          <div class="form-group">
+            <table class="table table-bordered">
+              <thead>
+                <tr>
+                  <th>Shift 1</th>
+                  <th>Shift 2</th>
+                  <th>Shift 3</th>
+                  <th>Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>{{ kapaShift1 }}</td>
+                  <td>{{ kapaShift2 }}</td>
+                  <td>{{ kapaShift3 }}</td>
+                  <td><strong>{{ totalKapa }}</strong></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>          
+
+          <!-- Machine and Building Table with scroll -->
+          <div class="form-group">
+            <div class="table-wrapper">
+              <table class="table table-bordered">
+                <thead>
+                  <tr>
+                    <th>Machine</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let centerText of workCenterText">
+                    <td>{{ centerText }}</td>
+                  </tr>
+                </tbody>              
+              </table>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Modal Detail Mesin -->
+<div class="modal fade" id="changeMould" tabindex="-1" role="dialog" aria-labelledby="Detail Daily Monthly Planning" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addModalLabel">Detail Change Mould</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form>
+          <!-- Tabel filter -->
+          <!-- <table id="machineTable" class="table table-bordered">
+            <thead>
+              <tr>
+                <th>Filter</th>
+                <th>Search</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <select class="form-control" [(ngModel)]="filterType" (change)="applyFilter()">
+                    <option value="changeDate">Date Change</option>
+                    <option value="partNum">PartNumber</option>
+                    <option value="wct">Work Text Center</option>
+                    <option value="shift">Shift</option>
+                  </select>
+                </td>
+                <td>
+                  <input type="text" class="form-control" [(ngModel)]="searchTerm" (input)="applyFilter()" placeholder="Search...">
+                </td>
+              </tr>
+            </tbody>
+          </table> -->
+
+          <!-- Tabel hasil dengan scroll dan kolom tetap -->
+          <div class="table-wrapper">
+            <table id="resultsTable" class="table table-striped table-bordered">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Date Change</th>
+                  <th>PartNumber</th>
+                  <th>Work Text Center</th>
+                  <th>Shift</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let item of filteredChangeMould; let i = index">
+                  <td>{{ i + 1 }}</td>
+                  <td>{{ formatDate(item.changeDate) }}</td> <!-- Format tanggal menggunakan formatDate -->
+                  <td>{{ item.partNum }}</td>
+                  <td>{{ item.wct }}</td>
+                  <td>{{ item.shift }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,159 @@
+<div class="col-lg-12">
+  <div class="card">
+    <div class="card-header">
+      <strong><i class="fa fa-bars"></i>&nbsp;Master Data Detail Delivery Schedule</strong>
+    </div>
+
+    <div class="card-body">
+      <!-- Wrapper for the input and buttons in one row -->
+      <div class="d-flex justify-content-between mb-3">
+        <div class="d-flex align-items-center">
+          <input type="text" class="form-control col-md-12 col-lg-12" [(ngModel)]="searchText" (input)="onSearchChange()" placeholder="Find here..." />
+          <button type="submit" class="btn btn-primary ml-2" (click)="resetSearch()">Reset</button>
+        </div>
+
+        <!-- Right side: Download Template and Export Excel buttons -->
+        <div>
+          <button type="button" class="btn btn-primary ml-2" (click)="tamplateExcel()"><i class="fa fa-download fa-lg"></i> Download Template</button>
+          <button type="button" class="btn btn-primary ml-2" (click)="downloadExcel()"><i class="fa fa-download fa-lg"></i> Export Excel</button>
+          <button type="button" class="btn btn-success ml-2" data-toggle="modal" data-target="#uploadModal"><i class="fa fa-file-excel-o fa-lg"></i> Upload Excel</button>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div class="table-responsive">
+        <table mat-table [dataSource]="dataSource" matSort matSort class="table table-bordered table-striped table-sm">
+          <!-- No Column -->
+          <ng-container matColumnDef="no">
+            <th *matHeaderCellDef style="min-width: 50px">No</th>
+            <td *matCellDef="let detail; let i = index">{{ i + 1 }}</td>
+          </ng-container>
+
+          <!-- Detail Delivery Schedule ID Column -->
+          <ng-container matColumnDef="detail_DS_ID">
+            <th *matHeaderCellDef style="min-width: 200px" mat-sort-header>Detail Delivery Schedule ID</th>
+            <td align="center" *matCellDef="let detail">{{ detail.detail_DS_ID }}</td>
+          </ng-container>
+
+          <!-- Delivery Schedule ID Column -->
+          <ng-container matColumnDef="ds_ID">
+            <th *matHeaderCellDef style="min-width: 180px" mat-sort-header>Delivery Schedule </th>
+            <td align="right" *matCellDef="let detail">{{ detail.ds_ID }}</td>
+          </ng-container>
+
+          <!-- Part Number Column -->
+          <ng-container matColumnDef="part_NUM">
+            <th *matHeaderCellDef style="min-width: 200px" mat-sort-header>Part Number</th>
+            <td align="right" *matCellDef="let detail">{{ detail.part_NUM }}</td>
+          </ng-container>
+
+          <!-- Date Column -->
+          <ng-container matColumnDef="date_DS">
+            <th *matHeaderCellDef style="min-width: 250px" mat-sort-header>Date</th>
+            <td align="" *matCellDef="let detail">{{ detail.formattedDate }}</td>
+          </ng-container>
+
+          <!-- Total Delivery Column -->
+          <ng-container matColumnDef="total_DELIVERY">
+            <th *matHeaderCellDef style="min-width: 150px" mat-sort-header>Total Delivery</th>
+            <td *matCellDef="let detail" align="right">{{ detail.formatTotalDelivery }}</td>
+          </ng-container>
+
+          <!-- Status Column -->
+          <ng-container matColumnDef="status">
+            <th *matHeaderCellDef style="min-width: 100px" mat-sort-header>Status</th>
+            <td *matCellDef="let detail" [ngClass]="{ 'bg-success text-white': detail.status === 1, 'bg-danger text-white': detail.status !== 1 }">
+              {{ detail.status === 1 ? 'Active' : 'Deactive' }}
+            </td>
+          </ng-container>
+
+          <!-- Action Column -->
+          <ng-container matColumnDef="action">
+            <th *matHeaderCellDef style="min-width: 200px">Action</th>
+            <td *matCellDef="let detail">
+              <button type="button" class="btn btn-md btn-secondary" (click)="openModalEdit(detail.detail_DS_ID)">Update</button>
+              <button type="button" class="btn btn-md ml-3" [ngClass]="{ 'btn-danger': detail.status === 1, 'btn-success': detail.status !== 1 }" (click)="detail.status === 1 ? deleteData(detail) : activateData(detail)">
+                {{ detail.status === 1 ? 'Delete' : 'Active' }}
+              </button>
+            </td>
+          </ng-container>
+
+          <!-- Add header and row declarations -->
+          <tr align="center" style="height: 20px" mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr align="center" mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+        </table>
+      </div>
+      <!-- Pagination -->
+      <mat-paginator [pageSize]="pageSize" [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons></mat-paginator>
+
+      <!-- Modal edit -->
+      <div class="modal fade" id="editModal" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="addModalLabel">Edit Detail Delivery Schedule</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <form [formGroup]="editDDeliveryScheduleTypeForm">
+                <div class="form-group">
+                  <h6 for="dsID">Delivery Schedule</h6>
+                  <div class="col-md-13">
+                    <ng-select2 id="dsID" name="dsID" formControlName="dsID" [(ngModel)]="editDDeliveryScheduleTypeObject.ds_ID" [data]="uomOptionData" [options]="options"> </ng-select2>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <h6 for="partNum">Part Number</h6>
+                  <input [(ngModel)]="editDDeliveryScheduleTypeObject.part_NUM" maxlength="19" type="text" (keypress)="validateNumberInput($event)" onpaste="return false"  class="form-control" id="partNum" formControlName="partNum" [ngClass]="{ 'is-invalid': editDDeliveryScheduleTypeForm.get('partNum').invalid && editDDeliveryScheduleTypeForm.get('partNum').touched }" />
+                  <div *ngIf="editDDeliveryScheduleTypeForm.get('partNum').invalid && editDDeliveryScheduleTypeForm.get('partNum').touched" class="invalid-feedback">Part Number is required.</div>
+                </div>
+                <div class="form-group">
+                  <h6 for="date">Date</h6>
+                  <input [(ngModel)]="editDDeliveryScheduleTypeObject.date_DS" type="date" class="form-control" id="date" formControlName="date" [ngClass]="{ 'is-invalid': editDDeliveryScheduleTypeForm.get('date').invalid && editDDeliveryScheduleTypeForm.get('date').touched }" />
+                  <div *ngIf="editDDeliveryScheduleTypeForm.get('date').invalid && editDDeliveryScheduleTypeForm.get('date').touched" class="invalid-feedback">Date is required.</div>
+                </div>
+                <div class="form-group">
+                  <h6 for="totalDelvery">Total Delivery</h6>
+                  <input [(ngModel)]="editDDeliveryScheduleTypeObject.total_DELIVERY" maxlength="9" (paste)="false" type="text" (keypress)="validateNumberInput($event)" onpaste="return false" class="form-control" id="totalDelvery" formControlName="totalDelvery" [ngClass]="{ 'is-invalid': editDDeliveryScheduleTypeForm.get('totalDelvery').invalid && editDDeliveryScheduleTypeForm.get('totalDelvery').touched }" />
+                  <div *ngIf="editDDeliveryScheduleTypeForm.get('totalDelvery').invalid && editDDeliveryScheduleTypeForm.get('totalDelvery').touched" class="invalid-feedback">Total Delivery is required.</div>
+                </div>
+              </form>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              <button type="button" class="btn btn-primary" [disabled]="editDDeliveryScheduleTypeForm.invalid" (click)="updateDDeliverySchedule()">Update Detail Delivery Schedule</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal for Upload Excel -->
+      <div class="modal fade" id="uploadModal" tabindex="-1" role="dialog" aria-labelledby="uploadModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="uploadModalLabel">Upload Excel File</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <form id="uploadForm">
+                <!-- Manual File Input -->
+                <div class="form-group mt-3">
+                  <input type="file" class="form-control-file" id="manualFileInput" accept=".xls,.xlsx" (change)="onFileChange($event)" />
+                </div>
+              </form>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-md btn-secondary" data-dismiss="modal">Close</button>
+              <button type="button" class="btn btn-md btn-primary" id="uploadButton" (click)="uploadFileExcel()">Upload</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

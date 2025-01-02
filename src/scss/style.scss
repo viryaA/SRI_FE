@@ -1,0 +1,20 @@
+// If you want to override variables do it here
+@import "variables";
+
+// Import styles
+@import "~@coreui/coreui/scss/coreui";
+
+// If you want to add something do it here
+@import "custom";
+
+
+.table-responsive{
+    max-height:420px;  
+    overflow:scroll;
+  }
+  thead tr:nth-child(1) th{
+    background: white;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }

@@ -1,0 +1,29 @@
+.table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+.trTDTH td, th{
+    min-width: 170px;
+    text-align: center;
+}
+
+.table th {
+    min-width: 200px;
+    text-align: center;
+    align-items: center;
+}
+
+.angka{
+    text-align: right;
+}
+
+.huruf {
+    text-align: left;
+}
+
+.centered-sorted-header {
+    text-align: center;
+}
+::ng-deep .mat-sort-header-container {
+    justify-content: center;
+  }

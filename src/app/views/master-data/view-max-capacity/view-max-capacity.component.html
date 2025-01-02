@@ -1,0 +1,204 @@
+<div class="col-lg-12">
+  <div class="card">
+    <div class="card-header">
+      <strong><i class="fa fa-bars"></i>&nbsp;Master Data Max Capacity</strong>
+    </div>
+
+    <div class="card-body">
+      <!-- Wrapper for the input and buttons in one row -->
+      <div class="d-flex justify-content-between mb-3">
+        <div class="d-flex align-items-center">
+          <input type="text" class="form-control col-md-12 col-lg-12" [(ngModel)]="searchText" (input)="onSearchChange()" placeholder="Find here..." />
+          <button type="submit" class="btn btn-primary ml-2" (click)="resetSearch()">Reset</button>
+        </div>
+
+        <!-- Right side: Download Template and Export Excel buttons -->
+        <div>
+          <button type="button" class="btn btn-primary ml-2" (click)="templateExcel()"><i class="fa fa-download fa-lg"></i> Download Template</button>
+          <button type="button" class="btn btn-primary ml-2" (click)="downloadExcel()"><i class="fa fa-download fa-lg"></i> Export Excel</button>
+          <button type="button" class="btn btn-success ml-2" data-toggle="modal" data-target="#uploadModal"><i class="fa fa-file-excel-o fa-lg"></i> Upload Excel</button>
+        </div>
+      </div>
+      <link rel="stylesheet" href="view-max-capacity.component.scss">
+      <!-- Table -->
+      <div class="table-responsive table-wrapper">
+        <table mat-table [dataSource]="dataSource" matSort class="table table-bordered table-striped table-sm">
+
+          <ng-container matColumnDef="no" >
+            <th style="min-width: 50px;" *matHeaderCellDef >No</th>
+            <td  *matCellDef="let element; let i = index">{{ i + 1 }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="max_CAP_ID">
+            <th style="min-width: 130px;" class="centered-sorted-header" *matHeaderCellDef mat-sort-header >Max Capacity ID</th>
+            <td *matCellDef="let element">{{ element.max_CAP_ID }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="part_NUMBER">
+            <th class="centered-sorted-header" *matHeaderCellDef mat-sort-header >Part Number</th>
+            <td class="angka" *matCellDef="let element">{{ element.product_ID }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="machine_curing_TYPE_ID">
+            <th style="min-width: 250px;" class="centered-sorted-header" *matHeaderCellDef mat-sort-header >Machine Curing Type</th>
+            <td class="huruf" *matCellDef="let element">{{ element.machine_curing_TYPE_ID }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="cycle_TIME">
+            <th style="min-width: 100px;" class="centered-sorted-header" *matHeaderCellDef mat-sort-header >Cycle Time</th>
+            <td class="angka" *matCellDef="let element">{{ element.cycle_TIME }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="capacity_SHIFT_1">
+            <th style="min-width: 130px;" class="centered-sorted-header" *matHeaderCellDef mat-sort-header >Capacity Shift 1</th>
+            <td class="angka" *matCellDef="let element">{{ element.capacity_SHIFT_1 }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="capacity_SHIFT_2">
+            <th style="min-width: 130px;" class="centered-sorted-header" *matHeaderCellDef mat-sort-header >Capacity Shift 2</th>
+            <td class="angka" *matCellDef="let element">{{ element.capacity_SHIFT_2 }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="capacity_SHIFT_3">
+            <th style="min-width: 130px;" class="centered-sorted-header" *matHeaderCellDef mat-sort-header >Capacity Shift 3</th>
+            <td class="angka" *matCellDef="let element">{{ element.capacity_SHIFT_3 }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="status">
+            <th style="min-width: 70px;" *matHeaderCellDef mat-sort-header>Status</th>
+            <td *matCellDef="let element" [ngClass]="{ 'bg-success': element.status === 1, 'bg-danger': element.status !== 1 }">
+              {{ element.status === 1 ? 'Active' : 'Deactive' }}
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="action" >
+            <th *matHeaderCellDef style="min-width: 200px;">Action</th>
+            <td *matCellDef="let element">
+              <button type="button" class="btn btn-md btn-secondary" (click)="openModalEdit(element.max_CAP_ID)">Update</button>
+              <button type="button" class="btn btn-md ml-2" [ngClass]="{ 'btn-danger': element.status === 1, 'btn-success': element.status !== 1 }" (click)="element.status === 1 ? deleteData(element) : activateData(element)">
+                {{ element.status === 1 ? 'Delete' : 'Active' }}
+              </button>
+            </td>
+          </ng-container>
+
+          <tr align="center" style="height: 20px;" mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr align="center" mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+        <!-- Pagination -->
+      </div>
+      <mat-paginator [pageSize]="pageSize"
+            [pageSizeOptions]="[5, 10, 20]"
+            showFirstLastButtons>
+      </mat-paginator>
+    </div>
+  </div>
+</div>
+
+<!-- Modal edit -->
+<div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addModalLabel">Edit Max capacity</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <!-- Form with Reactive Forms -->
+        <form [formGroup]="editMaxCapacityForm">
+          
+          <div class="form-group">
+            <label for="product_ID" style="min-width: 150px;">Part Number</label>
+            <div>
+              <ng-select2
+                formControlName="product_ID" 
+                id="product_ID"
+                name = "product_ID"
+                [(ngModel)]="edtMaxCapacityObject.product_ID"
+                [data]="uomOptions[0]"
+                [options]="options"
+                [placeholder]="'Please Select'">
+              </ng-select2>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="machinecuringtype_ID" style="min-width: 150px;">Machine Curing Type</label>
+            <div>
+              <ng-select2
+                formControlName="machinecuringtype_ID" 
+                id="machinecuringtype_ID"
+                name = "machinecuringtype_ID"
+                [(ngModel)]="edtMaxCapacityObject.machinecuringtype_ID"
+                [data]="uomOptions[1]"
+                [options]="options"
+                [placeholder]="'Please Select'">
+              </ng-select2>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="cycle_TIME">Cycle Time</label>
+            <input [(ngModel)]="edtMaxCapacityObject.cycle_TIME" maxlength="19" type="text" class="form-control" id="cycle_TIME" formControlName="cycle_TIME" (keypress)="allowOnlyNumbers($event)" [ngClass]="{ 'is-invalid': editMaxCapacityForm.get('cycle_TIME').invalid && editMaxCapacityForm.get('cycle_TIME').touched }" />
+            <!-- Error message if plantName is empty -->
+            <div *ngIf="editMaxCapacityForm.get('cycle_TIME').invalid && editMaxCapacityForm.get('cycle_TIME').touched" class="invalid-feedback">Cycle Time is required.</div>
+          </div>
+
+          <div class="form-group">
+            <label for="capacity_SHIFT_1">Capacity Shift 1</label>
+            <input [(ngModel)]="edtMaxCapacityObject.capacity_SHIFT_1" maxlength="19" type="text" class="form-control" id="capacity_SHIFT_1" formControlName="capacity_SHIFT_1" (keypress)="allowOnlyNumbers($event)" [ngClass]="{ 'is-invalid': editMaxCapacityForm.get('capacity_SHIFT_1').invalid && editMaxCapacityForm.get('capacity_SHIFT_1').touched }" />
+            <!-- Error message if plantName is empty -->
+            <div *ngIf="editMaxCapacityForm.get('capacity_SHIFT_1').invalid && editMaxCapacityForm.get('capacity_SHIFT_1').touched" class="invalid-feedback">Capacity Shift 1 is required.</div>
+          </div>
+
+          <div class="form-group">
+            <label for="capacity_SHIFT_2">Capacity Shift 2</label>
+            <input [(ngModel)]="edtMaxCapacityObject.capacity_SHIFT_2" maxlength="19" type="text" class="form-control" id="capacity_SHIFT_2" formControlName="capacity_SHIFT_2" (keypress)="allowOnlyNumbers($event)" [ngClass]="{ 'is-invalid': editMaxCapacityForm.get('capacity_SHIFT_2').invalid && editMaxCapacityForm.get('capacity_SHIFT_2').touched }" />
+            <!-- Error message if plantName is empty -->
+            <div *ngIf="editMaxCapacityForm.get('capacity_SHIFT_2').invalid && editMaxCapacityForm.get('capacity_SHIFT_2').touched" class="invalid-feedback">Capacity Shift 2 is required.</div>
+          </div>
+
+          <div class="form-group">
+            <label for="capacity_SHIFT_3">Capacity Shift 3</label>
+            <input [(ngModel)]="edtMaxCapacityObject.capacity_SHIFT_3" maxlength="19" type="text" class="form-control" id="capacity_SHIFT_3" formControlName="capacity_SHIFT_3" (keypress)="allowOnlyNumbers($event)" [ngClass]="{ 'is-invalid': editMaxCapacityForm.get('capacity_SHIFT_3').invalid && editMaxCapacityForm.get('capacity_SHIFT_3').touched }" />
+            <!-- Error message if plantName is empty -->
+            <div *ngIf="editMaxCapacityForm.get('capacity_SHIFT_3').invalid && editMaxCapacityForm.get('capacity_SHIFT_3').touched" class="invalid-feedback">Capacity Shift 3 is required.</div>
+          </div>
+
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <!-- Disable Update button if form is invalid -->
+        <button type="button" class="btn btn-primary" [disabled]="editMaxCapacityForm.invalid" (click)="updateMaxCapacity()">Update Max Capacity</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal for Upload Excel -->
+<div class="modal fade" id="uploadModal" tabindex="-1" role="dialog" aria-labelledby="uploadModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="uploadModalLabel">Upload Excel File</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="uploadForm">
+          <!-- Manual File Input -->
+          <div class="form-group mt-3">
+            <input type="file" class="form-control-file" id="manualFileInput" accept=".xls,.xlsx" (change)="onFileChange($event)" />
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-md btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-md btn-primary" id="uploadButton" (click)="uploadFileExcel()">Upload</button>
+      </div>
+    </div>
+  </div>
+</div>
