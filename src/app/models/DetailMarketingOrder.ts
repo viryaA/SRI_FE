@@ -1,6 +1,6 @@
 export class DetailMarketingOrder {
   detailId: Number;
-  moId: String;
+  moId: string;
   itemCuring: string;
   category: String;
   partNumber: number;
