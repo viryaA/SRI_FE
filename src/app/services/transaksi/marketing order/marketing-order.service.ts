@@ -207,19 +207,8 @@ export class MarketingOrderService {
     return this.http.get<ApiResponse<[]>>(environment.apiUrlWebAdmin + '/getAllMoOnlyMonth');
   }
 
-  // getAllTypeMoByMonth(data: any): Observable<ApiResponse<any>> {
-  //   return this.http.post<ApiResponse<any>>(environment.apiUrlWebAdmin + '/getAllTypeMarketingOrder', data).pipe(
-  //     map((response) => {
-  //       return response;
-  //     }),
-  //     catchError((err) => {
-  //       return throwError(err);
-  //     })
-  //   );
-  // }
-
   getAllTypeMoByMonth(data: any): Observable<ApiResponse<any>> {
-    return this.http.post<ApiResponse<any>>(environment.apiUrlWebAdmin + '/getAllTypeMarketingOrderCuring', data).pipe(
+    return this.http.post<ApiResponse<any>>(environment.apiUrlWebAdmin + '/getAllTypeMarketingOrder', data).pipe(
       map((response) => {
         return response;
       }),
