@@ -41,7 +41,7 @@ export class ViewBDistanceComponent implements OnInit {
   pageOfItems: Array<any>;
   pageSize: number = 5;
   totalPages: number = 5;
-  displayedColumns: string[] = ['no', 'id_B_DISTANCE', 'building_ID_1', 'building_ID_2', 'distance', 'status', 'action'];
+  displayedColumns: string[] = ['no', 'building_ID_1', 'building_ID_2', 'distance', 'status', 'action'];
   dataSource: MatTableDataSource<BDistance>;
   isDataEmpty: boolean = true; // Flag untuk mengecek apakah data kosong
   @ViewChild(MatSort) sort: MatSort;

@@ -31,7 +31,7 @@ export class ViewPlantComponent implements OnInit {
   pageOfItems: Array<any>;
   pageSize: number = 5;
   totalPages: number = 5;
-  displayedColumns: string[] = ['no', 'plant_ID', 'plant_NAME', 'status', 'action'];
+  displayedColumns: string[] = ['no', 'plant_NAME', 'status', 'action'];
   dataSource: MatTableDataSource<Plant>;
 
   @ViewChild(MatSort) sort: MatSort;
@@ -221,7 +221,7 @@ export class ViewPlantComponent implements OnInit {
       this.PlantService.uploadFileExcel(formData).subscribe(
         (response) => {
           Swal.close();
-          if(response.status === 200) {
+          if (response.status === 200) {
             Swal.fire({
               icon: 'success',
               title: 'Success!',
@@ -231,7 +231,7 @@ export class ViewPlantComponent implements OnInit {
               $('#editModal').modal('hide');
               window.location.reload();
             });
-          }else {
+          } else {
             Swal.fire({
               icon: 'error',
               title: 'Error!',

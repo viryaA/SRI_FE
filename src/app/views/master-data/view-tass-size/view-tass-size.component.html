@@ -28,11 +28,6 @@
             <td *matCellDef="let element; let i = index">{{ i + 1 }}</td>
           </ng-container>
 
-          <ng-container matColumnDef="tassize_ID">
-            <th class="centered-sorted-header" *matHeaderCellDef mat-sort-header>Tass Size ID</th>
-            <td align="center" *matCellDef="let element">{{ element.tassize_ID }}</td>
-          </ng-container>
-
           <ng-container matColumnDef="machinetasstype_NAME">
             <th *matHeaderCellDef mat-sort-header>Machine Tass Type</th>
             <td class="huruf" *matCellDef="let element">{{ element.machinetasstype_NAME }}</td>

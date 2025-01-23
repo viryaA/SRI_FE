@@ -43,7 +43,7 @@ export class ViewQDistanceComponent implements OnInit {
   isDataEmpty: boolean = true; // Flag untuk mengecek apakah data kosong
   totalPages: number = 5;
 
-  displayedColumns: string[] = ['no', 'id_Q_DISTANCE', 'quadrant_ID_1', 'quadrant_ID_2', 'distance', 'status', 'action'];
+  displayedColumns: string[] = ['no', 'quadrant_ID_1', 'quadrant_ID_2', 'distance', 'status', 'action'];
   dataSource: MatTableDataSource<QDistance>;
 
   constructor(private qdistanceService: QDistanceService, private fb: FormBuilder, private quadrantService: QuadrantService) {

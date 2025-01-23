@@ -31,7 +31,7 @@ export class ViewPatternComponent implements OnInit {
   pageOfItems: Array<any>;
   pageSize: number = 5;
   totalPages: number = 5;
-  displayedColumns: string[] = ['no', 'pattern_ID', 'pattern_NAME', 'status', 'action'];
+  displayedColumns: string[] = ['no', 'pattern_NAME', 'status', 'action'];
   dataSource: MatTableDataSource<Pattern>;
 
   @ViewChild(MatSort) sort: MatSort;

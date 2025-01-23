@@ -43,7 +43,7 @@ export class ViewCtKapaComponent implements OnInit {
   pageOfItems: Array<any>;
   pageSize: number = 5;
   totalPages: number = 5;
-  displayedColumns: string[] = ['no', 'id_CT_KAPA', 'item_CURING', 'type_CURING', 'description', 'cycle_TIME', 'shift', 'kapa_PERSHIFT', 'last_UPDATE_DATA', 'machine', 'status', 'action'];
+  displayedColumns: string[] = ['no', 'item_CURING', 'type_CURING', 'description', 'cycle_TIME', 'shift', 'kapa_PERSHIFT', 'last_UPDATE_DATA', 'machine', 'status', 'action'];
   dataSource: MatTableDataSource<CtKapa>;
 
   constructor(private ctkapaService: CtKapaService, private ItemCuring: ItemCuringService, private CuringStypeService: MachineCuringTypeService, private fb: FormBuilder) {

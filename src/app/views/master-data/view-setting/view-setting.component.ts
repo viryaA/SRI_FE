@@ -33,7 +33,7 @@ export class ViewSettingComponent implements OnInit {
   pageSize: number = 5;
   totalPages: number = 5;
   sortBuffer: Array<any>;
-  displayedColumns: string[] = ['no', 'setting_ID', 'setting_KEY','setting_VALUE', 'description', 'status', 'action'];
+  displayedColumns: string[] = ['no', 'setting_KEY','setting_VALUE', 'description', 'status', 'action'];
   dataSource: MatTableDataSource<Setting>;
 
   @ViewChild(MatSort) sort: MatSort;

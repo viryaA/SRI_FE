@@ -32,7 +32,7 @@ export class ViewDeliveryScheduleComponent implements OnInit {
   pageSize: number = 5;
   totalPages: number = 5;
   sortBuffer: Array<any>;
-  displayedColumns: string[] = ['no', 'ds_ID', 'effective_TIME','date_ISSUED', 'category', 'status', 'action'];
+  displayedColumns: string[] = ['no', 'effective_TIME','date_ISSUED', 'category', 'status', 'action'];
   dataSource: MatTableDataSource<DeliverySchedule>;
 
   @ViewChild(MatSort) sort: MatSort;

@@ -28,11 +28,6 @@
             <td  *matCellDef="let element; let i = index">{{ i + 1 }}</td>
           </ng-container>
 
-          <ng-container matColumnDef="machine_ALLOW_ID">
-            <th class="centered-sorted-header" style="min-width: 150px;" *matHeaderCellDef mat-sort-header >Machine Allow ID</th>
-            <td *matCellDef="let element">{{ element.machine_ALLOW_ID }}</td>
-          </ng-container>
-
           <ng-container matColumnDef="id_MACHINE">
             <th style="min-width: 300px;" *matHeaderCellDef mat-sort-header >ID Machine</th>
             <td class="huruf" *matCellDef="let element">{{ element.id_MACHINE }}</td>

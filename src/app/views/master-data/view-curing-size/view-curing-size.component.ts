@@ -38,7 +38,7 @@ export class ViewCuringSizeComponent implements OnInit {
   pageSize: number = 5;
   totalPages: number = 5;
   sortBuffer: Array<any>;
-  displayedColumns: string[] = ['no', 'curingsize_ID', 'machinecuringtype_ID','size_ID', 'capacity', 'status', 'action'];
+  displayedColumns: string[] = ['no', 'machinecuringtype_ID','size_ID', 'capacity', 'status', 'action'];
   dataSource: MatTableDataSource<Curing_Size>;
 
   @ViewChild(MatSort) sort: MatSort;

@@ -29,11 +29,6 @@
             <td  *matCellDef="let element; let i = index">{{ i + 1 }}</td>
           </ng-container>
 
-          <ng-container matColumnDef="max_CAP_ID">
-            <th style="min-width: 130px;" class="centered-sorted-header" *matHeaderCellDef mat-sort-header >Max Capacity ID</th>
-            <td *matCellDef="let element">{{ element.max_CAP_ID }}</td>
-          </ng-container>
-
           <ng-container matColumnDef="part_NUMBER">
             <th class="centered-sorted-header" *matHeaderCellDef mat-sort-header >Part Number</th>
             <td class="angka" *matCellDef="let element">{{ element.product_ID }}</td>

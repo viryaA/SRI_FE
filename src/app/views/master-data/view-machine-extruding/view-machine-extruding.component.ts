@@ -41,7 +41,7 @@ export class ViewMachineExtrudingComponent implements OnInit {
   pageOfItems: Array<any>;
   pageSize: number = 5;
   totalPages: number = 5;
-  displayedColumns: string[] = ['no', 'id_MACHINE_EXT', 'building_ID', 'type', 'status', 'action'];
+  displayedColumns: string[] = ['no', 'building_ID', 'type', 'status', 'action'];
   dataSource: MatTableDataSource<MachineExtruding>;
   buildings: Building[];
 

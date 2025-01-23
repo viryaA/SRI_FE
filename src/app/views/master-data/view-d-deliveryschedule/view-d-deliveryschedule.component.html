@@ -28,13 +28,7 @@
             <th *matHeaderCellDef style="min-width: 50px">No</th>
             <td *matCellDef="let detail; let i = index">{{ i + 1 }}</td>
           </ng-container>
-
-          <!-- Detail Delivery Schedule ID Column -->
-          <ng-container matColumnDef="detail_DS_ID">
-            <th *matHeaderCellDef style="min-width: 200px" mat-sort-header>Detail Delivery Schedule ID</th>
-            <td align="center" *matCellDef="let detail">{{ detail.detail_DS_ID }}</td>
-          </ng-container>
-
+          
           <!-- Delivery Schedule ID Column -->
           <ng-container matColumnDef="ds_ID">
             <th *matHeaderCellDef style="min-width: 180px" mat-sort-header>Delivery Schedule </th>

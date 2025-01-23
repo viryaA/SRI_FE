@@ -28,11 +28,6 @@
               <td  *matCellDef="let element; let i = index">{{ i + 1 }}</td>
             </ng-container>
   
-            <ng-container matColumnDef="curingsize_ID">
-              <th class="centered-sorted-header" *matHeaderCellDef mat-sort-header >Curing Size ID</th>
-              <td *matCellDef="let element">{{ element.curingsize_ID }}</td>
-            </ng-container>
-  
             <ng-container matColumnDef="machinecuringtype_ID">
               <th  *matHeaderCellDef mat-sort-header >Machine Curing Type</th>
               <td class="huruf" *matCellDef="let element">{{ element.machinecuringtype_ID }}</td>

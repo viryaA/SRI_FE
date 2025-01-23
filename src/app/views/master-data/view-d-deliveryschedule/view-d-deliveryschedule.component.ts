@@ -38,17 +38,12 @@ export class ViewDDeliveryScheduleComponent implements OnInit {
     minimumResultsForSearch: 0,
   };
   DeliverySchedules: DeliverySchedule[];
-
-  // getProductName(productID: number): string {
-  //   const pattern = this..find(p => p.pattern_ID === patternID);
-  //   return pattern ? pattern.pattern_NAME : 'Unknown';
-  // }
-
+  
   // Pagination
   pageOfItems: Array<any>;
   pageSize: number = 5;
   totalPages: number = 5;
-  displayedColumns: string[] = ['no', 'detail_DS_ID', 'ds_ID', 'part_NUM', 'date_DS', 'total_DELIVERY', 'status', 'action'];
+  displayedColumns: string[] = ['no', 'ds_ID', 'part_NUM', 'date_DS', 'total_DELIVERY', 'status', 'action'];
   dataSource: MatTableDataSource<DDeliverySchedule>;
 
   @ViewChild(MatSort) sort: MatSort;

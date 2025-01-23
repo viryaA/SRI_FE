@@ -34,7 +34,7 @@ export class ViewProductTypeComponent implements OnInit {
   pageSize: number = 5;
   totalPages: number = 5;
   sortBuffer: Array<any>;
-  displayedColumns: string[] = ['no', 'product_TYPE_ID', 'product_MERK','product_TYPE', 'category', 'status', 'action'];
+  displayedColumns: string[] = ['no', 'product_MERK','product_TYPE', 'category', 'status', 'action'];
   dataSource: MatTableDataSource<ProductType>;
 
   @ViewChild(MatSort) sort: MatSort;

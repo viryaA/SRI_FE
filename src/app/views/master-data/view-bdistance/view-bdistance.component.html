@@ -27,12 +27,6 @@
             <td *matCellDef="let element; let i = index">{{ i + 1 }}</td>
           </ng-container>
 
-          <!-- Building Distance ID Column -->
-          <ng-container matColumnDef="id_B_DISTANCE">
-            <th *matHeaderCellDef style="min-width: 130px" mat-sort-header>Building Distance ID</th>
-            <td align="center" *matCellDef="let element">{{ element.id_B_DISTANCE }}</td>
-          </ng-container>
-
           <!-- Building 1 Column -->
           <ng-container matColumnDef="building_ID_1">
             <th *matHeaderCellDef style="min-width: 100px" mat-sort-header>Building 1</th>

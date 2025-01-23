@@ -44,7 +44,7 @@ export class ViewBuildingComponent implements OnInit {
   pageSize: number = 5;
   totalPages: number = 5;
   sortBuffer: Array<any>;
-  displayedColumns: string[] = ['no', 'building_ID', 'plant_NAME','building_NAME','status', 'action'];
+  displayedColumns: string[] = ['no', 'plant_NAME','building_NAME','status', 'action'];
   dataSource: MatTableDataSource<Building>;
 
   @ViewChild(MatSort) sort: MatSort;

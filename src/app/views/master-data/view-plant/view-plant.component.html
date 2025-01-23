@@ -29,12 +29,6 @@
             <td *matCellDef="let element; let i = index">{{ i + 1 }}</td>
           </ng-container>
 
-          <!-- Plant ID Column -->
-          <ng-container matColumnDef="plant_ID">
-            <th *matHeaderCellDef style="min-width: 130px" mat-sort-header>Plant ID</th>
-            <td align="center" *matCellDef="let element">{{ element.plant_ID }}</td>
-          </ng-container>
-
           <!-- Plant Name Column -->
           <ng-container matColumnDef="plant_NAME">
             <th *matHeaderCellDef style="min-width: 100px" mat-sort-header="">Plant Name</th>

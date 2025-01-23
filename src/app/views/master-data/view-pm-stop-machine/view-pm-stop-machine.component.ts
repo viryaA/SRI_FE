@@ -52,7 +52,7 @@ export class ViewPmStopMachineComponent implements OnInit {
   pageOfItems: Array<any>;
   pageSize: number = 5;
   totalPages: number = 5;
-  displayedColumns: string[] = ['no', 'stop_MACHINE_ID', 'work_CENTER_TEXT', 'start_DATE', 'start_TIME', 'end_DATE', 'end_TIME', 'status', 'action'];
+  displayedColumns: string[] = ['no', 'work_CENTER_TEXT', 'start_DATE', 'start_TIME', 'end_DATE', 'end_TIME', 'status', 'action'];
   dataSource: MatTableDataSource<PMStopMachine>;
 
   @ViewChild(MatSort) sort: MatSort;

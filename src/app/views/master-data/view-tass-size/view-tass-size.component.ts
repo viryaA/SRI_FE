@@ -39,7 +39,7 @@ export class ViewTassSizeComponent implements OnInit {
   pageSize: number = 5;
   totalPages: number = 5;
   sortBuffer: Array<any>;
-  displayedColumns: string[] = ['no', 'tassize_ID', 'machinetasstype_NAME','size_NAME','capacity', 'status', 'action'];
+  displayedColumns: string[] = ['no', 'machinetasstype_NAME','size_NAME','capacity', 'status', 'action'];
   dataSource: MatTableDataSource<Tass_Size>;
 
   @ViewChild(MatSort) sort: MatSort;

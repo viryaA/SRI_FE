@@ -27,11 +27,6 @@
             <td  *matCellDef="let element; let i = index">{{ i + 1 }}</td>
           </ng-container>
 
-          <ng-container matColumnDef="building_ID">
-            <th style="width: 100px;" class="centered-sorted-header" *matHeaderCellDef mat-sort-header >Building ID</th>
-            <td  *matCellDef="let element">{{ element.building_ID }}</td>
-          </ng-container>
-
           <ng-container matColumnDef="plant_NAME">
             <th class="centered-sorted-header" *matHeaderCellDef mat-sort-header >Plant Name</th>
             <td class="huruf"  *matCellDef="let element">{{ element.plant_NAME }}</td>

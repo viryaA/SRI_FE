@@ -38,7 +38,7 @@ export class ViewMaxCapacityComponent implements OnInit {
   pageSize: number = 5;
   totalPages: number = 5;
   sortBuffer: Array<any>;
-  displayedColumns: string[] = ['no', 'max_CAP_ID', 'part_NUMBER', 'machine_curing_TYPE_ID', 'cycle_TIME', 'capacity_SHIFT_1', 'capacity_SHIFT_2', 'capacity_SHIFT_3', 'status', 'action'];
+  displayedColumns: string[] = ['no', 'part_NUMBER', 'machine_curing_TYPE_ID', 'cycle_TIME', 'capacity_SHIFT_1', 'capacity_SHIFT_2', 'capacity_SHIFT_3', 'status', 'action'];
   dataSource: MatTableDataSource<Max_Capacity>;
 
   @ViewChild(MatSort) sort: MatSort;

@@ -28,11 +28,6 @@
             <td  *matCellDef="let element; let i = index">{{ i + 1 }}</td>
           </ng-container>
 
-          <ng-container matColumnDef="quadrant_ID">
-            <th style="width: 120px;" class="centered-sorted-header" *matHeaderCellDef mat-sort-header >Quadrant ID</th>
-            <td *matCellDef="let element">{{ element.quadrant_ID }}</td>
-          </ng-container>
-
           <ng-container matColumnDef="building_NAME">
             <th  *matHeaderCellDef mat-sort-header >Building Name</th>
             <td class="huruf" *matCellDef="let element">{{ element.building_NAME }}</td>

@@ -36,7 +36,7 @@ export class ViewQuadrantComponent implements OnInit {
   pageSize: number = 5;
   totalPages: number = 5;
   sortBuffer: Array<any>;
-  displayedColumns: string[] = ['no', 'quadrant_ID', 'building_NAME','quadrant_NAME','status', 'action'];
+  displayedColumns: string[] = ['no', 'building_NAME','quadrant_NAME','status', 'action'];
   dataSource: MatTableDataSource<Quadrant>;
 
   @ViewChild(MatSort) sort: MatSort;
