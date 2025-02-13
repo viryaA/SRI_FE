@@ -208,6 +208,17 @@ export class MarketingOrderService {
   }
 
   getAllTypeMoByMonth(data: any): Observable<ApiResponse<any>> {
+    return this.http.post<ApiResponse<any>>(environment.apiUrlWebAdmin + '/getAllTypeMarketingOrder', data).pipe(
+      map((response) => {
+        return response;
+      }),
+      catchError((err) => {
+        return throwError(err);
+      })
+    );
+  }
+
+  getAllTypeMoByMonthCuring(data: any): Observable<ApiResponse<any>> {
     return this.http.post<ApiResponse<any>>(environment.apiUrlWebAdmin + '/getAllTypeMarketingOrderCuring', data).pipe(
       map((response) => {
         return response;

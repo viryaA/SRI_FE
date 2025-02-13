@@ -406,7 +406,7 @@ export class AddMoFrontRearComponent implements OnInit {
       moMonth2: moMonth2Param,
     };
 
-    this.moService.getAllTypeMoByMonth(data).subscribe(
+    this.moService.getAllTypeMoByMonthCuring(data).subscribe(
       (response: ApiResponse<any>) => {
         Swal.close();
 

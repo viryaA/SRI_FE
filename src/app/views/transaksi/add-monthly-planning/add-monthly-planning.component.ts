@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, ViewChildren, QueryList } from '@angular/core';
 import { Router } from '@angular/router';
 import { MarketingOrder } from 'src/app/models/MarketingOrder';
 import { DetailDailyMonthlyPlanCuring } from 'src/app/models/DetailDailyMonthlPlanCuring';
@@ -11,12 +11,12 @@ import { ApiResponse } from 'src/app/response/Response';
 import { MarketingOrderService } from 'src/app/services/transaksi/marketing order/marketing-order.service';
 import { MonthlyPlanCuringService } from 'src/app/services/transaksi/monthly plan curing/monthly-plan-curing.service';
 import Swal from 'sweetalert2';
-import { MatTableDataSource } from '@angular/material/table';
+
 import { ParsingDateService } from 'src/app/utils/parsing-date/parsing-date.service';
 import { MatSort } from '@angular/material/sort';
 import { MatPaginator } from '@angular/material/paginator';
 import { saveAs } from 'file-saver';
-
+import { MatTableDataSource, MatTable } from '@angular/material/table';
 declare var $: any;
 
 @Component({
@@ -69,16 +69,16 @@ export class AddMonthlyPlanningComponent implements OnInit {
   pageOfItems: Array<any>;
   pageSize: number = 5;
   totalPages: number = 5;
-  displayedColumns: string[] = ['select', 'no', 'month0', 'month1', 'month2', 'action'];
+  displayedColumns: string[] = ['select', 'no','type', 'month0', 'month1', 'month2'];
   displayedColumnsMP: string[] = ['no', 'partNumber', 'dateDailyMp', 'totalPlan'];
   childHeadersColumnsMP: string[] = ['workDay'];
 
   dataSourceMO: MatTableDataSource<MarketingOrder>;
   dataSourceMP: MatTableDataSource<any>;
 
-  @ViewChild(MatSort) sort: MatSort;
-  @ViewChild(MatPaginator) paginator: MatPaginator;
-
+  @ViewChild(MatSort, { static: false }) sort!: MatSort;
+  @ViewChild(MatPaginator, { static: false }) paginator!: MatPaginator;
+  @ViewChildren(MatTable) innerTables!: QueryList<MatTable<any>>;
   monthlyPlanningsCurring: any[] = [];
   showMonthlyPlanning: boolean = false;
 
@@ -102,17 +102,72 @@ export class AddMonthlyPlanningComponent implements OnInit {
     this.searchText = '';
     this.dataSourceMO.filter = '';
   }
+  selectedItems: { [key: string]: string } = {}; // Key: type, Value: mo_id
 
+  selectItem(mo: any) {
+    if (this.selectedItems[mo.type] === mo.mo_id) {
+      delete this.selectedItems[mo.type];
+    } else {
+      this.selectedItems[mo.type] = mo.mo_id;
+    }
+  }
+  
   getAllMoOnlyMonth(): void {
     this.moService.getAllMoOnlyMonth().subscribe(
       (response: ApiResponse<any[]>) => {
         let mapMonth = response.data.map((order) => {
           return {
+            mo_id: order.MO_ID,
+            type: order.TYPE,
             month0: new Date(order.MONTH0),
             month1: new Date(order.MONTH1),
             month2: new Date(order.MONTH2),
           };
         });
+    // const mapMonth = [
+    //   {
+    //     mo_id: 1,
+    //     month0: new Date('2024-01-01'),
+    //     month1: new Date('2024-02-01'),
+    //     month2: new Date('2024-03-01'),
+    //     type: 'FED'
+    //   },
+    //   {
+    //     mo_id: 2,
+    //     month0: new Date('2024-04-01'),
+    //     month1: new Date('2024-05-01'),
+    //     month2: new Date('2024-06-01'),
+    //     type: 'FDR'
+    //   },
+    //   {
+    //     mo_id: 3,
+    //     month0: new Date('2024-07-01'),
+    //     month1: new Date('2024-08-01'),
+    //     month2: new Date('2024-09-01'),
+    //     type: 'FED'
+    //   },
+    //   {
+    //     mo_id: 4,
+    //     month0: new Date('2024-10-01'),
+    //     month1: new Date('2024-11-01'),
+    //     month2: new Date('2024-12-01'),
+    //     type: 'FDR'
+    //   },
+    //   {
+    //     mo_id: 5,
+    //     month0: new Date('2025-01-01'),
+    //     month1: new Date('2025-02-01'),
+    //     month2: new Date('2025-03-01'),
+    //     type: 'FED'
+    //   },
+    //   {
+    //     mo_id: 6,
+    //     month0: new Date('2025-04-01'),
+    //     month1: new Date('2025-05-01'),
+    //     month2: new Date('2025-06-01'),
+    //     type: 'FDR'
+    //   }
+    // ];
         this.marketingOrders = mapMonth;
         if (this.marketingOrders.length === 0) {
           Swal.fire({
@@ -125,8 +180,6 @@ export class AddMonthlyPlanningComponent implements OnInit {
           });
         } else {
           this.dataSourceMO = new MatTableDataSource(this.marketingOrders);
-          this.dataSourceMO.sort = this.sort;
-          this.dataSourceMO.paginator = this.paginator;
         }
       },
       (error) => {
@@ -139,6 +192,10 @@ export class AddMonthlyPlanningComponent implements OnInit {
         });
       }
     );
+  }
+  ngAfterViewInit() {
+    this.dataSourceMO.sort = this.sort;
+    this.dataSourceMO.paginator = this.paginator;
   }
 
   objVarLim = {
@@ -211,18 +268,12 @@ export class AddMonthlyPlanningComponent implements OnInit {
     );
   }
 
-  navigateToAddArDefectReject(month0: Date, month1: Date, month2: Date) {
-    const formattedMonth0 = `${month0.getDate().toString().padStart(2, '0')}-${(month0.getMonth() + 1).toString().padStart(2, '0')}-${month0.getFullYear()}`;
-    const formattedMonth1 = `${month1.getDate().toString().padStart(2, '0')}-${(month1.getMonth() + 1).toString().padStart(2, '0')}-${month1.getFullYear()}`;
-    const formattedMonth2 = `${month2.getDate().toString().padStart(2, '0')}-${(month2.getMonth() + 1).toString().padStart(2, '0')}-${month2.getFullYear()}`;
-    this.router.navigate(['/transaksi/add-mo-ar-defect-reject/', formattedMonth0, formattedMonth1, formattedMonth2]);
+  navigateToAddArDefectReject() {
+    this.router.navigate(['/transaksi/add-mo-ar-defect-reject/', this.selectedItems['FED'], this.selectedItems['FDR']]);
   }
 
-  navigateToFrontRear(month0: Date, month1: Date, month2: Date) {
-    const formattedMonth0 = `${month0.getDate().toString().padStart(2, '0')}-${(month0.getMonth() + 1).toString().padStart(2, '0')}-${month0.getFullYear()}`;
-    const formattedMonth1 = `${month1.getDate().toString().padStart(2, '0')}-${(month1.getMonth() + 1).toString().padStart(2, '0')}-${month1.getFullYear()}`;
-    const formattedMonth2 = `${month2.getDate().toString().padStart(2, '0')}-${(month2.getMonth() + 1).toString().padStart(2, '0')}-${month2.getFullYear()}`;
-    this.router.navigate(['/transaksi/add-mo-front-rear/', formattedMonth0, formattedMonth1, formattedMonth2]);
+  navigateToFrontRear() {
+    this.router.navigate(['/transaksi/add-mo-front-rear/', , this.selectedItems['FED'], this.selectedItems['FDR']]);
   }
 
   getDailyMonthPlan(  month: number, year: number,
@@ -569,12 +620,7 @@ export class AddMonthlyPlanningComponent implements OnInit {
 
   fillDataWorkDays(): void { }
 
-  selectAll(event: any): void {
-    const checked = event.target.checked;
-    this.marketingOrders.forEach((order) => {
-      order.selected = checked;
-    });
-  }
+
 
   navigateToViewMp() {
     this.router.navigate(['/transaksi/view-monthly-planning']);

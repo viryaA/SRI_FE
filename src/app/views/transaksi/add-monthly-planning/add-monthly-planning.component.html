@@ -124,74 +124,70 @@
         <strong>&nbsp;Marketing Order</strong>
       </div>
       <div class="card-body">
-        <div class="d-flex justify-content-between mb-3">
+        <div class="d-flex justify-content-between align-items-center mb-3">
           <div class="d-flex align-items-center">
             <input type="text" class="form-control col-md-12 col-lg-12" [(ngModel)]="searchText"
               (input)="onSearchChange()" placeholder="Find here..." />
             <button type="submit" class="btn btn-primary ml-2" (click)="resetSearch()">Reset</button>
           </div>
         </div>
-        <div class="d-flex justify-content-between mb-3">
-          <div class="d-flex align-items-center">
-          </div>
-        </div>
+      
         <div class="table-responsive">
-          <table mat-table [dataSource]="dataSourceMO" matSort class="table table-bordered table-striped table-sm">
-
+          <table mat-table [dataSource]="dataSourceMO" matSort class="table table-hover table-bordered text-center">
+      
             <ng-container matColumnDef="select">
-              <th mat-header-cell *matHeaderCellDef>
-                <input type="checkbox" (change)="selectAll($event)" />
-              </th>
-              <td mat-cell *matCellDef="let mo">
-                <input type="checkbox" [(ngModel)]="mo.selected" />
+              <th *matHeaderCellDef style="width: 50px;"></th>
+              <td *matCellDef="let mo">
+                <input type="checkbox" class="form-check-input" (change)="selectItem(mo)" 
+                  [disabled]="selectedItems[mo.type] !== undefined && selectedItems[mo.type] !== mo.mo_id"/>
               </td>
             </ng-container>
-
-            <!-- No Column -->
+      
             <ng-container matColumnDef="no">
-              <th *matHeaderCellDef style="min-width: 50px">No</th>
+              <th *matHeaderCellDef class="text-center" style="width: 50px;">No</th>
               <td *matCellDef="let mo; let i = index">{{ i + 1 }}</td>
             </ng-container>
-
-            <!-- Month 1 Column -->
+      
+            <ng-container matColumnDef="type">
+              <th *matHeaderCellDef class="text-center" style="width: 100px;" mat-sort-header>Type</th>
+              <td *matCellDef="let mo">{{ mo.type }}</td>
+            </ng-container>
+      
             <ng-container matColumnDef="month0">
-              <th *matHeaderCellDef style="min-width: 150px" mat-sort-header>Month 0</th>
+              <th *matHeaderCellDef class="text-center" style="width: 150px;" mat-sort-header>Month 0</th>
               <td *matCellDef="let mo">{{ parseDate(mo.month0) }}</td>
             </ng-container>
-
-            <!-- Month 1 Column -->
+      
             <ng-container matColumnDef="month1">
-              <th *matHeaderCellDef style="min-width: 150px" mat-sort-header>Month 1</th>
+              <th *matHeaderCellDef class="text-center" style="width: 150px;" mat-sort-header>Month 1</th>
               <td *matCellDef="let mo">{{ parseDate(mo.month1) }}</td>
             </ng-container>
-
-            <!-- Month 1 Column -->
+      
             <ng-container matColumnDef="month2">
-              <th *matHeaderCellDef style="min-width: 150px" mat-sort-header>Month 2</th>
+              <th *matHeaderCellDef class="text-center" style="width: 150px;" mat-sort-header>Month 2</th>
               <td *matCellDef="let mo">{{ parseDate(mo.month2) }}</td>
             </ng-container>
-
-            <!-- Action Column -->
-            <ng-container matColumnDef="action">
-              <th *matHeaderCellDef style="min-width: 200px">Action</th>
-              <td *matCellDef="let mo">
-                <button type="button" class="btn btn-md btn-warning ml-2"
-                  (click)="navigateToAddArDefectReject(mo.month0, mo.month1, mo.month2)">Finalisasi MO</button>
-                <button type="button" class="btn btn-md btn-primary ml-2"
-                  (click)="navigateToFrontRear(mo.month0, mo.month1, mo.month2)">Mark Front Rear</button>
-              </td>
-            </ng-container>
-
-            <tr align="center" style="height: 20px" mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-            <tr align="center" mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+      
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
           </table>
         </div>
-        <!-- Pagination -->
+      
         <mat-paginator [pageSize]="pageSize" [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons></mat-paginator>
-        <!-- Wrap button in a d-flex div with justify-content-end -->
+      
         <div class="d-flex justify-content-end mt-3">
-           </div>
+          <button type="button" class="btn btn-warning btn-md mr-2"
+            (click)="navigateToAddArDefectReject()"
+            [disabled]="selectedItems['FED'] === undefined || selectedItems['FDR'] === undefined">Finalisasi MO
+          </button>
+      
+          <button type="button" class="btn btn-primary btn-md"
+            (click)="navigateToFrontRear()"
+            [disabled]="selectedItems['FED'] === undefined || selectedItems['FDR'] === undefined">Mark Front Rear
+          </button>
+        </div>
       </div>
+      
     </div>
 
     <div *ngIf="showMonthlyPlanning" class="card">
