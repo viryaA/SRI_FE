@@ -218,6 +218,17 @@ export class MarketingOrderService {
     );
   }
 
+  getAllTypeMoByMonthCuring(data: any): Observable<ApiResponse<any>> {
+    return this.http.post<ApiResponse<any>>(environment.apiUrlWebAdmin + '/getAllTypeMarketingOrderCuring', data).pipe(
+      map((response) => {
+        return response;
+      }),
+      catchError((err) => {
+        return throwError(err);
+      })
+    );
+  }
+
   //Not used Alll ke bawah
   // saveMarketingOrder(mo: MarketingOrder): Observable<ApiResponse<MarketingOrder>> {
   //   return this.http.post<ApiResponse<MarketingOrder>>(environment.apiUrlWebAdmin + '/saveMarketingOrder', mo).pipe(

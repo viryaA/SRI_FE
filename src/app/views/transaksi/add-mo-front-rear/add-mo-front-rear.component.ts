@@ -218,9 +218,9 @@ export class AddMoFrontRearComponent implements OnInit {
   };
 
   // Pagination Detail Marketing Order
-  headersColumnsDmo: string[] = ['select', 'no', 'category', 'partNumber', 'description', 'machineType', 'capacity', 'qtyPerMould', 'spareMould', 'mouldMonthlyPlan', 'qtyPerRak', 'minOrder', 'maxCap', 'initialStock', 'salesForecast', 'marketingOrder', 'action'];
-  childHeadersColumnsDmo: string[] = ['maxCapMonth0', 'maxCapMonth1', 'maxCapMonth2', 'sfMonth0', 'sfMonth1', 'sfMonth2', 'moMonth0', 'moMonth1', 'moMonth2'];
-  rowDataDmo: string[] = ['select', 'no', 'category', 'partNumber', 'description', 'machineType', 'capacity', 'qtyPerMould', 'spareMould', 'mouldMonthlyPlan', 'qtyPerRak', 'minOrder', 'maxCapMonth0', 'maxCapMonth1', 'maxCapMonth2', 'initialStock', 'sfMonth0', 'sfMonth1', 'sfMonth2', 'moMonth0', 'moMonth1', 'moMonth2', 'action'];
+  headersColumnsDmo: string[] = ['select', 'no', 'category','itemCuring', 'description', 'action'];
+  childHeadersColumnsDmo: string[] = [];
+  rowDataDmo: string[] = ['select', 'no', 'category','itemCuring', 'description', 'action'];
   dataSourceDmo: MatTableDataSource<DetailMarketingOrder>;
   @ViewChild('sortDmo') sortDmo = new MatSort();
   @ViewChild('paginatorDmo') paginatorDmo: MatPaginator;
@@ -406,7 +406,7 @@ export class AddMoFrontRearComponent implements OnInit {
       moMonth2: moMonth2Param,
     };
 
-    this.moService.getAllTypeMoByMonth(data).subscribe(
+    this.moService.getAllTypeMoByMonthCuring(data).subscribe(
       (response: ApiResponse<any>) => {
         Swal.close();
 
@@ -1750,11 +1750,11 @@ export class AddMoFrontRearComponent implements OnInit {
 
     this.mesinSelect.forEach((mesin) => {
       const obj = {
-        part_NUMBER: this.selectedPartNumber,
+        item_curing: this.selectedItemCuring,
         work_CENTER_TEXT: mesin
       };
       const isDuplicate = this.data1.find(
-        (item) => item.part_NUMBER === obj.part_NUMBER && item.work_CENTER_TEXT === obj.work_CENTER_TEXT
+        (item) => item.item_curing === obj.item_curing && item.work_CENTER_TEXT === obj.work_CENTER_TEXT
       );
 
       if (!isDuplicate) {
@@ -1956,36 +1956,140 @@ export class AddMoFrontRearComponent implements OnInit {
     }
   }
 
-  saveDataFrontRear() {
+  async saveDataFrontRear() {
+    const uniqueMOID = [...new Set(this.dataSourceDmo.data.map(item => item.moId))];
+    const frontrear = [...new Set(this.selectedList.map(item => item.frontRear))];
+    const frontRearItems: FrontRear[] = [];
+
+    if (uniqueMOID.length < 2) {
+        console.error("Not enough unique MO IDs to process.");
+        return;
+    }
+
+    try {
+        for (const fr of frontrear) {
+            const uniqueItemCuring = [...new Set(
+                this.selectedList
+                    .filter(item => item.frontRear === fr)
+                    .map(item => item.itemCuring)
+            )];
+            
+            console.log("ini lopp mulai2");
+
+            // Create an array of promises
+            const promises = uniqueItemCuring.map(item => {
+                return new Promise<void>((resolve, reject) => {
+                    this.frontrear.getAlldetailIdMobyCuring(uniqueMOID[0], uniqueMOID[1], item).subscribe(
+                        (response: ApiResponse<FrontRear[]>) => {
+                            if (response.data) {
+                                console.log("ini datanya", response.data);
+                                response.data.forEach((dataItem) => {
+                                    frontRearItems.push({
+                                        id_FRONT_REAR: frontrear.indexOf(fr) + 1,
+                                        detail_ID_MO: dataItem.detail_ID_MO,
+                                        status: dataItem.status,
+                                        creation_DATE: dataItem.creation_DATE,
+                                        created_BY: dataItem.created_BY,
+                                        last_UPDATE_DATE: dataItem.last_UPDATE_DATE,
+                                        last_UPDATED_BY: dataItem.last_UPDATED_BY,
+                                    });
+                                });
+                            }
+                            resolve(); // Resolve the promise after processing
+                        },
+                        (error) => {
+                            reject(error); // Reject the promise if there's an error
+                        }
+                    );
+                });
+            });
+
+            // Wait for all the promises for this front/rear to resolve
+            await Promise.all(promises);
+            console.log("ini loop untukk: ", fr);
+        }
+
+        console.log("Final frontRearItems:", frontRearItems);
+
+        if (frontRearItems.length > 0) {
+            const saveResult = await this.frontrear.saveFrontRearItems(frontRearItems).toPromise();
+            await Swal.fire({
+              title: 'Success!',
+              text: 'Data Marketing Order successfully processed.',
+              icon: 'success',
+              confirmButtonText: 'OK',
+              
+            }).then((result) => {
+              if (result.isConfirmed) {
+                this.navigateToViewMo();
+              }
+            });
+        } else {
+            console.warn("No data to save.");
+            await Swal.fire('Error!', 'No data to save.', 'info');
+        }
+    } catch (err) {
+        console.error("Error inserting data Front Rear:", err);
+        Swal.fire('Error!', 'Error inserting data Front Rear.', 'error');
+    }
+}
+
+
+
+
+
+
+
+
+  async saveTempMachineProduct() {
     // Construct FrontRear objects from selectedList
-    const frontRearItems: FrontRear[] = this.selectedList.map(item => ({
-      id_FRONT_REAR: item.frontRear,
-      detail_ID_MO: item.detailId,
-      status: 1,
-      creation_DATE: new Date(),
-      created_BY: null,
-      last_UPDATE_DATE: new Date(),
-      last_UPDATED_BY: null,
-    }));
+    const uniqueMOID = [...new Set(this.dataSourceDmo.data.map(item => item.moId))];
+    const uniqueItemCuring = [...new Set(this.savedEntries.map(item => item.item_curing))];
+    console.log("tes",this.savedEntries);
+    console.log("tesd",uniqueItemCuring);
+    
+    if (uniqueMOID.length < 2) {
+      console.error("Not enough unique MO IDs to process.");
+      return;
+    }
+    const MachineProductDataList: { part_NUMBER: number; work_CENTER_TEXT: string }[] = [];
 
-    console.log(this.selectedList.length);
-    console.table(frontRearItems);
+    await Promise.all(
+      uniqueItemCuring.map(async (item) => {
+        try {
+          // Call the API and convert the observable to a promise
+          const observable = this.frontrear.getMachineProductsmoByCuring(
+            uniqueMOID[0],
+            uniqueMOID[1],
+            item
+          );
+          const data = await observable.toPromise();
+          if (data) {
+            // Iterate over each part_NUMBER returned from the API
+            data.data.forEach((parnum) => {
+              // Find matching savedEntries for the current item_curing
+              this.savedEntries
+                .filter((curing) => curing.item_curing === item)
+                .forEach((curing) => {
+                  // Add the result to the results array
+                  MachineProductDataList.push({
+                    part_NUMBER: parnum.part_NUMBER,
+                    work_CENTER_TEXT: curing.work_CENTER_TEXT,
+                  });
+                });
+            });
+          }
+        } catch (error) {
+          console.error(`Error processing item_curing "${item}":`, error);
+        }
+      })
+    );
+    console.log(MachineProductDataList);
 
-    // Call the API to save the FrontRear items as a batch
-    return this.frontrear.saveFrontRearItems(frontRearItems);
-  }
 
-  saveTempMachineProduct() {
-    // Construct FrontRear objects from selectedList
-    const Tempitem: TempMachineProduct[] = this.savedEntries.map(item => ({
-      part_NUMBER: item.part_NUMBER,
-      work_CENTER_TEXT: item.work_CENTER_TEXT
-    }));
+    console.log(MachineProductDataList.length);
+    const save = this.frontrear.saveTempMachineProduct(MachineProductDataList);
 
-    console.log(Tempitem.length);
-    const save = this.frontrear.saveTempMachineProduct(Tempitem);
-
-    console.log("halooo " + save);
 
     save.subscribe(
       () => {
@@ -1997,7 +2101,7 @@ export class AddMoFrontRearComponent implements OnInit {
           
         }).then((result) => {
           if (result.isConfirmed) {
-            //this.navigateToViewMo();
+            this.navigateToViewMo();
           }
         });
       },
@@ -2013,30 +2117,9 @@ export class AddMoFrontRearComponent implements OnInit {
   navigateToViewMo() {
     this.router.navigate(['/transaksi/add-monthly-planning']);
   }
-
-  saveAll() {
-    this.saveTempMachineProduct();
-    const saveFrontRear$ = this.saveDataFrontRear();
-    // const updateHeaderMo$ = this.updateLimitHeaderMO();
-    // Execute both operations and show a combined response
-    saveFrontRear$.subscribe(
-      () => {
-        Swal.fire({
-          title: 'Success!',
-          text: 'Data Marketing Order successfully processed.',
-          icon: 'success',
-          confirmButtonText: 'OK',
-        }).then((result) => {
-          if (result.isConfirmed) {
-            this.navigateToViewMo();
-          }
-        });
-      },
-      (err) => {
-        Swal.fire('Error!', 'Error inserting data Front Rear.', 'error');
-      }
-    );
-  }
-
   
+  async saveAll() {
+    await this.saveDataFrontRear();
+    await this.saveTempMachineProduct();
+  }
 }

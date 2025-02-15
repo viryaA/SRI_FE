@@ -233,7 +233,7 @@ export class EditMoMarketingComponent implements OnInit {
   getLastIdMo(): void {
     this.moService.getLastIdMo().subscribe(
       (response: ApiResponse<string>) => {
-        this.lastIdMo = response.data;
+        this.lastIdMo = response.data;  
       },
       (error) => {
         Swal.fire({
