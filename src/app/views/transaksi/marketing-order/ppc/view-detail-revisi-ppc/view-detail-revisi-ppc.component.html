@@ -24,19 +24,19 @@
 
             <!-- Mo Month 0 -->
             <ng-container matColumnDef="month0">
-              <th *matHeaderCellDef style="min-width: 150px" mat-sort-header>Marketing Order ID</th>
+              <th *matHeaderCellDef style="min-width: 150px" mat-sort-header>Month 1</th>
               <td *matCellDef="let mo">{{ parseDate(mo.month0) }}</td>
             </ng-container>
 
             <!-- Mo Month 1 -->
             <ng-container matColumnDef="month1">
-              <th *matHeaderCellDef style="min-width: 80px" mat-sort-header>Type</th>
+              <th *matHeaderCellDef style="min-width: 80px" mat-sort-header>Month 2</th>
               <td *matCellDef="let mo">{{ parseDate(mo.month1) }}</td>
             </ng-container>
 
             <!-- Mo Month 2 -->
             <ng-container matColumnDef="month2">
-              <th *matHeaderCellDef style="min-width: 150px" mat-sort-header>Date</th>
+              <th *matHeaderCellDef style="min-width: 150px" mat-sort-header>Month 3</th>
               <td *matCellDef="let mo">{{ parseDate(mo.month2) }}</td>
             </ng-container>
 
@@ -121,15 +121,15 @@
               <td *matCellDef="let mo">{{ parseDate(mo.month0) }}</td>
             </ng-container>
 
-            <!-- Month 1 Column -->
+            <!-- Month 2 Column -->
             <ng-container matColumnDef="month1">
-              <th *matHeaderCellDef style="min-width: 150px" mat-sort-header>Month 1</th>
+              <th *matHeaderCellDef style="min-width: 150px" mat-sort-header>Month 2</th>
               <td *matCellDef="let mo">{{ parseDate(mo.month1) }}</td>
             </ng-container>
 
-            <!-- Month 1 Column -->
+            <!-- Month 3 Column -->
             <ng-container matColumnDef="month2">
-              <th *matHeaderCellDef style="min-width: 150px" mat-sort-header>Month 2</th>
+              <th *matHeaderCellDef style="min-width: 150px" mat-sort-header>Month 3</th>
               <td *matCellDef="let mo">{{ parseDate(mo.month2) }}</td>
             </ng-container>
 
