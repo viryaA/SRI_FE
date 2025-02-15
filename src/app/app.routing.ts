@@ -388,14 +388,14 @@ export const routes: Routes = [
         },
       },
       {
-        path: 'transaksi/add-mo-front-rear/:mo1/:mo2',
+        path: 'transaksi/add-mo-front-rear/:mo1/:mo2/:mo3',
         component: AddMoFrontRearComponent,
         data: {
           title: 'Transaksi / Add MO Front Rear',
         },
       },
       {
-        path: 'transaksi/add-mo-ar-defect-reject/:mo1/:mo2',
+        path: 'transaksi/add-mo-ar-defect-reject/:mo1/:mo2/:mo3',
         component: AddArDefactRejectComponent,
         data: {
           title: 'Transaksi / Add MO AR, Defect, Reject',
