@@ -2,11 +2,31 @@ import { Component, OnInit } from '@angular/core';
 import { getStyle, hexToRgba } from '@coreui/coreui/dist/js/coreui-utilities';
 import { CustomTooltips } from '@coreui/coreui-plugin-chartjs-custom-tooltips';
 import { DashboardPPIC } from '../../services/Dashboard/PPIC/pic.service';
+import { CommonModule } from '@angular/common';
+import { NgModule } from '@angular/core';
+import { Select2OptionData } from 'ng-select2';
+import { Options } from 'select2';
+import { FormGroup, FormBuilder } from '@angular/forms';
+import { ProductType } from '../../models/ProductType';
+import { ProductTypeService } from '../../services/master-data/productType/productType.service';
+import { ApiResponse } from '../../response/Response';
 
 @Component({
   templateUrl: 'dashboard.component.html',
 })
 export class DashboardComponent implements OnInit {
+  filterForm: FormGroup;
+  typeOptions: any[] = [
+    { label: 'FED', value: 'FED' },
+    { label: 'FDR', value: 'FDR' },
+  ];
+  errorMessage: string | null = null;
+  categoryOptions: any[] = []; // Data untuk dropdown Category
+  marketingOrders: any[] = []; // Data produk dari database
+  filteredMarketingOrders: any[] = []; // Data produk yang sudah difilter
+  type: string = ''; // Tambahkan ini
+  category: string = ''; // Tambahkan ini
+
   public mainChartData1: Array<number> = [];
   public mainChartData2: Array<number> = [];
   public mainChartData3: Array<number> = [];
@@ -14,7 +34,39 @@ export class DashboardComponent implements OnInit {
   public mainChartData5: Array<number> = [];
   public mainChartData6: Array<number> = [];
 
-  constructor(private dashboardPPIC: DashboardPPIC) {}
+  select2Options = {
+    placeholder: 'Pilih Type...', // Teks placeholder
+    allowClear: true, // Memungkinkan pengguna menghapus pilihan
+    width: '100%', // Lebar dropdown
+  };
+
+  constructor(private fb: FormBuilder, private dashboardPPIC: DashboardPPIC, private productType: ProductTypeService) {
+    this.loadProductType();
+  }
+  public uomOptionData: Array<Select2OptionData>;
+  public options: Options = {
+    width: '100%',
+    minimumResultsForSearch: 0,
+  };
+  productTypes: ProductType[];
+
+  private loadProductType(): void {
+    this.productType.getAllProductType().subscribe(
+      (response: ApiResponse<ProductType[]>) => {
+        this.productTypes = response.data;
+        if (!this.uomOptionData) {
+          this.uomOptionData = [];
+        }
+        this.uomOptionData = this.productTypes.map((element) => ({
+          id: element.category.toString(), // Ensure the ID is a string
+          text: element.category, // Set the text to the name (or other property)
+        }));
+      },
+      (error) => {
+        this.errorMessage = 'Failed to load product type: ' + error.message;
+      }
+    );
+  }
 
   selectedYear: number = new Date().getFullYear(); // Default tahun ini
   availableYears: number[] = []; // Daftar tahun
@@ -26,11 +78,56 @@ export class DashboardComponent implements OnInit {
     this.fetchWorkDays(this.selectedYear);
   }
 
+  selectedMonth: string = '01-NOV-24';
+  selectedType: string = 'FDR';
+  selectedCategory: string = 'FDR TR TT';
+
+  // getMarketingOrders() {
+  //   this.dashboardPPIC.getMoByTypeCategory(this.selectedMonth, this.selectedType, this.selectedCategory).subscribe(
+  //     (data) => {
+  //       console.log(data);
+  //       this.marketingOrders = data; // Menyimpan data yang diterima ke dalam array marketingOrders
+  //       console.log('Marketing Orders: ', this.marketingOrders);
+  //     },
+  //     (error) => {
+  //       console.error('Error fetching marketing orders:', error);
+  //     }
+  //   );
+  // }
+
+  convertMonthYear(input) {
+    const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+
+    let [year, month] = input.split('-');
+    let shortYear = year.slice(-2); // Ambil dua digit terakhir dari tahun
+    let shortMonth = months[parseInt(month) - 1]; // Ambil nama bulan
+
+    return `01-${shortMonth}-${shortYear}`;
+  }
+
+  // Apply filter based on form values
+  applyFilter(): void {
+    const filterValue = this.filterForm.value;
+    filterValue.monthYear = this.convertMonthYear(filterValue.monthYear);
+    console.log("FILTER: ",filterValue.monthYear, filterValue.type, filterValue.category)
+
+    this.dashboardPPIC.getMoByTypeCategory(filterValue.monthYear, filterValue.type, filterValue.category).subscribe(
+      (data) => {
+        console.log('data: ',data);
+        this.marketingOrders = data; // Menyimpan data yang diterima ke dalam array marketingOrders
+      },
+      (error) => {
+        console.error('Error fetching marketing orders:', error);
+        this.errorMessage = 'Error fetching marketing orders.';
+      }
+    );
+  }
+
   // Method untuk meng-update formattedYear sesuai kebutuhan format
   formatYear(): void {
-    // Contoh format: "Year: 2025"
     this.formattedYear = `Year: ${this.selectedYear}`;
   }
+
   generateYears() {
     const currentYear = new Date().getFullYear();
     for (let i = currentYear - 5; i <= currentYear + 5; i++) {
@@ -44,7 +141,14 @@ export class DashboardComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.filterForm = this.fb.group({
+      monthYear: [''], // Input bulan dan tahun
+      type: [''], // Dropdown type
+      category: [''], // Dropdown category
+    });
+
     this.generateYears();
+    this.applyFilter();
     this.fetchWorkDays(this.selectedYear); // Ambil data untuk tahun default
   }
 

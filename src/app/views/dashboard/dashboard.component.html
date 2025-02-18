@@ -27,27 +27,51 @@
       <h5 class="m-0"></h5>
     </div>
     <div class="card-body">
-      <!-- Filter Bulan -->
-      <div class="row mb-4">
-        <div class="col-md-3 text-end">
-          <label for="monthFilter" class="form-label">Month And Year</label>
-          <input type="month" id="monthFilter" class="form-control" />
+      <!-- Filter Bulan, Tahun, Type, dan Category -->
+      <form [formGroup]="filterForm">
+        <div class="row mb-4">
+          <!-- Input Month dan Year -->
+          <div class="col-md-3">
+            <label for="monthFilter" class="form-label">Month and Year</label>
+            <input type="month" id="monthFilter" class="form-control" formControlName="monthYear" />
+          </div>
+          <!-- Dropdown Type -->
+          <div class="col-md-3">
+            <label for="type" class="form-label">Type</label>
+            <ng-select2
+              formControlName="type"
+              id="type"
+              name="type"
+              [data]="[
+                { id: 'FDR', text: 'FDR' },
+                { id: 'FED', text: 'FED' }
+              ]"
+              [options]="options"
+              [placeholder]="'Please Select'"
+            >
+            </ng-select2>
+          </div>
+          <!-- Dropdown Category -->
+          <div class="col-md-3">
+            <label for="category">Category</label>
+            <div class="col-md-13">
+              <ng-select2 id="category" name="category" formControlName="category" [data]="uomOptionData" [options]="options"> </ng-select2>
+            </div>
+          </div>
+          <!-- Tombol Apply Filter -->
+          <div class="col-md-3 d-flex align-items-end">
+            <button class="btn btn-primary" (click)="applyFilter()">Apply Filter</button>
+          </div>
         </div>
-        <div class="col-md-3 text-end">
-          <label for="category" class="form-label">Category</label>
-          <select id="category" class="form-control">
-            <option value="">  FDR TT  </option>
-          </select>
-        </div>
-      </div>
-  
+      </form>
+
       <!-- Produk Dinamis (maksimal 3 produk per baris) -->
       <div class="row">
         <!-- Produk 1 -->
-        <div class="col-md-4 mb-4" v-for="produk in produkList" :key="produk.id">
+        <div class="col-md-4 mb-4" *ngFor="let order of marketingOrders">
           <div class="card shadow-sm">
             <div class="card-header bg-info text-white">
-              <h6 class="m-0 text-center">NAMA PRODUK</h6>
+              <h4 class="m-0 text-center">{{ order.description }}</h4>
             </div>
             <div class="card-body">
               <div class="progress-group mb-3">
@@ -62,7 +86,7 @@
               <div class="progress-group mb-3">
                 <div class="progress-group-header d-flex justify-content-between">
                   <span>Order</span>
-                  <strong>230.003</strong>
+                  <strong>{{ order.totalMoMonth0 | number : '1.0-0' }}</strong>
                 </div>
                 <div class="progress progress-xs">
                   <div class="progress-bar bg-danger" role="progressbar" :style="'width: ' + produk.order + '%'" aria-valuenow="produk.order" aria-valuemin="0" aria-valuemax="100"></div>
@@ -80,85 +104,12 @@
             </div>
           </div>
         </div>
-        <div class="col-md-4 mb-4" v-for="produk in produkList" :key="produk.id">
-          <div class="card shadow-sm">
-            <div class="card-header bg-info text-white">
-              <h6 class="m-0 text-center">NAMA PRODUK</h6>
-            </div>
-            <div class="card-body">
-              <div class="progress-group mb-3">
-                <div class="progress-group-header d-flex justify-content-between">
-                  <span>Planning</span>
-                  <strong>230.003</strong>
-                </div>
-                <div class="progress progress-xs">
-                  <div class="progress-bar bg-primary" role="progressbar" :style="'width: ' + produk.planning + '%'" aria-valuenow="produk.planning" aria-valuemin="0" aria-valuemax="100"></div>
-                </div>
-              </div>
-              <div class="progress-group mb-3">
-                <div class="progress-group-header d-flex justify-content-between">
-                  <span>Order</span>
-                  <strong>230.003</strong>
-                </div>
-                <div class="progress progress-xs">
-                  <div class="progress-bar bg-danger" role="progressbar" :style="'width: ' + produk.order + '%'" aria-valuenow="produk.order" aria-valuemin="0" aria-valuemax="100"></div>
-                </div>
-              </div>
-              <div class="progress-group">
-                <div class="progress-group-header d-flex justify-content-between">
-                  <span>Persentase Kesesuaian</span>
-                  <strong>100%</strong>
-                </div>
-                <div class="progress progress-xs">
-                  <div class="progress-bar bg-success" role="progressbar" :style="'width: ' + produk.kesesuaian + '%'" aria-valuenow="produk.kesesuaian" aria-valuemin="0" aria-valuemax="100"></div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-4 mb-4" v-for="produk in produkList" :key="produk.id">
-          <div class="card shadow-sm">
-            <div class="card-header bg-info text-white">
-              <h6 class="m-0 text-center">NAMA PRODUK</h6>
-            </div>
-            <div class="card-body">
-              <div class="progress-group mb-3">
-                <div class="progress-group-header d-flex justify-content-between">
-                  <span>Planning</span>
-                  <strong>230.003</strong>
-                </div>
-                <div class="progress progress-xs">
-                  <div class="progress-bar bg-primary" role="progressbar" :style="'width: ' + produk.planning + '%'" aria-valuenow="produk.planning" aria-valuemin="0" aria-valuemax="100"></div>
-                </div>
-              </div>
-              <div class="progress-group mb-3">
-                <div class="progress-group-header d-flex justify-content-between">
-                  <span>Order</span>
-                  <strong>230.003</strong>
-                </div>
-                <div class="progress progress-xs">
-                  <div class="progress-bar bg-danger" role="progressbar" :style="'width: ' + produk.order + '%'" aria-valuenow="produk.order" aria-valuemin="0" aria-valuemax="100"></div>
-                </div>
-              </div>
-              <div class="progress-group">
-                <div class="progress-group-header d-flex justify-content-between">
-                  <span>Persentase Kesesuaian</span>
-                  <strong>100%</strong>
-                </div>
-                <div class="progress progress-xs">
-                  <div class="progress-bar bg-success" role="progressbar" :style="'width: ' + produk.kesesuaian + '%'" aria-valuenow="produk.kesesuaian" aria-valuemin="0" aria-valuemax="100"></div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-  
+
         <!-- Produk 2 -->
         <!-- Jika lebih banyak produk, tambahkan elemen produk lainnya dengan cara yang sama -->
       </div>
     </div>
   </div>
-  
 
   <br />
 </div>
