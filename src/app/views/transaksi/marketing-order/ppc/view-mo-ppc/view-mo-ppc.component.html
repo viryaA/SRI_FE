@@ -49,7 +49,7 @@
             <!-- Revision Marketing Column -->
             <ng-container matColumnDef="revisionMarketing">
               <th *matHeaderCellDef style="min-width: 100px" mat-sort-header>Revision Marketing</th>
-              <td *matCellDef="let mo">{{ mo.revisionMarketing }}</td>
+              <td *matCellDef="let mo">{{ mo.revisionMarketing == 0 ? 0 : mo.revisionMarketing - 1 }}</td>
             </ng-container>
 
             <!-- Month 1 Column -->
