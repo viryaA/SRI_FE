@@ -23,21 +23,12 @@ export class FrontRearService {
     return this.http.get<ApiResponse<[]>>(environment.apiUrlWebAdmin + '/getFrontRearItemById/' + id_FRONT_REAR);
   }
 
-  saveFrontRearItems(dataFrontRear: FrontRear[]): Observable<ApiResponse<FrontRear[]>> {
-    console.log("dataFrontRear passed:", dataFrontRear); // Log the entire array
-    console.log("Type of dataFrontRear:", typeof dataFrontRear);
-    console.log("Is dataFrontRear an array?:", Array.isArray(dataFrontRear));
-    console.log("Length of dataFrontRear:", dataFrontRear?.length);
-    if (dataFrontRear.length > 0) {
-        return this.http.post<ApiResponse<FrontRear[]>>(environment.apiUrlWebAdmin + '/saveFrontRearItems', dataFrontRear).pipe(
-            map((response) => response),
-            catchError((err) => throwError(err))
-        );
-    } else {
-        console.warn("dataFrontRear is empty or undefined.");
-        return null;
-    }
-}
+  saveFrontRearItems(dataFrontRear: any): Observable<ApiResponse<any>> {
+    return this.http.post<ApiResponse<any>>(environment.apiUrlWebAdmin + '/saveFrontRear', dataFrontRear).pipe(
+        map((response) => response),
+        catchError((err) => throwError(err))
+    );
+  }
 
 
   saveTempMachineProduct(temp: TempMachineProduct[]): Observable<ApiResponse<TempMachineProduct[]>> {

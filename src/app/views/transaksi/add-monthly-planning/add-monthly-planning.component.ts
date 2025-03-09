@@ -1,5 +1,6 @@
-import { Component, OnInit, ViewChild, ViewChildren, QueryList } from '@angular/core';
+import { Component, OnInit, ViewChild, ViewChildren, QueryList,ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
+import { animate, state, style, transition, trigger } from '@angular/animations';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource, MatTable } from '@angular/material/table';
@@ -24,8 +25,17 @@ declare var $: any;
   selector: 'app-add-monthly-planning',
   templateUrl: './add-monthly-planning.component.html',
   styleUrls: ['./add-monthly-planning.component.scss'],
+  animations: [
+    trigger('detailExpand', [
+      state('collapsed', style({ height: '0px', minHeight: '0', overflow: 'hidden' })), 
+      state('expanded', style({ height: '*' })), 
+      transition('expanded <=> collapsed', animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)')),
+    ]),
+  ],
+     
 })
 export class AddMonthlyPlanningComponent implements OnInit {
+  
   // Variable declaration
   allData: any;
   changeDate: string = '';
@@ -34,26 +44,55 @@ export class AddMonthlyPlanningComponent implements OnInit {
   dailyMonthlyPlanningCuring: DetailDailyMonthlyPlanCuring[] = [];
   dailyMonthlyPlanningTass: any[] = [];
   dataSourceMO: MatTableDataSource<MarketingOrder>;
-  dataSourceMOQS: MatTableDataSource<MarketingOrder>;
+  dataSourceMOQS: MatTableDataSource<any>;
   dataSourceMP: MatTableDataSource<any>;
   dateHeadersCurring: any[] = [];
   dateHeadersTass: any[] = [];
   description: any[] = [];
 
+  selectedND: any = null; // Ensure this is defined
+
+  dataFrontRear = [
+    { 'Paket': 'Data 1', 'Item Curing': ['Data 2', 'Data 3'] },
+    { 'Paket': 'Data 4', 'Item Curing': ['Data 5', 'Data 6', 'Data 7'] }
+  ];
+  
+
+  dataCheating = [
+    { 'Item Curing': 'Value A1', 'Work Center Text': 'Value B1' },
+    { 'Item Curing': 'Value A2', 'Work Center Text': 'Value B2' },
+    { 'Item Curing': 'Value A2', 'Work Center Text': 'Value B2' },
+    { 'Item Curing': 'Value A2', 'Work Center Text': 'Value B2' },
+    { 'Item Curing': 'Value A2', 'Work Center Text': 'Value B2' }
+  ];
   displayedColumnsMO: string[] = [ 'no', 'month0', 'month1', 'month2'];
 
   columnNameMap: { [key: string]: string } = {
     no: 'No',
+    version: 'Cheating Version',
+    mo_V: 'MO Version',
     month0: 'Month 1',
     month1: 'Month 2',
     month2: 'Month 3',
   };
-  
+  objVarLim = {
+    limitChange: null,
+    maxA: null,
+    maxB: null,
+    maxC: null,
+    maxD: null,
+    minA: null,
+    minB: null,
+    minC: null,
+    minD: null
+  };
   displayedColumnsMOF: string[] = ['select', 'no', 'month0', 'month1', 'month2', 'action'];
-  displayedColumnsMOQS: string[] = ['no', 'month0', 'month1', 'month2'];
-  displayedColumnsMOQSF: string[] = ['no', 'month0', 'month1', 'month2', 'action'];
+  displayedColumnsMOQS: string[] = ['mo_V', 'month0', 'month1', 'month2'];
+  displayedColumnsMOQSF: string[] = ['mo_V','month0', 'month1', 'month2', 'action'];
   displayedColumnsMP: string[] = ['no', 'partNumber', 'dateDailyMp', 'totalPlan'];
-
+  innerDisplayedColumns = ['version'];
+  innerDisplayedColumnsF = ['version', 'action'];
+  
   filteredChangeMould: any[] = [];  // Data yang sudah difilter
   filterType: string = 'changeDate';  // Default filter type
 
@@ -69,18 +108,6 @@ export class AddMonthlyPlanningComponent implements OnInit {
   monthlyPlanningsCurring: any[] = [];
   monthlyPlanningTass: any[] = [];
   monly: MonthlyDailyPlan[] = [];
-
-  objVarLim = {
-    limitChange: null,
-    maxA: null,
-    maxB: null,
-    maxC: null,
-    maxD: null,
-    minA: null,
-    minB: null,
-    minC: null,
-    minD: null
-  };
 
   pageOfItems: Array<any>;
   pageSize: number = 5;
@@ -100,14 +127,30 @@ export class AddMonthlyPlanningComponent implements OnInit {
   totalPages: number = 5;
   wct: string = '';
   workCenterText: string[] = [];
-
-  @ViewChild(MatSort, { static: false }) sort!: MatSort;
-  @ViewChild(MatPaginator, { static: false }) paginator!: MatPaginator;
+  @ViewChild('sortmMO', { static: false }) sortmMO!: MatSort;
+  @ViewChild('paginatorMO', { static: false }) paginatorMO!: MatPaginator;
+  @ViewChild('sortmMOQS', { static: false }) sortmMOQS!: MatSort;
+  @ViewChild('paginatorMOQS', { static: false }) paginatorMOQS!: MatPaginator;
+  @ViewChild('sortmMP', { static: false }) sortmMP!: MatSort;
+  @ViewChild('paginatorMP', { static: false }) paginatorMP!: MatPaginator;
   @ViewChildren(MatTable) innerTables!: QueryList<MatTable<any>>;
+  @ViewChildren('innerSort') innerSort: QueryList<MatSort>;
   
+  constructor(private router: Router, 
+    private moService: MarketingOrderService, 
+    private mpService: MonthlyPlanCuringService, 
+    private parseDateService: ParsingDateService,
+    private cd: ChangeDetectorRef
+  ) { }
+
   isDateColumn(value: any): boolean {
+
+    if(typeof value !== 'object'){
+      return false;
+    }
     return value && !isNaN(Date.parse(value));
   }
+  
   
   parseDate(dateParse: string): string {
     return this.parseDateService.convertDateToString(dateParse);
@@ -123,22 +166,132 @@ export class AddMonthlyPlanningComponent implements OnInit {
     return formattedDate;
   }
   
-  constructor(private router: Router, private moService: MarketingOrderService, private mpService: MonthlyPlanCuringService, private parseDateService: ParsingDateService) { }
 
   ngOnInit(): void {
     //this.getAllMarketingOrder();
     this.getAllMoOnlyMonth();
     this.showMonthlyPlanning = true;
   }
+  ngAfterViewInit() {
+    if (this.dataSourceMO) {
+      this.dataSourceMO.sort = this.sortmMO;
+      this.dataSourceMO.paginator = this.paginatorMO;
+    }
+    // if (this.dataSourceMOQS) {
+    //   this.dataSourceMOQS.sort = this.sortmMOQS;
+    //   this.dataSourceMOQS.paginator = this.paginatorMOQS;
+    // }
+  }
+  
   selectedMo: any = null; // Track selected item
 
   onSelectionChange(month0: any, month1: any, month2: any) {
     console.log("Selected Months:", month0, month1, month2);
+  }
+
+  openDetailModal(version: any): void {
+    console.log(this.selectedND);
+    let filteredFrontRear = this.selectedND.FrontRear.filter(item => item.versionCheating === version);
+    let filteredMachineProduct = this.selectedND.machineProducts.filter(item => item.versionCheating === version);
+    console.log("data product",filteredMachineProduct)
+    // Accumulate the filtered data
+    let combinedDataFrontRear = filteredFrontRear.reduce((acc, item) => {
+      // If frontRearParallelId is 0, set the value as "No FrontRear"
+      const key = item.frontRearParallelId === 0 ? "No FrontRear" : item.frontRearParallelId;
+  
+      // If the key doesn't exist in accumulator, add it
+      if (!acc[key]) {
+          acc[key] = {
+              Paket: key,  // Use the determined key
+              Data: item.itemCuring
+          };
+      } else {
+          // If it exists, concatenate the itemCuring value
+          acc[key].Data += '<br>' + item.itemCuring;
+      }
+      return acc;
+  }, {});
+  
     
-    // Perform any other action (e.g., update state, send to API, etc.)
+    // Convert the result to an array if needed
+    let resultFronRear = Object.values(combinedDataFrontRear);
+    console.log(resultFronRear);
+
+    let combinedDataMachineProduct = filteredMachineProduct.reduce((acc, item) => {
+      // If the frontRearParallelId doesn't exist in accumulator, add it
+    if (!acc[item.itemCuring]) {
+        acc[item.itemCuring] = {
+            "Item Curing": item.itemCuring,  // Change key to 'Paket'
+            "Work Center Text": item.workCenterText             // Change key to 'Data'
+        };
+    } else {
+        // If it exists, concatenate the itemCuring value
+        acc[item.itemCuring][ "Work Center Text"] += '<br>' + item.workCenterText;
+    }
+      return acc;
+    }, {});
+    let resultMachineProduct = Object.values(combinedDataMachineProduct);
+    console.log(resultMachineProduct);
+  
+    const tableOne = this.createTable(resultFronRear, ['Paket', 'Data']);
+    const tableTwo = this.createTable(resultMachineProduct, ['Item Curing', 'Work Center Text']);
+    Swal.fire({
+      title: `Detail Information`,
+      html: `
+        <p><strong>ID:</strong> Version ${version}</p>
+        <hr />
+        <h3>Front Rear</h3>
+        ${tableOne}
+        <hr />
+        <h3>Cheating</h3>
+        ${tableTwo}
+      `,
+      showCloseButton: true,
+      focusConfirm: false,
+      width: '80%', // Adjust width if necessary
+      confirmButtonText: 'Close'
+    });
+  }
+
+  // Helper function to create table HTML content
+  createTable(data: any[], columns: string[]): string {
+    console.log(data);
+    let tableHTML = '<table class="table table-bordered table-striped" style="width:100%;">';
+    tableHTML += '<thead><tr>';
+    columns.forEach(column => {
+      tableHTML += `<th>${column}</th>`;
+    });
+    tableHTML += '</tr></thead><tbody>';
+  
+    data.forEach(row => {
+      tableHTML += '<tr>';
+      columns.forEach(column => {
+        let cellData = row[column];
+  
+        // Check if the value in 'Item Curing' is an array
+        if (Array.isArray(cellData)) {
+          // Join array elements with commas or another separator
+          cellData = cellData.join(', ');
+        }
+  
+        tableHTML += `<td>${cellData}</td>`;
+      });
+      tableHTML += '</tr>';
+    });
+    tableHTML += '</tbody></table>';
+    
+    return tableHTML;
+  }
+    
+  onDetail(nd: any,version:any): void {
+
+    this.selectedND = nd;
+    this.openDetailModal(version);
+  }
+  onExecute():void{
+
   }
   
-
   selectAll(event: any): void {
     const checked = event.target.checked;
     this.marketingOrders.forEach((order) => {
@@ -177,18 +330,63 @@ export class AddMonthlyPlanningComponent implements OnInit {
     // Update hasil filter
     this.filteredChangeMould = filteredData;
   }
+  expandedElement: any | null;
 
-  getAllMoOnlyMonth(): void {
+  toggleRow(element: any) {
+    console.log("ele",element);
+    // Toggle row expansion
+    if (element.versions && (element.versions as MatTableDataSource<any>).data.length) {
+      this.expandedElement = this.expandedElement === element ? null : element;
+      this.cd.detectChanges(); 
+    }else{
+      Swal.fire({
+        icon: 'info',
+        title: 'No Data',
+        text: 'No versions found.',
+        timer: null,
+        showConfirmButton: true,
+        confirmButtonText: 'Ok',
+      });
+    }
+
+    this.innerTables.forEach((table, index) => {
+      if (table.dataSource) {
+        console.log(`Table ${index + 1} Data:`, (table.dataSource as MatTableDataSource<any>).data);
+      } else {
+        console.log(`Table ${index + 1} has no data source.`);
+      }
+    });
+
+  }
+
+
+  async getAllMoOnlyMonth(): Promise<void> {
     this.moService.getAllMoOnlyMonth().subscribe(
-      (response: ApiResponse<any[]>) => {
+      async (response: ApiResponse<any[]>) => {
+        // Get unique combinations of MONTH0, MONTH1, and MONTH2
         let mapMonth = response.data.map((order) => {
           return {
-            month0: new Date(order.MONTH0),
+            month0: new Date(order.MONTH0), // Format to Date objects for uniqueness
             month1: new Date(order.MONTH1),
             month2: new Date(order.MONTH2),
           };
         });
-        this.marketingOrders = mapMonth;
+  
+        let uniqueMap = new Map();
+    
+        mapMonth.forEach(order => {
+          let key = `${order.month0.getTime()}-${order.month1.getTime()}-${order.month2.getTime()}`;
+          if (!uniqueMap.has(key)) {
+            uniqueMap.set(key, order);
+          }
+        });
+    
+        // Get the unique combinations of months
+        let uniqueMonths = Array.from(uniqueMap.values());
+        console.log(uniqueMonths);
+    
+        this.marketingOrders = uniqueMonths;
+    
         if (this.marketingOrders.length === 0) {
           Swal.fire({
             icon: 'info',
@@ -200,8 +398,69 @@ export class AddMonthlyPlanningComponent implements OnInit {
           });
         } else {
           this.dataSourceMO = new MatTableDataSource(this.marketingOrders);
-          this.dataSourceMO.sort = this.sort;
-          this.dataSourceMO.paginator = this.paginator;
+    
+          let buffer = response.data
+            .filter(o => o.VERSION !== 0)
+            .reduce((acc, order) => {
+              let key = `${order.VERSION}_${order.MONTH0}_${order.MONTH1}_${order.MONTH2}`;
+              const month0Date = new Date(`${order.MONTH0}`);
+              const month1Date = new Date(`${order.MONTH1}`);
+              const month2Date = new Date(`${order.MONTH2}`);
+              if (!acc[key]) {
+                acc[key] = {  
+                  month0: month0Date,  
+                  month1: month1Date,  
+                  month2: month2Date,  
+                  MO_ID: [order.MO_ID], 
+                  mo_V: order.VERSION,
+                };
+              } else {
+                acc[key].MO_ID.push(order.MO_ID);
+              }
+              return acc;
+            }, {});
+  
+          // Convert object back to array
+          buffer = Object.values(buffer);
+  
+          // Create an array of promises for all getCheatingFrontRearByMoId calls
+          const frontRearPromises = buffer.map(data => {
+            return this.moService.getCheatingFrontRearByMoId(data.MO_ID[0], data.MO_ID[1]).toPromise().then(
+              (responseFrontRear: ApiResponse<any[]>) => {
+                const uniqueVersions = responseFrontRear.data
+                  .map(frontRear => frontRear.versionCheating) // Extract versionCheating from each FrontRear object
+                  .filter((value, index, self) => self.indexOf(value) === index) // Filter unique versions
+                  .map(version => ({ version: version }));
+          
+                // Adding the getMachineProductsmoByIdMo call
+                return this.moService.getMachineProductsmoByIdMo(data.MO_ID[0], data.MO_ID[1]).toPromise().then(
+                  (responseMachineProduct: ApiResponse<any[]>) => {
+                    const machineProducts = responseMachineProduct.data; // Get machine products data
+          
+                    const versionedData = {
+                      ...data,
+                      FrontRear: responseFrontRear.data,
+                      versions: new MatTableDataSource(uniqueVersions),
+                      machineProducts: machineProducts, // Add machine products to the returned data
+                    };
+          
+                    console.log("Versioned Data:", versionedData);
+                    return versionedData;
+                  }
+                );
+              }
+            );
+          });
+          
+  
+          // Wait for all the promises to resolve
+          const versionedBuffer = await Promise.all(frontRearPromises);
+          console.log(versionedBuffer);
+  
+          // Use the versionedBuffer data for dataSourceMOQS
+          this.dataSourceMOQS = new MatTableDataSource(versionedBuffer);
+          this.dataSourceMOQS.sort = this.sortmMOQS;
+          this.dataSourceMOQS.paginator = this.paginatorMOQS;
         }
       },
       (error) => {
@@ -214,8 +473,12 @@ export class AddMonthlyPlanningComponent implements OnInit {
         });
       }
     );
-    
   }
+  
+  getRandomVersion() {
+    return Math.floor(Math.random() * 10) + 1; // Generates a random number between 1 and 10
+  }
+  
 
   getDailyMonthPlan(  month: number, year: number,
     limitChange: number,
@@ -270,17 +533,23 @@ export class AddMonthlyPlanningComponent implements OnInit {
     this.navigateWithFormattedDates('/transaksi/add-mo-ar-defect-reject/', month0, month1, month2);
   }
   
-  navigateToFrontRear(month0: Date, month1: Date, month2: Date) {
-    this.navigateWithFormattedDates('/transaksi/add-mo-front-rear/', month0, month1, month2);
+  navigateToFrontRear(month0: Date, month1: Date, month2: Date, version: string) {
+    this.navigateWithFormattedDates('/transaksi/add-mo-front-rear/', month0, month1, month2, version);
   }
   
-  navigateWithFormattedDates(route: string, month0: Date, month1: Date, month2: Date) {
+  navigateWithFormattedDates(route: string, month0: Date, month1: Date, month2: Date, version?: string) {
     const formattedMonth0 = this.formatDate(month0);
     const formattedMonth1 = this.formatDate(month1);
     const formattedMonth2 = this.formatDate(month2);
   
-    this.router.navigate([route, formattedMonth0, formattedMonth1, formattedMonth2]);
+    // If version is provided, add it to the route
+    if (version) {
+      this.router.navigate([route, formattedMonth0, formattedMonth1, formattedMonth2, version]);
+    } else {
+      this.router.navigate([route, formattedMonth0, formattedMonth1, formattedMonth2]);
+    }
   }
+  
 
   navigateToViewMp() {
     this.router.navigate(['/transaksi/view-monthly-planning']);
@@ -430,8 +699,8 @@ export class AddMonthlyPlanningComponent implements OnInit {
     console.table(this.monthlyDailyPlan);
 
     this.dataSourceMP = new MatTableDataSource(this.monthlyDailyPlan);
-    this.dataSourceMP.sort = this.sort;
-    this.dataSourceMP.paginator = this.paginator;
+    this.dataSourceMP.sort = this.sortmMP;
+    this.dataSourceMP.paginator = this.paginatorMP;
   }
 
   fillDataHeaderDate(dailyPlans: MonthlyDailyPlan[]): void {
@@ -607,3 +876,4 @@ export class AddMonthlyPlanningComponent implements OnInit {
   }
 
 }
+

@@ -1,3 +1,4 @@
+import { MatTableDataSource } from '@angular/material/table';
 export class MarketingOrder {
   moId?: String;
   type?: String;
@@ -10,4 +11,5 @@ export class MarketingOrder {
   status?: Number;
   statusFilled?: Number;
   selected?: boolean;
+  versions?: MatTableDataSource<any>;
 }

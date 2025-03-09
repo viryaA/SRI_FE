@@ -35,6 +35,7 @@ export class AddMoFrontRearComponent implements OnInit {
   dateMoMonth0: string;
   dateMoMonth1: string;
   dateMoMonth2: string;
+  version: number;
   capacityDb: string = '';
   formHeaderMo: FormGroup;
   isReadOnly: boolean = true;
@@ -340,7 +341,8 @@ export class AddMoFrontRearComponent implements OnInit {
     this.dateMoMonth0 = this.activeRoute.snapshot.paramMap.get('month0');
     this.dateMoMonth1 = this.activeRoute.snapshot.paramMap.get('month1');
     this.dateMoMonth2 = this.activeRoute.snapshot.paramMap.get('month2');
-    this.getAllData(this.dateMoMonth0, this.dateMoMonth1, this.dateMoMonth2);
+    this.version = Number(this.activeRoute.snapshot.paramMap.get('version'));
+    this.getAllData(this.dateMoMonth0, this.dateMoMonth1, this.dateMoMonth2,this.version);
     this.getLastIdMo();
   }
 
@@ -390,7 +392,7 @@ export class AddMoFrontRearComponent implements OnInit {
     }
   }
 
-  getAllData(moMonth0Param: string, moMonth1Param: string, moMonth2Param: string) {
+  getAllData(moMonth0Param: string, moMonth1Param: string, moMonth2Param: string,version: number) {
     Swal.fire({
       title: 'Loading...',
       html: 'Please wait while fetching data marketing order.',
@@ -404,6 +406,7 @@ export class AddMoFrontRearComponent implements OnInit {
       moMonth0: moMonth0Param,
       moMonth1: moMonth1Param,
       moMonth2: moMonth2Param,
+      versionAfterArDfRj: version,
     };
 
     this.moService.getAllTypeMoByMonthCuring(data).subscribe(
@@ -1959,137 +1962,87 @@ export class AddMoFrontRearComponent implements OnInit {
   async saveDataFrontRear() {
     const uniqueMOID = [...new Set(this.dataSourceDmo.data.map(item => item.moId))];
     const frontrear = [...new Set(this.selectedList.map(item => item.frontRear))];
-    const frontRearItems: FrontRear[] = [];
-
+    let frontRearItems;
+    
     if (uniqueMOID.length < 2) {
         console.error("Not enough unique MO IDs to process.");
         return;
     }
+    console.log(uniqueMOID);
 
     try {
-        for (const fr of frontrear) {
-            const uniqueItemCuring = [...new Set(
-                this.selectedList
-                    .filter(item => item.frontRear === fr)
-                    .map(item => item.itemCuring)
-            )];
-            
-            console.log("ini lopp mulai2");
+      console.log(this.selectedList);
 
-            // Create an array of promises
-            const promises = uniqueItemCuring.map(item => {
-                return new Promise<void>((resolve, reject) => {
-                    this.frontrear.getAlldetailIdMobyCuring(uniqueMOID[0], uniqueMOID[1], item).subscribe(
-                        (response: ApiResponse<FrontRear[]>) => {
-                            if (response.data) {
-                                console.log("ini datanya", response.data);
-                                response.data.forEach((dataItem) => {
-                                    frontRearItems.push({
-                                        id_FRONT_REAR: frontrear.indexOf(fr) + 1,
-                                        detail_ID_MO: dataItem.detail_ID_MO,
-                                        status: dataItem.status,
-                                        creation_DATE: dataItem.creation_DATE,
-                                        created_BY: dataItem.created_BY,
-                                        last_UPDATE_DATE: dataItem.last_UPDATE_DATE,
-                                        last_UPDATED_BY: dataItem.last_UPDATED_BY,
-                                    });
-                                });
-                            }
-                            resolve(); // Resolve the promise after processing
-                        },
-                        (error) => {
-                            reject(error); // Reject the promise if there's an error
-                        }
-                    );
-                });
-            });
-
-            // Wait for all the promises for this front/rear to resolve
-            await Promise.all(promises);
-            console.log("ini loop untukk: ", fr);
+      frontRearItems = this.selectedList.map(item => ({
+        mo_id_1: uniqueMOID[0],
+        mo_id_2: uniqueMOID[1],
+        front_rear_parallel_id: item.frontRear,
+        item_curing: item.itemCuring
+      }));
+      if(frontRearItems.length === 0){
+        frontRearItems = {
+          mo_id_1: uniqueMOID[0],
+          mo_id_2: uniqueMOID[1],
+          front_rear_parallel_id: 0,
+          item_curing: "No FrontRear"
         }
+      }
+      console.log("Final frontRearItems:", frontRearItems);
 
-        console.log("Final frontRearItems:", frontRearItems);
-
-        if (frontRearItems.length > 0) {
-            const saveResult = await this.frontrear.saveFrontRearItems(frontRearItems).toPromise();
-            await Swal.fire({
-              title: 'Success!',
-              text: 'Data Marketing Order successfully processed.',
-              icon: 'success',
-              confirmButtonText: 'OK',
-              
-            }).then((result) => {
-              if (result.isConfirmed) {
-                this.navigateToViewMo();
-              }
-            });
-        } else {
-            console.warn("No data to save.");
-            await Swal.fire('Error!', 'No data to save.', 'info');
+      this.frontrear.saveFrontRearItems(frontRearItems).subscribe({
+        next: (saveResult) => {
+          Swal.fire({
+            title: 'Success!',
+            text: 'Data Marketing Order successfully processed.',
+            icon: 'success',
+            confirmButtonText: 'OK',
+          }).then((result) => {
+            if (result.isConfirmed) {
+              this.navigateToViewMo();
+            }
+          });
+        },
+        error: (error) => {
+          console.error('Error saving FrontRearItems:', error);
+          Swal.fire({
+            title: 'Error!',
+            text: 'Failed to process Data Marketing Order.',
+            icon: 'error',
+            confirmButtonText: 'OK',
+          });
         }
+      });
+      
     } catch (err) {
         console.error("Error inserting data Front Rear:", err);
         Swal.fire('Error!', 'Error inserting data Front Rear.', 'error');
     }
 }
 
-
-
-
-
-
-
-
   async saveTempMachineProduct() {
     // Construct FrontRear objects from selectedList
     const uniqueMOID = [...new Set(this.dataSourceDmo.data.map(item => item.moId))];
-    const uniqueItemCuring = [...new Set(this.savedEntries.map(item => item.item_curing))];
-    console.log("tes",this.savedEntries);
-    console.log("tesd",uniqueItemCuring);
-    
+
+    let cheating;
     if (uniqueMOID.length < 2) {
       console.error("Not enough unique MO IDs to process.");
       return;
     }
-    const MachineProductDataList: { part_NUMBER: number; work_CENTER_TEXT: string }[] = [];
-
-    await Promise.all(
-      uniqueItemCuring.map(async (item) => {
-        try {
-          // Call the API and convert the observable to a promise
-          const observable = this.frontrear.getMachineProductsmoByCuring(
-            uniqueMOID[0],
-            uniqueMOID[1],
-            item
-          );
-          const data = await observable.toPromise();
-          if (data) {
-            // Iterate over each part_NUMBER returned from the API
-            data.data.forEach((parnum) => {
-              // Find matching savedEntries for the current item_curing
-              this.savedEntries
-                .filter((curing) => curing.item_curing === item)
-                .forEach((curing) => {
-                  // Add the result to the results array
-                  MachineProductDataList.push({
-                    part_NUMBER: parnum.part_NUMBER,
-                    work_CENTER_TEXT: curing.work_CENTER_TEXT,
-                  });
-                });
-            });
-          }
-        } catch (error) {
-          console.error(`Error processing item_curing "${item}":`, error);
-        }
-      })
-    );
-    console.log(MachineProductDataList);
-
-
-    console.log(MachineProductDataList.length);
-    const save = this.frontrear.saveTempMachineProduct(MachineProductDataList);
-
+    cheating = this.savedEntries.map(item => ({
+      mo_id_1: uniqueMOID[0],
+      mo_id_2: uniqueMOID[1],
+      item_curing: item.item_curing,
+      work_center_text: item.work_CENTER_TEXT
+    }));
+    if(cheating.length === 0){
+      cheating ={
+        mo_id_1: uniqueMOID[0],
+        mo_id_2: uniqueMOID[1],
+        item_curing: "No Cheating",
+        work_center_text: "No Cheating"
+      }
+    }
+    const save = this.frontrear.saveTempMachineProduct(cheating);
 
     save.subscribe(
       () => {

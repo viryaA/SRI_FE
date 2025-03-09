@@ -228,6 +228,33 @@ export class MarketingOrderService {
       })
     );
   }
+  getCheatingFrontRearByMoId(moId1: string, moId2: string): Observable<ApiResponse<any>> {
+    const params = new HttpParams()
+    .set('moId1', moId1)
+    .set('moId2', moId2);
+    return this.http.get<ApiResponse<any>>(environment.apiUrlWebAdmin + '/getCheatingfrontRearbyMoId',{ params }).pipe(
+      map((response) => {
+        return response;
+      }),
+      catchError((err) => {
+        return throwError(err);
+      })
+    );
+  }
+
+  getMachineProductsmoByIdMo(moId1: string, moId2: string): Observable<ApiResponse<any>> {
+    const params = new HttpParams()
+    .set('moId1', moId1)
+    .set('moId2', moId2);
+    return this.http.get<ApiResponse<any>>(environment.apiUrlWebAdmin + '/getMachineProductsmoByIdMo',{ params }).pipe(
+      map((response) => {
+        return response;
+      }),
+      catchError((err) => {
+        return throwError(err);
+      })
+    );
+  }
 
   //Not used Alll ke bawah
   // saveMarketingOrder(mo: MarketingOrder): Observable<ApiResponse<MarketingOrder>> {

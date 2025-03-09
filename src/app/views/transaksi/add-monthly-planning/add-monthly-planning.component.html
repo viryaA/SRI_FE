@@ -140,7 +140,7 @@
           </div>
         </div>
         <div class="table-responsive">
-          <table mat-table [dataSource]="dataSourceMO" matSort class="table table-bordered table-striped table-sm">
+          <table mat-table [dataSource]="dataSourceMO" matSort class="table table-bordered table-striped table-sm" #paginatorMO="matSort">
             
             <!-- Selection Column (Static) -->
             <ng-container matColumnDef="select">
@@ -206,34 +206,45 @@
         <!-- Wrap button in a d-flex div with justify-content-end -->
         <div class="d-flex justify-content-end mt-3">
           <!-- Pagination -->
-          <mat-paginator [pageSize]="pageSize" [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons></mat-paginator>
+          <mat-paginator #paginatorMO [pageSize]="pageSize" [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons></mat-paginator>
         </div>
       </div>
     </div>
 
     <div class="card">
       <div class="card-header">
-        <strong>&nbsp;Marketing Order After Quality Stats </strong>
+        <strong>&nbsp;Marketing Order After Quality Stats</strong>
       </div>
       <div class="card-body">
         <div class="d-flex justify-content-between mb-3">
           <div class="d-flex align-items-center">
-            <input type="text" class="form-control col-md-12 col-lg-12" 
-              [(ngModel)]="searchTextMO"
+            <input 
+              type="text" 
+              class="form-control col-md-12 col-lg-12" 
+              [(ngModel)]="searchTextMOQS"
               (input)="onSearchChangeMOQS()" 
               placeholder="Find here..."
-              [disabled]="!dataSourceMOQS || dataSourceMOQS.data.length === 0" />
-      
-            <button type="submit" class="btn btn-primary ml-2" 
+              [disabled]="!dataSourceMOQS || dataSourceMOQS.data.length === 0" 
+            />
+            <button 
+              type="submit" 
+              class="btn btn-primary ml-2" 
               (click)="resetSearchMOQS()" 
-              [disabled]="!dataSourceMOQS || dataSourceMOQS.data.length === 0">
+              [disabled]="!dataSourceMOQS || dataSourceMOQS.data.length === 0"
+            >
               Reset
             </button>
           </div>
-        </div>
-        <div class="table-responsive">
-          <table mat-table [dataSource]="dataSourceMOQS" matSort class="table table-bordered table-striped table-sm">
 
+        </div>
+        
+        
+        
+    
+        <div class="table-responsive">
+          <table mat-table #outerSort="matSort" [dataSource]="dataSourceMOQS" multiTemplateDataRows matSort class="table table-bordered table-striped table-sm " #sortmMOQS="matSort">
+    
+            <!-- Dynamic Columns -->
             <ng-container *ngFor="let column of displayedColumnsMOQS" [matColumnDef]="column">
               <ng-container *ngIf="column !== 'no'; else noSort">
                 <th *matHeaderCellDef mat-sort-header [style.width]="'auto'">
@@ -247,7 +258,7 @@
               </ng-template>              
               <td *matCellDef="let element; let i = index">
                 <ng-container *ngIf="column === 'no'; else otherColumns">
-                  {{ i + 1 }}
+                  {{ i ? i + 1 : 'Index Missing' }}
                 </ng-container>
                 <ng-template #otherColumns>
                   <ng-container *ngIf="isDateColumn(element?.[column]); else defaultColumn">
@@ -259,29 +270,91 @@
                 </ng-template>
               </td>
             </ng-container>
-
+    
             <!-- Action Column -->
             <ng-container matColumnDef="action">
-              <th *matHeaderCellDef style="min-width: 200px">Action</th>
+              <th *matHeaderCellDef style="min-width: 200px;">Action</th>
               <td *matCellDef="let mo">
-                <!-- <button type="button" class="btn btn-md btn-warning ml-2"
-                  (click)="navigateToAddArDefectReject(mo.month0, mo.month1, mo.month2)">Add Quality Stats</button> -->
-                <button type="button" class="btn btn-md btn-primary ml-2"
-                  (click)="navigateToFrontRear(mo.month0, mo.month1, mo.month2)">Customize Production</button>
+                <button 
+                  type="button" 
+                  class="btn btn-md btn-primary ml-2"
+                  (click)="navigateToFrontRear(mo.month0, mo.month1, mo.month2,mo.mo_V)"
+                >
+                  Customize Production
+                </button>
               </td>
             </ng-container>
+    
+            <!-- Expandable Row -->
+            <ng-container matColumnDef="expandedDetail">
+              <td *matCellDef="let element" [attr.colspan]="2">
+                <div class="" *ngIf="element.versions?.data.length" 
+                     [@detailExpand]="element == expandedElement ? 'expanded' : 'collapsed'">
+                  <div class="" *ngIf="expandedElement">
+                    <table #innerTables mat-table #innerSort="matSort" [dataSource]="element.versions" matSort>
+                      <ng-container matColumnDef="{{innerColumn}}" *ngFor="let innerColumn of innerDisplayedColumns">
+                        <th *matHeaderCellDef mat-sort-header> {{columnNameMap[innerColumn] || innerColumn}} </th>
+                        <td *matCellDef="let element"> {{element[innerColumn]}} </td>
+                      </ng-container>
+            
+                      <!-- Action Column -->
+                      <ng-container matColumnDef="action">
+                        <th *matHeaderCellDef>Action</th>
+                        <td align="center" *matCellDef="let mo">
+                          <button 
+                            type="button" 
+                            class="btn btn-md btn-info" 
+                            style="margin: 5px;"
+                            (click)="onDetail(element,mo.version)">
+                            <i class="cil-magnifying-glass"></i> Detail
+                          </button>
+                          <button 
+                            type="button" 
+                            class="btn btn-md btn-success"
+                            style="margin: 5px;"
+                            (click)="onExecute(mo)">
+                            <i class="cil-media-play"></i> Execute
+                          </button>
+                        </td>
+                      </ng-container>
+                      
+            
+                      <tr align="center" mat-header-row *matHeaderRowDef="innerDisplayedColumnsF"></tr>
+                      <tr mat-row *matRowDef="let row; columns: innerDisplayedColumnsF;"></tr>
+                    </table>
+                  </div>
+                </div>
+              </td>
+            </ng-container>
+             
 
-            <tr align="center" style="height: 20px" mat-header-row *matHeaderRowDef="displayedColumnsMOQSF"></tr>
-            <tr align="center" mat-row *matRowDef="let row; columns: displayedColumnsMOQSF"></tr>
+            <!-- Header Row -->
+             
+            <tr align="center" mat-header-row *matHeaderRowDef="displayedColumnsMOQSF"></tr>
+    
+            <!-- Data Rows -->
+            <tr align="center"
+              mat-row 
+              *matRowDef="let element; columns: displayedColumnsMOQSF"
+              [class.example-element-row]="element.version?.data.length"
+              [class.example-expanded-row]="expandedElement === element"
+              (click)="toggleRow(element)"
+            ></tr>
+    
+            <!-- Expanded Row -->
+            <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" style="height: 0;"></tr>
+
           </table>
         </div>
-        <!-- Wrap button in a d-flex div with justify-content-end -->
+
+        
+        <!-- Pagination -->
         <div class="d-flex justify-content-end mt-3">
-          <!-- Pagination -->
-          <mat-paginator [pageSize]="pageSize" [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons></mat-paginator>
+          <mat-paginator #paginatorMOQS [pageSize]="pageSize" [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons></mat-paginator>
         </div>
       </div>
     </div>
+    
 
     <div *ngIf="showMonthlyPlanning" class="card">
       <div class="card-header">
@@ -526,7 +599,6 @@
     </div>
   </div>
 </div>
-
 
 <!-- Modal Detail Mesin -->
 <div class="modal fade" id="changeMould" tabindex="-1" role="dialog" aria-labelledby="Detail Daily Monthly Planning" aria-hidden="true">
