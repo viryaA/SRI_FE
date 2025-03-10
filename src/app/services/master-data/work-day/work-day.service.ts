@@ -25,11 +25,13 @@ export class WorkDayService {
   }
 
   getAllWorkDaysByDateRange(dateStart: string, dateEnd: string): Observable<ApiResponse<WorkDay[]>> {
-    return this.http.get<ApiResponse<WorkDay[]>>(
-      environment.apiUrlWebAdmin + '/getAllWorkDaysByDateRange/' + dateStart + '/' + dateEnd,
+    return this.http.post<ApiResponse<WorkDay[]>>(
+      environment.apiUrlWebAdmin + '/getAllWorkDaysByDateRange',
+      { startDate: dateStart, endDate: dateEnd }, // Send JSON body
       { headers: this.getHeaders() }
     );
   }
+  
 
   updateWorkDay(workday: WorkDay): Observable<ApiResponse<WorkDay>> {
     return this.http.post<ApiResponse<WorkDay>>(
@@ -92,11 +94,13 @@ export class WorkDayService {
   // }
   
   getDWorkDayByDate(buffer: string): Observable<ApiResponse<DWorkDay[]>> {
-    return this.http.get<ApiResponse<DWorkDay[]>>(
-      environment.apiUrlWebAdmin + '/getDWorkDayByDate/'+buffer,
+    return this.http.post<ApiResponse<DWorkDay[]>>(
+      environment.apiUrlWebAdmin + '/getDWorkDayByDate',
+      { date: buffer },
       { headers: this.getHeaders() }
     );
   }
+  
 
   saveDWorkDay(buffer: DWorkDay): Observable<ApiResponse<DWorkDay>> {
     return this.http.post<ApiResponse<DWorkDay>>(
@@ -121,12 +125,17 @@ export class WorkDayService {
     );
   }
 
-  getDWorkDayHoursSpecificByDateDesc(target:string,type: string): Observable<ApiResponse<WDHoursSpecific>> {
-    return this.http.get<ApiResponse<WDHoursSpecific>>(
-      environment.apiUrlWebAdmin + '/getDWorkDayHoursSpecificByDateDesc/'+target+"/"+type,
+  getDWorkDayHoursSpecificByDateDesc(target: string, type: string): Observable<ApiResponse<WDHoursSpecific>> {
+    const body = { date: target, description: type };
+  
+    return this.http.post<ApiResponse<WDHoursSpecific>>(
+      environment.apiUrlWebAdmin + '/getDWDSpec',
+      body,
       { headers: this.getHeaders() }
     );
   }
+  
+  
 
   updateShiftTimes(stime:string,etime:string,target:string,type: string,shift: number): Observable<ApiResponse<WDHoursSpecific>> {
     return this.http.post<ApiResponse<WDHoursSpecific>>(
