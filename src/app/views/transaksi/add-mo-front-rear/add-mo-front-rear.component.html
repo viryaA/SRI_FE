@@ -999,7 +999,7 @@
               <th *matHeaderCellDef style="min-width: 150px" rowspan="2" colspan="3">Detail</th>
               <td *matCellDef="let mo" style="display: flex; justify-content: center; align-items: center;">
                 <button type="button" class="btn btn-md btn-secondary ml-2"
-                  (click)="viewDetail(mo.itemCuring, mo.partNumber)">Detail</button>
+                  (click)="viewDetail(mo.itemCuring, mo.partNumber)" >Detail</button>
               </td>
             </ng-container>
             <tr align="center" style="height: 30px" mat-header-row *matHeaderRowDef="headersColumnsDmo; sticky: true">
@@ -1139,24 +1139,25 @@
               <!-- Loop through machineEntries to create rows -->
               <tr *ngFor="let entry of machineEntries; let i = index">
                 <td>
-                  <select class="form-control" [(ngModel)]="entry.selectedGedung"
+                  <select class="form-control" name="gedung_{{i}}" [(ngModel)]="entry.selectedGedung"
                     (change)="onGedungSelect(entry, $event.target.value)">
-                    <option value="">Select Gedung</option>
+                    <option value="" [disabled]="true">Select Gedung</option>
                     <option *ngFor="let gedung of gedungOptions" [value]="gedung">
                       {{ gedung }}
                     </option>
                   </select>
                 </td>
                 <td>
-                  <select class="form-control" [(ngModel)]="entry.selectedMachine" (blur)="onMachineSelect($event.target.value)">
-                    <option value="">Select Machine</option>
+                  <select [disabled]="entry.selectedGedung == '' " class="form-control" name="machine_{{i}}" [(ngModel)]="entry.selectedMachine" 
+                  (change)="onMachineSelect($event.target.value)">
+                    <option value="" [disabled]="true">Select Machine</option>
                     <option *ngFor="let mesin of entry.filteredMesinOptions" [value]="mesin">
                       {{ mesin }}
                     </option>
                   </select>
                 </td>
                 <td>
-                  <button (click)="removeEntry(entry)" class="btn btn-danger"
+                  <button (click)="removeEntry(entry)"name="remove_{{i}}" class="btn btn-danger"
                     style="font-size: 12px; padding: 3px 6px;">
                     Remove
                   </button>
@@ -1173,7 +1174,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary" id="saveMachineBtn" (click)="saveEntries()">Simpan</button>
+        <button [disabled]="machineEntries.length == 0" type="button" class="btn btn-primary" id="saveMachineBtn" (click)="saveEntries()">Simpan</button>
       </div>
     </div>
   </div>

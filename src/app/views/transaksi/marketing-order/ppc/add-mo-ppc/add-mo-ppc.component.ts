@@ -554,11 +554,11 @@ export class AddMoPpcComponent implements OnInit {
     this.loadingSaveData = true;
 
     // Validate available months before proceeding
-    this.validateAvailableMonths(varWd).then((isValid) => {
-      if (!isValid) {
-        this.loadingSaveData = false;
-        return;
-      }
+    // this.validateAvailableMonths(varWd).then((isValid) => {
+    //   if (!isValid) {
+    //     this.loadingSaveData = false;
+    //     return;
+    //   }
 
       // Proceed with data preparation and saving if validation passes
       this.setDataSaveMo();
@@ -601,7 +601,7 @@ export class AddMoPpcComponent implements OnInit {
           this.loadingSaveData = false;
         }
       );
-    });
+    // });
   }
 
   validateAvailableMonths(varWd): Promise<boolean> {
