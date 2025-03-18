@@ -174,6 +174,7 @@ export class DashboardComponent implements OnInit {
       { data: this.mainChartData5, label: 'WD OT TL' },
       { data: this.mainChartData6, label: 'WD Normal Tube' },
     ];
+    console.log("Filter NIH: ", )
   }
 
   public mainChartData: Array<any> = [];
