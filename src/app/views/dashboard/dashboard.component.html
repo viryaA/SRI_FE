@@ -66,7 +66,7 @@
       </form>
 
       <!-- Produk Dinamis (maksimal 3 produk per baris) -->
-      <div class="row">
+      <div class="row" *ngIf="marketingOrders?.length > 0">
         <!-- Produk 1 -->
         <div class="col-md-4 mb-4" *ngFor="let order of marketingOrders">
           <div class="card shadow-sm">
@@ -108,6 +108,8 @@
         <!-- Produk 2 -->
         <!-- Jika lebih banyak produk, tambahkan elemen produk lainnya dengan cara yang sama -->
       </div>
+      <p align="center" *ngIf="!marketingOrders || marketingOrders.length === 0">Data tidak tersedia</p>
+
     </div>
   </div>
 

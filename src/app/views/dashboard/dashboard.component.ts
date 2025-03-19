@@ -4,6 +4,7 @@ import { CustomTooltips } from '@coreui/coreui-plugin-chartjs-custom-tooltips';
 import { DashboardPPIC } from '../../services/Dashboard/PPIC/pic.service';
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
+import Swal from 'sweetalert2';
 import { Select2OptionData } from 'ng-select2';
 import { Options } from 'select2';
 import { FormGroup, FormBuilder } from '@angular/forms';
@@ -107,16 +108,26 @@ export class DashboardComponent implements OnInit {
 
   // Apply filter based on form values
   applyFilter(): void {
+    Swal.fire({
+      title: 'Loading...',
+      html: 'Please wait while fetching data Mo and MP.',
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      },
+    });
     const filterValue = this.filterForm.value;
     filterValue.monthYear = this.convertMonthYear(filterValue.monthYear);
-    console.log("FILTER: ",filterValue.monthYear, filterValue.type, filterValue.category)
+    console.log('FILTER: ', filterValue.monthYear, filterValue.type, filterValue.category);
 
     this.dashboardPPIC.getMoByTypeCategory(filterValue.monthYear, filterValue.type, filterValue.category).subscribe(
       (data) => {
-        console.log('data: ',data);
-        this.marketingOrders = data; // Menyimpan data yang diterima ke dalam array marketingOrders
+        Swal.close();
+        console.log('data: ', data);
+        this.marketingOrders = data;
       },
       (error) => {
+        Swal.close();
         console.error('Error fetching marketing orders:', error);
         this.errorMessage = 'Error fetching marketing orders.';
       }
@@ -153,6 +164,14 @@ export class DashboardComponent implements OnInit {
   }
 
   fetchWorkDays(year: number) {
+    Swal.fire({
+      title: 'Loading...',
+      html: 'Please wait while fetching data Mo and MP.',
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      },
+    });
     this.dashboardPPIC.getWorkDayAllMonth(year).subscribe((data) => {
       this.mainChartData1 = data.map((d: any) => d.totalWdTl);
       this.mainChartData2 = data.map((d: any) => d.totalWdTt);
@@ -161,6 +180,7 @@ export class DashboardComponent implements OnInit {
       this.mainChartData5 = data.map((d: any) => d.wdOtTl);
       this.mainChartData6 = data.map((d: any) => d.wdNormalTube);
 
+      Swal.close();
       this.updateChart();
     });
   }
@@ -174,7 +194,7 @@ export class DashboardComponent implements OnInit {
       { data: this.mainChartData5, label: 'WD OT TL' },
       { data: this.mainChartData6, label: 'WD Normal Tube' },
     ];
-    console.log("Filter NIH: ", )
+    console.log('Filter NIH: ');
   }
 
   public mainChartData: Array<any> = [];
