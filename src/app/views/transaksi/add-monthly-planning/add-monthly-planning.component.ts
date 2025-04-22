@@ -288,9 +288,41 @@ export class AddMonthlyPlanningComponent implements OnInit {
     this.selectedND = nd;
     this.openDetailModal(version);
   }
-  onExecute():void{
+  
+  onExecute(mo: any, cheating: any): void {
+    const payload = {
+      MO_ID: [mo],              // Wrap mo in an array
+      CHEATING_ID: cheating,    // Optional if needed
+    };
 
+    // Show loading dialog
+    Swal.fire({
+      title: 'Please wait',
+      text: 'Generating Monthly Plan...',
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
+
+    this.mpService.GenerateMP(JSON.stringify(payload)).subscribe({
+      next: (res) => {
+        Swal.fire({
+          icon: 'success',
+          title: 'Success',
+          text: res?.message || 'Monthly Plan generated!',
+        });
+      },
+      error: (err) => {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: err?.error?.message || 'Something went wrong!',
+        });
+      }
+    });
   }
+
   
   selectAll(event: any): void {
     const checked = event.target.checked;
