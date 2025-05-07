@@ -288,39 +288,56 @@ export class AddMonthlyPlanningComponent implements OnInit {
     this.selectedND = nd;
     this.openDetailModal(version);
   }
+
+  detailGenerateMp:any;
   
   onExecute(mo: any, cheating: any): void {
     const payload = {
-      MO_ID: [mo],              // Wrap mo in an array
+      MO_ID: mo,              // Wrap mo in an array
       CHEATING_ID: cheating,    // Optional if needed
     };
 
     // Show loading dialog
-    Swal.fire({
-      title: 'Please wait',
-      text: 'Generating Monthly Plan...',
-      allowOutsideClick: false,
-      didOpen: () => {
-        Swal.showLoading();
-      }
-    });
+    // Swal.fire({
+    //   title: 'Please wait',
+    //   text: 'Generating Monthly Plan...',
+    //   allowOutsideClick: false,
+    //   didOpen: () => {
+    //     Swal.showLoading();
+    //   }
+    // });
+    
+    // this.mpService.GenerateMP(JSON.stringify(payload)).subscribe({
+    //   next: ({ message }) => {
+    //     Swal.fire({
+    //       icon: 'success',
+    //       title: 'Success',
+    //       text: message || 'Monthly Plan generated!',
+    //     });
+    //   },
+    //   error: ({ error }) => {
+    //     Swal.fire({
+    //       icon: 'error',
+    //       title: 'Error',
+    //       text: error?.message || 'Something went wrong!',
+    //     });
+    //   }
+    // });
 
-    this.mpService.GenerateMP(JSON.stringify(payload)).subscribe({
-      next: (res) => {
-        Swal.fire({
-          icon: 'success',
-          title: 'Success',
-          text: res?.message || 'Monthly Plan generated!',
-        });
+    const moIdPayload = {
+      moIds: mo
+    };
+    this.mpService.GetDetailMP(moIdPayload).subscribe({
+      next: (response) => {
+        console.log("API Response:", response);
+        this.detailGenerateMp = response.data; // Example: assign it to a component variable
       },
       error: (err) => {
-        Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: err?.error?.message || 'Something went wrong!',
-        });
+        console.error("Error fetching detail MP:", err);
       }
     });
+    
+
   }
 
   

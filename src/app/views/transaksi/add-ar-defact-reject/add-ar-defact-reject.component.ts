@@ -301,9 +301,9 @@ export class AddArDefactRejectComponent implements OnInit {
 
   ngOnInit(): void {
     this.idMo = this.activeRoute.snapshot.paramMap.get('idMo');
-    this.dateMoMonth0 = this.activeRoute.snapshot.paramMap.get('mo1');
-    this.dateMoMonth1 = this.activeRoute.snapshot.paramMap.get('mo2');
-    this.dateMoMonth2 = this.activeRoute.snapshot.paramMap.get('mo3');
+    this.dateMoMonth0 = this.activeRoute.snapshot.paramMap.get('month0');
+    this.dateMoMonth1 = this.activeRoute.snapshot.paramMap.get('month1');
+    this.dateMoMonth2 = this.activeRoute.snapshot.paramMap.get('month2');
     this.getAllData(this.dateMoMonth0, this.dateMoMonth1, this.dateMoMonth2);
     this.getLastIdMo();
   }

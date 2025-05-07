@@ -378,159 +378,35 @@
           </div>
         </div>
 
-        <tabset>
-          <tab heading="CURING">
-            <div class="table-responsive">
-              <table class="table table-bordered table-striped table-sm" [dataSource]="dataSourceMP">
-                <thead>
-                  <tr align="center">
-                    <th rowspan="2" class="align-middle" sticky>No</th>
-                    <th rowspan="2" style="min-width: 150px" class="align-middle" sticky>Partnumber</th>
-                    <th rowspan="2" style="min-width: 250px" class="align-middle" sticky>Size</th>
-                    <th rowspan="2" style="min-width: 250px" class="align-middle" sticky>Pattern</th>
-
-                    <th *ngFor="let hDateTass of dateHeadersTass" style="min-width: 70px" class="sticky-column"
-                      [ngClass]="{ 'off-header': hDateTass.isOff,'semi-off': hDateTass.semiOff, 'overtime-header': hDateTass.isOvertime }"
-                      (click)="handleCellClick(partNumber, hDateTass)">
-                      {{ hDateTass.dateDisplay }}
-                    </th>
-
-                    <th rowspan="2" style="min-width: 120px" class="align-middle">Total</th>
-                    <th rowspan="2" style="min-width: 120px" class="align-middle">Net Full Fillment</th>
-                    <th rowspan="2" style="min-width: 120px" class="align-middle">Gross Req</th>
-                    <th rowspan="2" style="min-width: 120px" class="align-middle">Net Req</th>
-                    <th colspan="3" style="min-width: 120px" class="align-middle">Req Customer</th>
-                    <th colspan="1" style="min-width: 120px" class="align-middle">Selisih</th>
-                  </tr>
-
-                  <!-- Baris kedua -->
-                  <tr align="center">
-                    <th style="min-width: 70px" *ngFor="let cHeaderWo of dateHeadersTass" class="sticky-column">
-                      {{ cHeaderWo.workingDay }}
-                    </th>
-                    <th class="align-middle sticky-column">AHM/OEM</th>
-                    <th class="align-middle sticky-column">AHM/REM</th>
-                    <th class="align-middle sticky-column">AHM/FDR</th>
-                    <th class="align-middle sticky-column">OFS</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr *ngFor="let mp of monthlyDailyPlan; let i = index" align="center">
-                    <td  sticky>{{ i + 1 }}</td>
-                    <td  sticky>{{ mp.partNumber }}</td>
-                    <td  sticky>{{ mp.size }}</td>
-                    <td  sticky>{{ mp.pattern }}</td>
-
-                    <!-- Dynamically bind the dates -->
-                    <td *ngFor="let hDateTass of dateHeadersTass" class="hoverable"
-                      (click)="handleCellClick(mp.partNumber, hDateTass.date)">
-                      {{ getTotalPlan(mp.detailIdCuring, hDateTass.date) }}
-                    </td>
-
-                    <td>{{ mp.total }}</td>
-                    <td>
-                      <input type="number" [(ngModel)]="mp.netFulfilment" class="form-control" />
-                    </td>
-                    <td>
-                      <input type="number" [(ngModel)]="mp.grossReq" class="form-control" />
-                    </td>
-                    <td>
-                      <input type="number" [(ngModel)]="mp.netReq" class="form-control" />
-                    </td>
-                    <td>
-                      <input type="number" [(ngModel)]="mp.reqAhmOem" class="form-control" />
-                    </td>
-                    <td>
-                      <input type="number" [(ngModel)]="mp.reqAhmRem" class="form-control" />
-                    </td>
-                    <td>
-                      <input type="number" [(ngModel)]="mp.reqFdr" class="form-control" />
-                    </td>
-                    <td>
-                      <input type="number" [(ngModel)]="mp.differenceOfs" class="form-control" />
-                    </td>
-                  </tr>
-                </tbody>
-                <tr align="center" style="height: 30px" mat-header-row *matHeaderRowDef="monthlyDailyPlan; sticky: true">
-                </tr>
-                <tr style="height: 30px" mat-row *matRowDef="let row; columns: rowDataDmo"></tr>
-              </table>
-            </div>
-            <mat-paginator [pageSize]="pageSize" [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons></mat-paginator>
-          </tab>
-
-          <!-- Tab Tass -->
-          <tab heading="TASS">
-            <div class="table-responsive">
-              <table class="table table-bordered table-striped table-sm">
-                <thead>
-                  <tr align="center">
-                    <th rowspan="2" class="align-middle">No</th>
-                    <th rowspan="2" style="min-width: 150px" class="align-middle">Partnumber</th>
-                    <th rowspan="2" style="min-width: 150px" class="align-middle">Size</th>
-                    <th rowspan="2" style="min-width: 120px" class="align-middle">Pattern</th>
-
-                    <th *ngFor="let hDateTass of dateHeadersTass" style="min-width: 70px" class="align-middle"
-                      [ngClass]="{ 'off-header': hDateTass.isOff, 'overtime-header': hDateTass.isOvertime }"
-                      (click)="handleCellClick(partNumber, hDateTass.date2)">
-                      {{ hDateTass.date }} <!-- Only day part shown in header -->
-                    </th>
-                    <th rowspan="2" style="min-width: 120px" class="align-middle">Total</th>
-                    <th rowspan="2" style="min-width: 120px" class="align-middle">Net Full Fillment</th>
-                    <th rowspan="2" style="min-width: 120px" class="align-middle">Gross Req</th>
-                    <th rowspan="2" style="min-width: 120px" class="align-middle">Net Req</th>
-                    <th colspan="3" style="min-width: 120px" class="align-middle">Req Customer</th>
-                    <th colspan="1" style="min-width: 120px" class="align-middle">Selisih</th>
-                  </tr>
-
-                  <!-- Baris kedua -->
-                  <tr align="center">
-                    <th style="min-width: 70px" *ngFor="let cHeaderWo of dateHeadersTass">
-                      {{ cHeaderWo.workingDay }}
-                    </th>
-                    <th class="align-middle">AHM/OEM</th>
-                    <th class="align-middle">AHM/REM</th>
-                    <th class="align-middle">AHM/FDR</th>
-                    <th class="align-middle">OFS</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr *ngFor="let mpTass of monthlyDailyPlan; let i = index" align="center">
-                    <td>{{ i + 1 }}</td>
-                    <td>{{ mpTass.partNumber }}</td>
-                    <td>{{ mpTass.size }}</td>
-                    <td>{{ mpTass.pattern }}</td>
-                    <td *ngFor="let dailyMp of mpTass.detailDailyMp" class="hoverable" (click)="openDmpModal(dailyMp)">
-                      {{ mpTass.totalPlan }}
-                    </td>
-                    <td>{{ mpTass.total }}</td>
-                    <td>
-                      <input type="number" [(ngModel)]="mpTass.netFullFillment" class="form-control" />
-                    </td>
-                    <td>
-                      <input type="number" [(ngModel)]="mpTass.grossReq" class="form-control" />
-                    </td>
-                    <td>
-                      <input type="number" [(ngModel)]="mpTass.netReq" class="form-control" />
-                    </td>
-                    <td>
-                      <input type="number" [(ngModel)]="mpTass.reqAhmRem" class="form-control" />
-                    </td>
-                    <td>
-                      <input type="number" [(ngModel)]="mpTass.reqAhmRem" class="form-control" />
-                    </td>
-                    <td>
-                      <input type="number" [(ngModel)]="mpTass.reqAhmRem" class="form-control" />
-                    </td>
-                    <td>
-                      <input type="number" [(ngModel)]="mpTass.total" class="form-control" />
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </tab>
-        </tabset>
+        <div class="table-responsive">
+          <table class="table table-bordered table-striped table-sm" [dataSource]="dataSourceMP">
+            <thead>
+              <tr align="center">
+                <th class="align-middle" sticky>No</th>
+                <th style="min-width: 150px" class="align-middle" sticky>Item Curing</th>
+                <th style="min-width: 150px" class="align-middle" sticky>WCT</th>
+                <th style="min-width: 120px" class="align-middle">Total Plan</th>
+                <th style="min-width: 120px" class="align-middle">Net Req</th>
+                <th style="min-width: 120px" class="align-middle">Gross Req</th>
+                <th style="min-width: 120px" class="align-middle">Selisih</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let mp of detailGenerateMp; let i = index" align="center">
+                <td class="align-middle">{{ i + 1 }}</td>
+                <td class="align-middle">{{ mp.ITEM_CURING }}</td>
+                <td class="align-middle">
+                  <div style="white-space: pre-line;">{{ mp.WCT_LIST }}</div>
+                </td>
+                <td class="align-middle">{{ mp.TOTAL }}</td>
+                <td class="align-middle">{{ mp.NET }}</td>
+                <td class="align-middle">{{ mp.GROSS }}</td>
+                <td class="align-middle">{{ mp.SELISIH }}</td>
+              </tr>
+           </tbody>
+          </table>
+        </div>
+        <!-- <mat-paginator [pageSize]="pageSize" [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons></mat-paginator> -->
       </div>
     </div>
   </div>

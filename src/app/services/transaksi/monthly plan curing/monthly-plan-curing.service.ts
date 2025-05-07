@@ -69,6 +69,11 @@ export class MonthlyPlanCuringService {
       `${environment.apiUrlWebAdmin}/generate`,json
     );
   }
+  GetDetailMP(json:any): Observable<ApiResponse<any>>{
+    return this.http.post<ApiResponse<any>>(
+      `${environment.apiUrlWebAdmin}/getDetailMp`,json
+    );
+  }
 
   ExportExcelMP(
     month: number,
