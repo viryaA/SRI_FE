@@ -144,8 +144,8 @@
             
             <!-- Selection Column (Static) -->
             <ng-container matColumnDef="select">
-              <th mat-header-cell *matHeaderCellDef></th>
-              <td mat-cell *matCellDef="let mo">
+              <th mat-header-cell *matHeaderCellDef class="middle-align"></th>
+              <td mat-cell *matCellDef="let mo" class="middle-align">
                 <input 
                   type="radio" 
                   name="selection" 
@@ -159,16 +159,16 @@
             <!-- Dynamic Columns -->
             <ng-container *ngFor="let column of displayedColumnsMO" [matColumnDef]="column">
               <ng-container *ngIf="column !== 'no'; else noSort">
-                <th *matHeaderCellDef mat-sort-header [style.width]="'auto'">
+                <th *matHeaderCellDef mat-sort-header [style.width]="'auto'" class="middle-align">
                   {{ columnNameMap[column] || column }}
                 </th>
               </ng-container>
               <ng-template #noSort>
-                <th *matHeaderCellDef [style.width]="'50px'">
+                <th *matHeaderCellDef [style.width]="'50px'" class="middle-align">
                   {{ columnNameMap[column] || column }}
                 </th>
               </ng-template>              
-              <td *matCellDef="let element; let i = index">
+              <td *matCellDef="let element; let i = index" class="middle-align">
                 <ng-container *ngIf="column === 'no'; else otherColumns">
                   {{ i + 1 }}
                 </ng-container>
@@ -185,7 +185,7 @@
         
             <!-- Action Column (Static) -->
             <ng-container matColumnDef="action">
-              <th *matHeaderCellDef style="min-width: 200px">Action</th>
+              <th *matHeaderCellDef style="min-width: 200px" class="middle-align">Action</th>
               <td *matCellDef="let mo">
                 <button 
                   type="button" 
@@ -247,16 +247,16 @@
             <!-- Dynamic Columns -->
             <ng-container *ngFor="let column of displayedColumnsMOQS" [matColumnDef]="column">
               <ng-container *ngIf="column !== 'no'; else noSort">
-                <th *matHeaderCellDef mat-sort-header [style.width]="'auto'">
+                <th *matHeaderCellDef mat-sort-header [style.width]="'auto'" class="middle-align">
                   {{ columnNameMap[column] || column }}
                 </th>
               </ng-container>
               <ng-template #noSort>
-                <th *matHeaderCellDef [style.width]="'50px'">
+                <th *matHeaderCellDef [style.width]="'50px'" class="middle-align">
                   {{ columnNameMap[column] || column }}
                 </th>
               </ng-template>              
-              <td *matCellDef="let element; let i = index">
+              <td *matCellDef="let element; let i = index" class="middle-align">
                 <ng-container *ngIf="column === 'no'; else otherColumns">
                   {{ i ? i + 1 : 'Index Missing' }}
                 </ng-container>
@@ -273,7 +273,7 @@
     
             <!-- Action Column -->
             <ng-container matColumnDef="action">
-              <th *matHeaderCellDef style="min-width: 200px;">Action</th>
+              <th *matHeaderCellDef style="min-width: 200px;" class="middle-align">Action</th>
               <td *matCellDef="let mo">
                 <button 
                   type="button" 
@@ -281,6 +281,13 @@
                   (click)="navigateToFrontRear(mo.month0, mo.month1, mo.month2,mo.mo_V)"
                 >
                   Customize Production
+                </button>
+                <button 
+                  type="button"
+                  class="btn btn-md btn-secondary ml-2"
+                  (click)="toggleRow(mo)"
+                >
+                  {{ expandedElement === mo ? 'Less Information' : 'More Information' }}
                 </button>
               </td>
             </ng-container>
@@ -312,7 +319,7 @@
                             type="button" 
                             class="btn btn-md btn-success"
                             style="margin: 5px;"
-                            (click)="onExecute(element.MO_ID,mo.version)">
+                            (click)="onExecute(element.MO_ID,mo)">
                             <i class="cil-media-play"></i> Execute
                           </button>
                         </td>
@@ -338,7 +345,6 @@
               *matRowDef="let element; columns: displayedColumnsMOQSF"
               [class.example-element-row]="element.version?.data.length"
               [class.example-expanded-row]="expandedElement === element"
-              (click)="toggleRow(element)"
             ></tr>
     
             <!-- Expanded Row -->
@@ -379,32 +385,65 @@
         </div>
 
         <div class="table-responsive">
-          <table class="table table-bordered table-striped table-sm" [dataSource]="dataSourceMP">
-            <thead>
-              <tr align="center">
-                <th class="align-middle" sticky>No</th>
-                <th style="min-width: 150px" class="align-middle" sticky>Item Curing</th>
-                <th style="min-width: 150px" class="align-middle" sticky>WCT</th>
-                <th style="min-width: 120px" class="align-middle">Total Plan</th>
-                <th style="min-width: 120px" class="align-middle">Net Req</th>
-                <th style="min-width: 120px" class="align-middle">Gross Req</th>
-                <th style="min-width: 120px" class="align-middle">Selisih</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let mp of detailGenerateMp; let i = index" align="center">
-                <td class="align-middle">{{ i + 1 }}</td>
-                <td class="align-middle">{{ mp.ITEM_CURING }}</td>
-                <td class="align-middle">
-                  <div style="white-space: pre-line;">{{ mp.WCT_LIST }}</div>
-                </td>
-                <td class="align-middle">{{ mp.TOTAL }}</td>
-                <td class="align-middle">{{ mp.NET }}</td>
-                <td class="align-middle">{{ mp.GROSS }}</td>
-                <td class="align-middle">{{ mp.SELISIH }}</td>
-              </tr>
-           </tbody>
+          <!-- Table -->
+          <table mat-table [dataSource]="dataSourceGenerateMPDetail" matSort #sortMPDetail="matSort" class="table table-bordered table-striped table-sm">
+
+            <!-- No Column -->
+            <ng-container matColumnDef="no">
+              <th *matHeaderCellDef sticky mat-sort-header class="middle-align">No</th>
+              <td align="center" *matCellDef="let row; let i = index" class="middle-align">
+                {{ i + 1 }}
+              </td>
+            </ng-container>
+
+            <!-- Item Curing -->
+            <ng-container matColumnDef="ITEM_CURING">
+              <th *matHeaderCellDef sticky mat-sort-header style="min-width: 150px" class="middle-align">Item Curing</th>
+              <td align="center" *matCellDef="let row"class="middle-align">{{ row.ITEM_CURING }}</td>
+            </ng-container>
+
+            <!-- WCT -->
+            <ng-container matColumnDef="WCT_LIST">
+              <th *matHeaderCellDef sticky mat-sort-header style="min-width: 150px" class="middle-align">WCT</th>
+              <td align="left" *matCellDef="let row" class="middle-align">
+                <div style="white-space: pre-line; max-height: 100px; overflow-y: auto;">
+                  {{ formatWCTList(row.WCT_LIST) }}
+                </div>
+              </td>
+            </ng-container>
+
+            <!-- Total Plan -->
+            <ng-container matColumnDef="TOTAL">
+              <th *matHeaderCellDef mat-sort-header style="min-width: 120px" class="middle-align">Total Plan</th>
+              <td align="center" *matCellDef="let row" class="middle-align">{{ row.TOTAL }}</td>
+            </ng-container>
+
+            <!-- Net Req -->
+            <ng-container matColumnDef="NET">
+              <th *matHeaderCellDef mat-sort-header style="min-width: 120px" class="middle-align">Net Req</th>
+              <td align="center" *matCellDef="let row" class="middle-align">{{ row.NET }}</td>
+            </ng-container>
+
+            <!-- Gross Req -->
+            <ng-container matColumnDef="GROSS">
+              <th *matHeaderCellDef mat-sort-header style="min-width: 120px" class="middle-align">Gross Req</th>
+              <td align="center" *matCellDef="let row" class="middle-align">{{ row.GROSS }}</td>
+            </ng-container>
+
+            <!-- Selisih -->
+            <ng-container matColumnDef="SELISIH">
+              <th *matHeaderCellDef mat-sort-header style="min-width: 120px" class="middle-align">Selisih</th>
+              <td align="center" *matCellDef="let row" class="middle-align">{{ row.SELISIH }}</td>
+            </ng-container>
+
+            <!-- Header & Row Render -->
+            <tr align="center" mat-header-row *matHeaderRowDef="displayedColumnsMPDetail"></tr>
+            <tr align="center" mat-row *matRowDef="let row; columns: displayedColumnsMPDetail;"></tr>
           </table>
+
+          <!-- Paginator -->
+          <mat-paginator #paginatorMPDetail [pageSizeOptions]="[5, 10, 25]" showFirstLastButtons></mat-paginator>
+
         </div>
         <!-- <mat-paginator [pageSize]="pageSize" [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons></mat-paginator> -->
       </div>

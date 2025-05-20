@@ -89,33 +89,7 @@ export class ViewPmStopMachineComponent implements OnInit {
           id: element.work_CENTER_TEXT, // Ensure the ID is a string
           text: element.work_CENTER_TEXT, // Set the text to the work center text
         }));
-
-        tassMachineService.getAllMachineTass().subscribe(
-          (response: ApiResponse<MachineTass[]>) => {
-            const tassOptions = response.data.map((element) => ({
-              id: element.id_MACHINE_TASS, // Ensure the ID is a string
-              text: element.id_MACHINE_TASS, // Set the text to the machine ID
-            }));
-
-            extrudingMachineService.getAllMachineExtruding().subscribe(
-              (response: ApiResponse<MachineExtruding[]>) => {
-                const extrudingOptions = response.data.map((element) => ({
-                  id: element.ID_machine_ext, // Ensure the ID is a string
-                  text: element.type, // Set the text to the machine ID
-                }));
-
-                // Combine both options into uomOptions
-                this.uomOptionData = [...curingOptions, ...tassOptions, ...extrudingOptions];
-              },
-              (error) => {
-                this.errorMessage = 'Failed to load tass machine: ' + error.message;
-              }
-            );
-          },
-          (error) => {
-            this.errorMessage = 'Failed to load tass machine: ' + error.message;
-          }
-        );
+        this.uomOptionData = [...curingOptions];
       },
       (error) => {
         this.errorMessage = 'Failed to load curing machine: ' + error.message;

@@ -3,25 +3,25 @@ import { RouterModule, Routes } from '@angular/router';
 import { ViewPlantComponent } from './view-plant/view-plant.component';
 import { ViewProductComponent } from './view-product/view-product.component';
 import { ViewPatternComponent } from './view-pattern/view-pattern.component';
-import { ViewMachineTassComponent } from './view-machine-tass/view-machine-tass.component';
 import { ViewSettingComponent } from './view-setting/view-setting.component';
-import { ViewQuadrantComponent } from './view-quadrant/view-quadrant.component';
 import { ViewProductTypeComponent } from './view-product-type/view-product-type.component';
 import { ViewSizeComponent } from './view-size/view-size.component';
 import { ViewBuildingComponent } from './view-building/view-building.component';
-import { ViewBDistanceComponent } from './view-bdistance/view-bdistance.component';
-import { ViewQDistanceComponent } from './view-qdistance/view-qdistance.component';
 import { ViewMachineCuringTypeComponent } from './view-machine-curing-type/view-machine-curing-type.component';
-import { ViewMachineTassTypeComponent } from './view-machine-tass-type/view-machine-tass-type.component';
 import { ViewCuringMachineComponent } from './view-curing-machine/view-curing-machine.component';
 import { ViewMaxCapacityComponent } from './view-max-capacity/view-max-capacity.component';
 import { ViewItemCuringComponent } from './view-item-curing/view-item-curing.component';
-import { ViewTassSizeComponent } from './view-tass-size/view-tass-size.component';
 import { ViewCtCuringComponent } from './view-ct-curing/view-ct-curing.component';
-import { ViewMachineAllowenceComponent } from './view-machine-allowence/view-machine-allowence.component';
-import { ViewCuringSizeComponent } from './view-curing-size/view-curing-size.component';
 import { ViewPmStopMachineComponent } from './view-pm-stop-machine/view-pm-stop-machine.component';
 import { ViewWorkDayComponent } from './view-work-day/view-work-day.component';
+// import { ViewMachineTassTypeComponent } from './view-machine-tass-type/view-machine-tass-type.component';
+// import { ViewMachineTassComponent } from './view-machine-tass/view-machine-tass.component';
+// import { ViewQuadrantComponent } from './view-quadrant/view-quadrant.component';
+// import { ViewBDistanceComponent } from './view-bdistance/view-bdistance.component';
+// import { ViewQDistanceComponent } from './view-qdistance/view-qdistance.component';
+// import { ViewTassSizeComponent } from './view-tass-size/view-tass-size.component';
+// import { ViewMachineAllowenceComponent } from './view-machine-allowence/view-machine-allowence.component';
+// import { ViewCuringSizeComponent } from './view-curing-size/view-curing-size.component';
 
 const routes: Routes = [
   {
@@ -55,13 +55,13 @@ const routes: Routes = [
           title: 'Master Pattern',
         },
       },
-      {
-        path: 'master-data/view-tassmachine',
-        component: ViewMachineTassComponent,
-        data: {
-          title: 'Master Tass Machine',
-        },
-      },
+      // {
+      //   path: 'master-data/view-tassmachine',
+      //   component: ViewMachineTassComponent,
+      //   data: {
+      //     title: 'Master Tass Machine',
+      //   },
+      // },
       {
         path: 'master-data/view-machine-curing-type',
         component: ViewMachineCuringTypeComponent,
@@ -69,13 +69,13 @@ const routes: Routes = [
           title: 'View Machine Curing Type',
         },
       },
-      {
-        path: 'master-data/view-machine-tass-type',
-        component: ViewMachineTassTypeComponent,
-        data: {
-          title: 'View Machine Tass Type',
-        },
-      },
+      // {
+      //   path: 'master-data/view-machine-tass-type',
+      //   component: ViewMachineTassTypeComponent,
+      //   data: {
+      //     title: 'View Machine Tass Type',
+      //   },
+      // },
       {
         path: 'master-data/view-plant',
         component: ViewPlantComponent,
@@ -90,13 +90,13 @@ const routes: Routes = [
           title: 'Master Setting',
         },
       },
-      {
-        path: 'master-data/view-quadrant',
-        component: ViewQuadrantComponent,
-        data: {
-          title: 'Master Quadrant',
-        },
-      },
+      // {
+      //   path: 'master-data/view-quadrant',
+      //   component: ViewQuadrantComponent,
+      //   data: {
+      //     title: 'Master Quadrant',
+      //   },
+      // },
       {
         path: 'master-data/view-product-type',
         component: ViewProductTypeComponent,
@@ -104,20 +104,20 @@ const routes: Routes = [
           title: 'Master Product Type',
         },
       },
-      {
-        path: 'master-data/view-bdistance',
-        component: ViewBDistanceComponent,
-        data: {
-          title: 'Master Building Distance',
-        },
-      },
-      {
-        path: 'master-data/view-qdistance',
-        component: ViewQDistanceComponent,
-        data: {
-          title: 'Master Quadrant Distance',
-        },
-      },
+      // {
+      //   path: 'master-data/view-bdistance',
+      //   component: ViewBDistanceComponent,
+      //   data: {
+      //     title: 'Master Building Distance',
+      //   },
+      // },
+      // {
+      //   path: 'master-data/view-qdistance',
+      //   component: ViewQDistanceComponent,
+      //   data: {
+      //     title: 'Master Quadrant Distance',
+      //   },
+      // },
       {
         path: 'master-data/view-size',
         component: ViewSizeComponent,
@@ -132,13 +132,13 @@ const routes: Routes = [
           title: 'Master Building',
         },
       },
-      {
-        path: 'master-data/view-tass-size',
-        component: ViewTassSizeComponent,
-        data: {
-          title: 'Master Tass Size',
-        },
-      },
+      // {
+      //   path: 'master-data/view-tass-size',
+      //   component: ViewTassSizeComponent,
+      //   data: {
+      //     title: 'Master Tass Size',
+      //   },
+      // },
       {
         path: 'master-data/view-max-capacity',
         component: ViewMaxCapacityComponent,
@@ -167,20 +167,20 @@ const routes: Routes = [
           title: 'Master View CT Curing',
         },
       },
-      {
-        path: 'master-data/view-machine-allowence',
-        component: ViewMachineAllowenceComponent,
-        data: {
-          title: 'Master View Machine Allowance',
-        },
-      },
-      {
-        path: 'master-data/view-curing-size',
-        component: ViewCuringSizeComponent,
-        data: {
-          title: 'Master View Curing Size'
-        }
-      },
+      // {
+      //   path: 'master-data/view-machine-allowence',
+      //   component: ViewMachineAllowenceComponent,
+      //   data: {
+      //     title: 'Master View Machine Allowance',
+      //   },
+      // },
+      // {
+      //   path: 'master-data/view-curing-size',
+      //   component: ViewCuringSizeComponent,
+      //   data: {
+      //     title: 'Master View Curing Size'
+      //   }
+      // },
       {
         path: 'master-data/view-pm-stop-machine',
         component: ViewPmStopMachineComponent,
