@@ -10,7 +10,9 @@ import { WDHours } from 'src/app/models/WDHours';
 import { DWorkDay } from 'src/app/models/DWorkDay';
 import { WDHoursSpecific } from 'src/app/models/WDHoursSpecific';
 import Swal from 'sweetalert2';
-
+import * as ExcelJS from 'exceljs/dist/exceljs.min.js';
+import * as XLSX from 'xlsx';
+import { saveAs } from 'file-saver';
 @Component({
   selector: 'app-view-work-day',
   templateUrl: './view-work-day.component.html',
@@ -926,12 +928,232 @@ export class ViewWorkDayComponent implements OnInit {
     this.Loading = true;
   }
 
-
-  
   // Helper method to refresh workday and selected day
   refreshWorkday() {
     this.loadWorkday();
     this.loadReason();
     this.loadSelectDay();
+  }
+  async exportWorkdayTemplate(month: number, year: number) {
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Workday Schedule');
+
+    const columns = [
+      'DATE_WD', 'SHIFT1_START_TIME', 'SHIFT1_END_TIME', 'SHIFT1_OFF', 'SHIFT1_REASON_OFF', 'SHIFT1_START_OVERTIME', 'SHIFT1_END_OVERTIME',
+      'SHIFT2_START_TIME', 'SHIFT2_END_TIME', 'SHIFT2_OFF', 'SHIFT2_REASON_OFF', 'SHIFT2_START_OVERTIME', 'SHIFT2_END_OVERTIME',
+      'SHIFT3_START_TIME', 'SHIFT3_END_TIME', 'SHIFT3_OFF', 'SHIFT3_REASON_OFF', 'SHIFT3_START_OVERTIME', 'SHIFT3_END_OVERTIME',
+      'DESCRIPTION'
+    ];
+
+    worksheet.columns = columns.map(header => ({ header, key: header, width: 20 }));
+
+    const redColumns = [
+      'SHIFT1_START_TIME', 'SHIFT1_END_TIME', 'SHIFT1_OFF', 'SHIFT1_REASON_OFF',
+      'SHIFT2_START_TIME', 'SHIFT2_END_TIME', 'SHIFT2_OFF', 'SHIFT2_REASON_OFF',
+      'SHIFT3_START_TIME', 'SHIFT3_END_TIME', 'SHIFT3_OFF', 'SHIFT3_REASON_OFF'
+    ];
+
+    const daysInMonth = new Date(year, month, 0).getDate(); // Last day of month
+
+    // Add 3 rows per day: WD_NORMAL, OT_TT, OT_TL
+    for (let day = 1; day <= daysInMonth; day++) {
+      const dateStr = new Date(year, month - 1, day).toLocaleDateString('en-GB'); // format: DD/MM/YYYY
+      const dateFormat = dateStr.replace(/\//g, '-');
+
+      const descriptions = ['WD_NORMAL', 'OT_TT', 'OT_TL'];
+
+      for (const description of descriptions) {
+        const row = worksheet.addRow({ DATE_WD: dateStr, DESCRIPTION: description });
+
+        const baseCols = [
+          'SHIFT1_START_TIME', 'SHIFT1_END_TIME', 'SHIFT1_OFF', 'SHIFT1_REASON_OFF',
+          'SHIFT2_START_TIME', 'SHIFT2_END_TIME', 'SHIFT2_OFF', 'SHIFT2_REASON_OFF',
+          'SHIFT3_START_TIME', 'SHIFT3_END_TIME', 'SHIFT3_OFF', 'SHIFT3_REASON_OFF'
+        ];
+
+        const overtimeCols = [
+          'SHIFT1_START_OVERTIME', 'SHIFT1_END_OVERTIME',
+          'SHIFT2_START_OVERTIME', 'SHIFT2_END_OVERTIME',
+          'SHIFT3_START_OVERTIME', 'SHIFT3_END_OVERTIME'
+        ];
+
+        // Lock DATE_WD and DESCRIPTION always
+        row.getCell('DATE_WD').protection = { locked: true };
+        row.getCell('DESCRIPTION').protection = { locked: true };
+
+        if (description === 'WD_NORMAL') {
+          const responseWDS = await this.workDayService.getDWorkDayHoursSpecificByDateDesc(dateFormat, "WD_NORMAL").toPromise();
+          const dataWDN = responseWDS?.data;
+
+          const flipDate = (dateStr: string): string => {
+            const [year, month, day] = dateStr.split("-");
+            return `${day}-${month}-${year}`;
+          };
+
+          const on_off = this.work_days.find(item =>
+            String(item.date_WD).includes(flipDate(dateFormat))
+          );
+
+          const responseReason = await this.workDayService.getDWorkDayByDate(dateFormat).toPromise();
+          const reason = responseReason?.data
+          console.log(on_off)
+          const timeCols = [
+            { key: 'SHIFT1_START_TIME', value: dataWDN?.shift1_START_TIME },
+            { key: 'SHIFT1_END_TIME', value: dataWDN?.shift1_END_TIME },
+            { key: 'SHIFT2_START_TIME', value: dataWDN?.shift2_START_TIME },
+            { key: 'SHIFT2_END_TIME', value: dataWDN?.shift2_END_TIME },
+            { key: 'SHIFT3_START_TIME', value: dataWDN?.shift3_START_TIME },
+            { key: 'SHIFT3_END_TIME', value: dataWDN?.shift3_END_TIME },
+            { key: 'SHIFT1_OFF', value: on_off?.iwd_SHIFT_1 === 1 ? "yes" : "no" },
+            { key: 'SHIFT2_OFF', value: on_off?.iwd_SHIFT_2 === 1 ? "yes" : "no" },
+            { key: 'SHIFT3_OFF', value: on_off?.iwd_SHIFT_3 === 1 ? "yes" : "no" },
+          ];
+
+          // If reasons exist, add them
+          if (reason?.length >= 1) {
+            timeCols.push(
+              { key: 'SHIFT1_REASON_OFF', value: String(reason[0]?.description ?? '') },
+              { key: 'SHIFT2_REASON_OFF', value: String(reason[1]?.description ?? '') },
+              { key: 'SHIFT3_REASON_OFF', value: String(reason[2]?.description ?? '') }
+            );
+          }
+
+
+          timeCols.forEach(({ key, value }) => {
+            const cell = row.getCell(key);
+            cell.value = value ?? '';
+            cell.protection = { locked: false };
+            cell.fill = null;
+          });
+
+          // Unlock OFF and REASON_OFF columns
+          ['SHIFT1_OFF', 'SHIFT1_REASON_OFF', 'SHIFT2_OFF', 'SHIFT2_REASON_OFF', 'SHIFT3_OFF', 'SHIFT3_REASON_OFF'].forEach(col => {
+            const cell = row.getCell(col);
+            cell.protection = { locked: false };
+            cell.fill = null;
+          });
+
+          // Lock and highlight OT columns
+          overtimeCols.forEach(col => {
+            const cell = row.getCell(col);
+            cell.protection = { locked: true };
+            cell.fill = {
+              type: 'pattern',
+              pattern: 'solid',
+              fgColor: { argb: 'FFFF0000' }
+            };
+          });
+
+        } else {
+          // OT_TT or OT_TL
+          const responseWDS = await this.workDayService.getDWorkDayHoursSpecificByDateDesc(dateFormat, description).toPromise();
+
+          const dataWDN = responseWDS?.data;
+
+                    const timeCols = [
+            { key: 'SHIFT1_START_OVERTIME', value: dataWDN?.shift1_START_TIME },
+            { key: 'SHIFT1_END_OVERTIME', value: dataWDN?.shift1_END_TIME },
+            { key: 'SHIFT2_START_OVERTIME', value: dataWDN?.shift2_START_TIME },
+            { key: 'SHIFT2_END_OVERTIME', value: dataWDN?.shift2_END_TIME },
+            { key: 'SHIFT3_START_OVERTIME', value: dataWDN?.shift3_START_TIME },
+            { key: 'SHIFT3_END_OVERTIME', value: dataWDN?.shift3_END_TIME }
+          ];
+
+
+          timeCols.forEach(({ key, value }) => {
+            const cell = row.getCell(key);
+            cell.value = value ?? '';
+            cell.protection = { locked: false };
+            cell.fill = null;
+          });
+
+          baseCols.forEach(col => {
+            const cell = row.getCell(col);
+            cell.protection = { locked: true };
+            cell.fill = {
+              type: 'pattern',
+              pattern: 'solid',
+              fgColor: { argb: 'FFFF0000' }
+            };
+          });
+
+          overtimeCols.forEach(col => {
+            const cell = row.getCell(col);
+            cell.protection = { locked: false };
+            cell.fill = null;
+          });
+        }
+
+        // Apply dropdown validation to SHIFTx_OFF
+        const dropDownCols = ['SHIFT1_OFF', 'SHIFT2_OFF', 'SHIFT3_OFF'];
+        dropDownCols.forEach(col => {
+          const cell = row.getCell(col);
+          worksheet.dataValidations.add(cell.address, {
+            type: 'list',
+            allowBlank: true,
+            formulae: ['"yes,no"'],
+            showErrorMessage: true,
+            errorStyle: 'warning',
+            errorTitle: 'Invalid input',
+            error: 'Please select either "yes" or "no"'
+          });
+        });
+        const borderStyle = {
+          top: { style: 'thin' },
+          left: { style: 'thin' },
+          bottom: { style: 'thin' },
+          right: { style: 'thin' }
+        };
+
+        columns.forEach(col => {
+          const cell = row.getCell(col);
+          cell.border = borderStyle;
+
+          // Only apply background color if not already set
+          if (!cell.fill) {
+            if (col.includes('SHIFT1_')) {
+              cell.fill = {
+                type: 'pattern',
+                pattern: 'solid',
+                fgColor: { argb: 'FFCCE5FF' } // Light Blue
+              };
+            } else if (col.includes('SHIFT2_')) {
+              cell.fill = {
+                type: 'pattern',
+                pattern: 'solid',
+                fgColor: { argb: 'FFD5F5D5' } // Light Green
+              };
+            } else if (col.includes('SHIFT3_')) {
+              cell.fill = {
+                type: 'pattern',
+                pattern: 'solid',
+                fgColor: { argb: 'FFE5CCFF' } // Light Purple
+              };
+            }
+          }
+        });
+
+
+      }
+    }
+    
+    // Enable worksheet protection
+    worksheet.protect('your-password', {
+      selectLockedCells: true,
+      selectUnlockedCells: true,
+      formatCells: false,
+      formatColumns: false,
+      formatRows: false,
+      insertColumns: false,
+      insertRows: false,
+      insertHyperlinks: false,
+      deleteColumns: false,
+      deleteRows: false
+    });
+
+    // Export file
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    saveAs(blob, `Workday_Template_${month}_${year}.xlsx`);
   }
 }
