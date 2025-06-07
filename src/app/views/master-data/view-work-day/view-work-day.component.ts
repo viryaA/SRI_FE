@@ -947,12 +947,6 @@ export class ViewWorkDayComponent implements OnInit {
 
     worksheet.columns = columns.map(header => ({ header, key: header, width: 20 }));
 
-    const redColumns = [
-      'SHIFT1_START_TIME', 'SHIFT1_END_TIME', 'SHIFT1_OFF', 'SHIFT1_REASON_OFF',
-      'SHIFT2_START_TIME', 'SHIFT2_END_TIME', 'SHIFT2_OFF', 'SHIFT2_REASON_OFF',
-      'SHIFT3_START_TIME', 'SHIFT3_END_TIME', 'SHIFT3_OFF', 'SHIFT3_REASON_OFF'
-    ];
-
     const daysInMonth = new Date(year, month, 0).getDate(); // Last day of month
 
     // Add 3 rows per day: WD_NORMAL, OT_TT, OT_TL

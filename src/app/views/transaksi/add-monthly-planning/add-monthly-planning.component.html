@@ -52,7 +52,7 @@
       </div>
     </div>
 
-    <div class="card">
+    <!-- <div class="card">
       <div class="card-header">
         <strong>Limits Presentage and Mould Change</strong>
       </div>
@@ -71,7 +71,6 @@
             <label class="col-md-3 col-form-label">Maximum Limit (%)</label>
           </div>
   
-          <!-- Range 0 - 2000 -->
           <div class="form-group row">
             <label class="col-md-3 col-form-label">0 - 2000</label>
             <div class="col-md-3">
@@ -82,7 +81,6 @@
             </div>
           </div>
   
-          <!-- Range 2001 - 10.000 -->
           <div class="form-group row">
             <label class="col-md-3 col-form-label">2001 - 10.000</label>
             <div class="col-md-3">
@@ -92,8 +90,7 @@
               <input class="form-control" type="number"  [(ngModel)]="objVarLim.maxB" name="maxLimit_2001_10000" placeholder="0" />
             </div>
           </div>
-  
-          <!-- Range 10.001 - 100.000 -->
+
           <div class="form-group row">
             <label class="col-md-3 col-form-label">10.001 - 100.000</label>
             <div class="col-md-3">
@@ -104,7 +101,6 @@
             </div>
           </div>
   
-          <!-- Range > 100.000 -->
           <div class="form-group row">
             <label class="col-md-3 col-form-label">&gt; 100.000</label>
             <div class="col-md-3">
@@ -116,7 +112,7 @@
           </div>
           </form>
       </div>
-    </div>
+    </div> -->
 
     <!-- Table Marketing Order -->
     <div class="card">
@@ -375,9 +371,9 @@
           
           </div>
           <div>
-            <button type="button" class="btn btn-success" (click)="generateMonthlyPlanning()">
+            <!-- <button type="button" class="btn btn-success" (click)="generateMonthlyPlanning()">
               <i class="fa fa-file"></i> Generate Monthly Planning
-            </button>
+            </button> -->
             <button type="button" class="btn btn-primary ml-2" (click)="exportExcelMonthlyPlan()"><i class="fa fa-download fa-lg"></i> Generate to Excel</button>
          
             <button type="button" class="btn btn-primary ml-2"  (click)="viewDetail()" id="addButton"> Change Mould Data</button>

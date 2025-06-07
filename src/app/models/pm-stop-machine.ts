@@ -1,14 +1,16 @@
-export class PMStopMachine {
-  stop_MACHINE_ID: number;
-  work_CENTER_TEXT: string;
-  start_DATE: Date;
-  end_DATE: Date;
-  start_TIME: string;
-  end_TIME: string;
-  total_TIME: number;
-  status: number;
-  creation_DATE: Date;
-  created_BY: string;
-  last_UPDATE_DATE: Date;
-  last_UPDATED_BY: string;
+export class PMStopMachine  {
+    last_UPDATE_DATE:       Date;
+    status:                 string;
+    creation_DATE:          Date;
+    work_CENTER_TEXT:       string;
+    end_TIME:               string;
+    last_UPDATED_BY:        string;
+    start_TIME:             string;
+    created_BY:             string;
+    date_STOP:              Date;
+    stop_MACHINE_ID:        number;
+    total_TIME_STOP_SHIFT1: number;
+    total_TIME_STOP_SHIFT3: number;
+    total_TIME_STOP_SHIFT2: number;
+    total_TIME_STOP:        number;
 }

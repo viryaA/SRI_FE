@@ -35,7 +35,7 @@ export class PMStopMachineService {
   }
 
   getAllPMStopMachine(): Observable<ApiResponse<PMStopMachine[]>> {
-    return this.http.get<ApiResponse<PMStopMachine[]>>(environment.apiUrlWebAdmin + '/getAllStopMachines', { headers: this.getHeaders() });
+    return this.http.get<ApiResponse<PMStopMachine[]>>(environment.apiUrlWebAdmin + '/getAllPMStops', { headers: this.getHeaders() });
   }
 
   //Method Update plant
