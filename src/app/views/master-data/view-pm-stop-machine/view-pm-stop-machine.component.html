@@ -51,7 +51,7 @@
           <!-- Start Time Column -->
           <ng-container matColumnDef="start_TIME">
             <th *matHeaderCellDef style="min-width: 100px" mat-sort-header="">Start Time</th>
-            <td align="center" *matCellDef="let element">{{ element.start_TIME }}</td>
+            <td align="center" *matCellDef="let element">{{ element.startTimeFormatted }}</td>
           </ng-container>
 
           <!-- End Date Column -->
@@ -63,14 +63,14 @@
           <!-- End Time Column -->
           <ng-container matColumnDef="end_TIME">
             <th *matHeaderCellDef style="min-width: 100px" mat-sort-header="">End Time</th>
-            <td align="center" *matCellDef="let element">{{ element.end_TIME }}</td>
+            <td align="center" *matCellDef="let element">{{ element.endTimeFormatted }}</td>
           </ng-container>
 
           <!-- Status Column -->
           <ng-container matColumnDef="status">
             <th *matHeaderCellDef style="min-width: 100px" mat-sort-header="">Status</th>
-            <td *matCellDef="let element" [ngClass]="{ 'bg-success': element.status === 1, 'bg-danger': element.status !== 1 }">
-              {{ element.status === 1 ? 'Active' : 'Deactive' }}
+            <td *matCellDef="let element" [ngClass]="{ 'bg-success': element.status === '1', 'bg-danger': element.status !== '1' }">
+              {{ element.status === '1' ? 'Active' : 'Deactive' }}
             </td>
           </ng-container>
 
@@ -79,8 +79,8 @@
             <th *matHeaderCellDef style="min-width: 170px">Action</th>
             <td *matCellDef="let element" align="center">
               <button type="button" class="btn btn-md btn-secondary" (click)="openModalEdit(element.stop_MACHINE_ID)">Update</button>
-              <button type="button" class="btn btn-md ml-3" [ngClass]="{ 'btn-danger': element.status === 1, 'btn-success': element.status !== 1 }" (click)="element.status === 1 ? deleteData(element) : activateData(element)">
-                {{ element.status === 1 ? 'Delete' : 'Active' }}
+              <button type="button" class="btn btn-md ml-3" [ngClass]="{ 'btn-danger': element.status === '1', 'btn-success': element.status !== '1' }" (click)="element.status === '1' ? deleteData(element) : activateData(element)">
+                {{ element.status === '1' ? 'Delete' : 'Active' }}
               </button>
             </td>
           </ng-container>
@@ -119,10 +119,10 @@
                   <div *ngIf="edtPmStopMachineFrom.hasError('invalidStartDate') && edtPmStopMachineFrom.touched" class="text-danger">Start date must not be earlier than today.</div>
                 </div>
                 <div class="form-group">
-                  <h6 for="start_TIME">Start Time</h6>
-                  <input [(ngModel)]="edtPmStopMachineObject.start_TIME" type="time" class="form-control" id="start_TIME" formControlName="start_TIME" [ngClass]="{ 'is-invalid': edtPmStopMachineFrom.get('start_TIME').invalid && edtPmStopMachineFrom.get('start_TIME').touched }" />
+                  <h6 for="startTimeFormatted">Start Time</h6>
+                  <input [(ngModel)]="edtPmStopMachineObject.startTimeFormatted" type="time" class="form-control" id="startTimeFormatted" formControlName="startTimeFormatted" [ngClass]="{ 'is-invalid': edtPmStopMachineFrom.get('startTimeFormatted').invalid && edtPmStopMachineFrom.get('startTimeFormatted').touched }" />
                   <!-- Error message if starttime is empty -->
-                  <div *ngIf="edtPmStopMachineFrom.get('start_TIME').invalid && edtPmStopMachineFrom.get('start_TIME').touched" class="invalid-feedback">Start Time PM Stop Machine is required.</div>
+                  <div *ngIf="edtPmStopMachineFrom.get('startTimeFormatted').invalid && edtPmStopMachineFrom.get('startTimeFormatted').touched" class="invalid-feedback">Start Time PM Stop Machine is required.</div>
                   <div class="text-danger" *ngIf="edtPmStopMachineFrom.errors?.invalidStartTime">Start Time must be greater than Now.</div>
                 </div>
                 <!-- <div class="form-group">
@@ -132,10 +132,10 @@
                   <div *ngIf="edtPmStopMachineFrom.hasError('invalidDate') && edtPmStopMachineFrom.touched" class="text-danger">End date cannot be earlier than start date.</div>
                 </div> -->
                 <div class="form-group">
-                  <h6 for="end_TIME">End Time</h6>
-                  <input [(ngModel)]="edtPmStopMachineObject.end_TIME" type="time" class="form-control" id="end_TIME" formControlName="end_TIME" [ngClass]="{ 'is-invalid': edtPmStopMachineFrom.get('end_TIME').invalid && edtPmStopMachineFrom.get('end_TIME').touched }" />
+                  <h6 for="endTimeFormatted">End Time</h6>
+                  <input [(ngModel)]="edtPmStopMachineObject.endTimeFormatted" type="time" class="form-control" id="endTimeFormatted" formControlName="endTimeFormatted" [ngClass]="{ 'is-invalid': edtPmStopMachineFrom.get('endTimeFormatted').invalid && edtPmStopMachineFrom.get('endTimeFormatted').touched }" />
                   <!-- Error message if enddate is empty -->
-                  <div *ngIf="edtPmStopMachineFrom.get('end_TIME').invalid && edtPmStopMachineFrom.get('end_TIME').touched" class="invalid-feedback">End Time PM Stop Machine is required.</div>
+                  <div *ngIf="edtPmStopMachineFrom.get('endTimeFormatted').invalid && edtPmStopMachineFrom.get('endTimeFormatted').touched" class="invalid-feedback">End Time PM Stop Machine is required.</div>
                   <div class="text-danger" *ngIf="edtPmStopMachineFrom.errors?.invalidTimeRange">End Time must be greater than Start Time.</div>
                 </div>
               </form>

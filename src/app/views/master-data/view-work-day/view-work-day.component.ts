@@ -13,6 +13,7 @@ import Swal from 'sweetalert2';
 import * as ExcelJS from 'exceljs/dist/exceljs.min.js';
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
+declare var $: any;
 @Component({
   selector: 'app-view-work-day',
   templateUrl: './view-work-day.component.html',
@@ -22,28 +23,28 @@ export class ViewWorkDayComponent implements OnInit {
   shifts = ["Shift 3", "Shift 1", "Shift 2"];
   title = "Normal Work Day"
   shift1Switches = Array(3).fill(true);
-  shift1Reasons = Array(3).fill(new DWorkDay); 
-  
+  shift1Reasons = Array(3).fill(new DWorkDay);
+
   perHourShift = new WDHoursSpecific;
-  perHourReasons = Array(3).fill(new DWorkDay); 
+  perHourReasons = Array(3).fill(new DWorkDay);
 
   ttSwitches = Array(3).fill(true);
   ttReasons = Array(3).fill('');
 
   ttperHourSwitches = new WDHoursSpecific;
-  ttperHourReasons = Array(3).fill(new DWorkDay); 
+  ttperHourReasons = Array(3).fill(new DWorkDay);
 
   Loading = true;
   isSaturday = false;
   isMonday = false;
   overTimeSwitch = false;
   tlSwitches = Array(3).fill(true);
-  tlReasons = Array(3).fill(new DWorkDay); 
+  tlReasons = Array(3).fill(new DWorkDay);
 
   tlperHourSwitches = new WDHoursSpecific;
-  tlperHourReasons = Array(3).fill(new DWorkDay); 
+  tlperHourReasons = Array(3).fill(new DWorkDay);
 
-  
+
   newEvent: Event = { title: '', description: '', date: null };
   showModal: boolean = false;
   weekend: boolean = false;
@@ -54,6 +55,8 @@ export class ViewWorkDayComponent implements OnInit {
   work_days_hoursTT: WDHours;
   work_days_hoursTL: WDHours;
   errorMessage: string | null = null;
+
+  file: File | null = null;
 
   constructor( private fb: FormBuilder,private calendarService: CalendarService, private workDayService: WorkDayService) {}
 
@@ -66,30 +69,144 @@ export class ViewWorkDayComponent implements OnInit {
     this.Loading = false;
   }
 
+  downloadExcel(): void {
+    const { year, month } = this.calendar;
+    console.log(year,month)
+    Swal.fire({
+      icon: 'info',
+      title: 'Processing...',
+      html: 'Please wait while downloading PM Stop Machine Data.',
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      },
+    });
+    this.workDayService.exportExcel(year,month).subscribe({
+      next: (response) => {
+        Swal.close();
+        // Menggunakan nama file yang sudah ditentukan di backend
+        const filename = `WorkDay_${this.monthNames[month-1]}_${year}.xlsx`; // Nama file bisa dinamis jika diperlukan
+        saveAs(response, filename); // Mengunduh file
+      },
+      error: (err) => {
+        Swal.close();
+        Swal.fire('Error!', 'Error Downloading Data.', 'error');
+        console.error('Download error:', err);
+      },
+    });
+  }
+  openModalUpload(): void {
+    $('#uploadModal').modal('show');
+  }
+
+  onFileChange(event: any) {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      const file = input.files[0];
+      const fileName = file.name.toLowerCase();
+
+      // Validasi ekstensi file
+      if (fileName.endsWith('.xls') || fileName.endsWith('.xlsx')) {
+        this.file = file; // Hanya simpan file jika ekstensi valid
+      } else {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Invalid File Type',
+          text: 'Please upload a valid Excel file (.xls or .xlsx).',
+          confirmButtonText: 'OK',
+        });
+        // Kosongkan file jika ekstensi tidak valid
+        this.file = null;
+        input.value = '';
+      }
+    }
+  }
+
+  uploadFileExcel() {
+    if (this.file) {
+      Swal.fire({
+        icon: 'info',
+        title: 'Processing...',
+        html: 'Please wait while saving data Plant.',
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        },
+      });
+      const formData = new FormData();
+      formData.append('file', this.file);
+      // unggah file Excel
+      this.workDayService.uploadFileExcel(formData).subscribe(
+        (response) => {
+          Swal.close();
+          if(response.status === 200) {
+            Swal.fire({
+              icon: 'success',
+              title: 'Success!',
+              text: 'Excel file uploaded successfully.',
+              confirmButtonText: 'OK',
+            }).then(() => {
+              $('#editModal').modal('hide');
+              window.location.reload();
+            });
+          }else {
+            Swal.fire({
+              icon: 'error',
+              title: 'Error!',
+              text: response.message,
+              confirmButtonText: 'OK',
+            }).then(() => {
+              $('#editModal').modal('hide');
+              window.location.reload();
+            });
+          }
+        },
+        (error) => {
+          Swal.close();
+          console.error('Error uploading file', error);
+          Swal.fire({
+            icon: 'error',
+            title: 'Failed!',
+            text: error.message,
+            confirmButtonText: 'OK',
+          });
+        }
+      );
+    } else {
+      Swal.close();
+      Swal.fire({
+        icon: 'warning',
+        title: 'Warning!',
+        text: 'Please select a file to upload.',
+        confirmButtonText: 'OK',
+      });
+    }
+  }
+
   isReasonRequired(shiftState: boolean): boolean {
-    return !shiftState; 
+    return !shiftState;
   }
   getdateselected(){
     const targetDate = new Date(this.calendar.year, this.selectedDay.month -1, this.selectedDay.days);
-    const options: Intl.DateTimeFormatOptions = { weekday: 'long' }; 
+    const options: Intl.DateTimeFormatOptions = { weekday: 'long' };
     const dayName = targetDate.toLocaleDateString('en-US', options);
 
     // Extract day, month, and year
-    const dayValue =  String(targetDate.getDate()).padStart(2, '0'); 
-    const monthValue = String(targetDate.getMonth() + 1).padStart(2, '0'); 
-    const yearValue = targetDate.getFullYear(); 
+    const dayValue =  String(targetDate.getDate()).padStart(2, '0');
+    const monthValue = String(targetDate.getMonth() + 1).padStart(2, '0');
+    const yearValue = targetDate.getFullYear();
     return ( `${dayValue}-${monthValue}-${yearValue}`);
   }
 
   getdateselectedFlip(){
     const targetDate = new Date(this.calendar.year, this.selectedDay.month -1, this.selectedDay.days);
-    const options: Intl.DateTimeFormatOptions = { weekday: 'long' }; 
+    const options: Intl.DateTimeFormatOptions = { weekday: 'long' };
     const dayName = targetDate.toLocaleDateString('en-US', options);
 
     // Extract day, month, and year
-    const dayValue =  String(targetDate.getDate()).padStart(2, '0'); 
-    const monthValue = String(targetDate.getMonth() + 1).padStart(2, '0'); 
-    const yearValue = targetDate.getFullYear(); 
+    const dayValue =  String(targetDate.getDate()).padStart(2, '0');
+    const monthValue = String(targetDate.getMonth() + 1).padStart(2, '0');
+    const yearValue = targetDate.getFullYear();
     return ( `${yearValue}-${monthValue}-${dayValue}`);
   }
   async handleShiftChange(shiftIndex: number, shift: string) {
@@ -128,7 +245,7 @@ export class ViewWorkDayComponent implements OnInit {
           this.errorMessage = 'Failed to update work day specific: ' + error.message;
         }
       }
-  
+
       await this.loadWorkday();
       await this.loadHours();
     } catch (error) {
@@ -136,7 +253,7 @@ export class ViewWorkDayComponent implements OnInit {
     }
     this.Loading = false;
   }
-  
+
 
   // TL overtime
 
@@ -144,7 +261,7 @@ export class ViewWorkDayComponent implements OnInit {
     this.Loading = true;
     const ftargetDate = this.getdateselected();
     const ot = ["OT_TL_3", "OT_TL_1", "OT_TL_2"];
-    
+
     try {
       if (this.tlSwitches[shiftIndex]) {
         const Times = [
@@ -185,14 +302,14 @@ export class ViewWorkDayComponent implements OnInit {
     }
     this.Loading = false;
   }
-  
+
 
   // TT Overtime
   async handleShiftChangeTT(shiftIndex: number) {
     this.Loading = true;
     const ftargetDate = this.getdateselected();
     const ot = ["OT_TT_3", "OT_TT_1", "OT_TT_2"];
-  
+
     try {
       if (this.ttSwitches[shiftIndex]) {
         const Times = [
@@ -227,7 +344,7 @@ export class ViewWorkDayComponent implements OnInit {
           this.errorMessage = 'Failed to update work day specific: ' + error.message;
         }
       }
-  
+
       // await this.loadWorkday();
       // await this.loadHours();
     } catch (error) {
@@ -235,9 +352,9 @@ export class ViewWorkDayComponent implements OnInit {
     }
     this.Loading = false;
   }
-  
-  
-  
+
+
+
   monthNames: string[] = [
     'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus',
     'September', 'Oktober', 'November', 'Desember'
@@ -251,40 +368,40 @@ export class ViewWorkDayComponent implements OnInit {
     try {
       this.readytoload = false;
       this.work_days = [];
-  
+
       // Calculate start and end dates
       const startDate = new Date(
         this.calendar.year,
         this.calendar.days[0][0].month - 1, // Subtract 1 as months are zero-based
         this.calendar.days[0][0].days
       );
-  
+
       const endDate = new Date(
         this.calendar.year,
         this.calendar.days[this.calendar.days.length - 1][6].month - 1, // Subtract 1 as months are zero-based
         this.calendar.days[this.calendar.days.length - 1][6].days
       );
-  
+
       const fStartDate = [
         String(startDate.getDate()).padStart(2, '0'), // dd
         String(startDate.getMonth() + 1).padStart(2, '0'), // MM
         startDate.getFullYear() // yyyy
       ].join('-');
-  
+
       const fEndDate = [
         String(endDate.getDate()+1).padStart(2, '0'), // dd
         String(endDate.getMonth() + 1).padStart(2, '0'), // MM
         endDate.getFullYear() // yyyy
       ].join('-');
-  
+
       // Fetch workdays using the service
       const response = await this.workDayService.getAllWorkDaysByDateRange(fStartDate, fEndDate).toPromise();
-  
+
       if (response?.data) {
         console.log(response.data);
         this.work_days = response.data;
         let index = 0;
-  
+
         // Assign work day details to calendar days
         this.calendar.days.forEach(week => {
           week.forEach(day => {
@@ -295,17 +412,17 @@ export class ViewWorkDayComponent implements OnInit {
           });
         });
       }
-  
+
       this.readytoload = true;
     } catch (error: any) {
       this.errorMessage = 'Failed to load work day: ' + error.message;
       console.error('Error loading work days:', error);
     }
   }
-  
-  
+
+
   getEventsForDay(day: number): Event[] {
-    return this.events.filter(event => 
+    return this.events.filter(event =>
       day > 0 && // Only check for valid days
       event.date.getFullYear() === this.calendar.year &&
       event.date.getMonth() + 1 === this.calendar.month && // Months are 0-indexed
@@ -336,8 +453,8 @@ export class ViewWorkDayComponent implements OnInit {
   }
 
   getShiftIndex(i: number): number {
-    if (i === 0) return 3; 
-    return i; 
+    if (i === 0) return 3;
+    return i;
   }
   async loadHours() {
     try {
@@ -369,8 +486,8 @@ export class ViewWorkDayComponent implements OnInit {
     }
     this.Loading = false;
   }
-  
-  
+
+
   async createHours(desc: string) {
     const buffer: WDHoursSpecific = {
       detail_WD_HOURS_SPECIFIC_ID: 1,
@@ -379,22 +496,22 @@ export class ViewWorkDayComponent implements OnInit {
       shift1_START_TIME: "07:10",
       shift1_END_TIME: "15:50",
       shift1_TOTAL_TIME: 520,
-  
+
       shift2_START_TIME: "15:50",
       shift2_END_TIME: "23:30",
       shift2_TOTAL_TIME: 460,
-  
+
       shift3_START_TIME: "23:30",
       shift3_END_TIME: "07:10",
       shift3_TOTAL_TIME: 460,
-  
+
       status: 1,
       created_BY: null,
       creation_DATE: null,
       last_UPDATED_BY: null,
       last_UPDATE_DATE: null,
     };
-  
+
     if (this.isSaturday && desc === "WD_NORMAL") {
       buffer.shift1_START_TIME = "00:00";
       buffer.shift2_START_TIME = "00:00";
@@ -423,26 +540,26 @@ export class ViewWorkDayComponent implements OnInit {
       this.errorMessage = 'Failed to create work day hours specific: ' + error.message;
     }
   }
-  
+
   convertTimeToMinutes(time: string): number {
     const [hours, minutes] = time.split(':').map(Number);
     return hours * 60 + minutes;
   }
-  
+
   changeStartTime(buffer: WDHoursSpecific, index: number): void {
     const Times = [
       { start: '23:30', end: '07:10' }, // Shift 3
       { start: '07:10', end: '15:50' }, // Shift 1
       { start: '15:50', end: '23:30' }, // Shift 2
     ];
-  
+
     const shiftKeyStart = `shift${index}_START_TIME`;
     const shiftKeyEnd = `shift${index}_END_TIME`;
     const startTime = this.convertTimeToMinutes(buffer[shiftKeyStart]);
     const endTime = this.convertTimeToMinutes(buffer[shiftKeyEnd]);
     const allowedStart = this.convertTimeToMinutes(Times[index].start);
     const allowedEnd = this.convertTimeToMinutes(Times[index].end);
-  
+
     // Adjust start time if it is earlier than the allowed start
     if (startTime < allowedStart) {
       buffer[shiftKeyStart] = Times[index].start;
@@ -450,7 +567,7 @@ export class ViewWorkDayComponent implements OnInit {
         `Start time adjusted to the minimum allowed value: ${Times[index].start}`
       );
     }
-  
+
     // Adjust end time if it is earlier than the allowed end
     if (endTime < allowedEnd) {
       buffer[shiftKeyEnd] = Times[index].end;
@@ -459,7 +576,7 @@ export class ViewWorkDayComponent implements OnInit {
       );
     }
   }
-  
+
   updateTotalTime(index: number): void {
     const shiftIndex = this.getShiftIndex(index);
     this.changeStartTime(this.perHourShift,shiftIndex);
@@ -468,108 +585,108 @@ export class ViewWorkDayComponent implements OnInit {
     if (startTime && endTime) {
       const start = this.convertTimeToMinutes(startTime);
       const end = this.convertTimeToMinutes(endTime);
-  
+
       // Calculate total time in minutes (handle overnight shifts)
       let totalMinutes = end >= start ? end - start : 24 * 60 - start + end;
-  
+
       // Check if the day is Friday and only for Shift 1
       const eventDate = this.newEvent.date; // Replace with your actual event date
       const options: Intl.DateTimeFormatOptions = { weekday: 'long' };
       const dayName = eventDate.toLocaleDateString('en-US', options);
-  
+
       if (dayName === 'Friday' && shiftIndex === 1) {
         const excludedStart = this.convertTimeToMinutes('11:40');
         const excludedEnd = this.convertTimeToMinutes('12:40');
-  
+
         // Adjust for overlap with the excluded period
         if (start < excludedEnd && end > excludedStart) {
           const overlapStart = Math.max(start, excludedStart);
           const overlapEnd = Math.min(end, excludedEnd);
           const overlapMinutes = overlapEnd - overlapStart;
-  
+
           if (overlapMinutes > 0) {
             totalMinutes -= overlapMinutes;
           }
         }
       }
-  
+
       this.perHourShift[`shift${shiftIndex}_TOTAL_TIME`] = Math.max(totalMinutes, 0); // Ensure no negative time
     }
-  }  
+  }
 
   updateTotalTimeOTTT(index: number): void {
     const shiftIndex = this.getShiftIndex(index);
     const startTime = this.ttperHourSwitches[`shift${shiftIndex}_START_TIME`];
     const endTime = this.ttperHourSwitches[`shift${shiftIndex}_END_TIME`];
-  
+
     if (startTime && endTime) {
       const start = this.convertTimeToMinutes(startTime);
       const end = this.convertTimeToMinutes(endTime);
-  
+
       // Calculate total time in minutes (handle overnight shifts)
       let totalMinutes = end >= start ? end - start : 24 * 60 - start + end;
-  
+
       // Check if the day is Friday and only for Shift 1
       const eventDate = this.newEvent.date; // Replace with your actual event date
       const options: Intl.DateTimeFormatOptions = { weekday: 'long' };
       const dayName = eventDate.toLocaleDateString('en-US', options);
-  
+
       if (dayName === 'Friday' && shiftIndex === 1) {
         const excludedStart = this.convertTimeToMinutes('11:40');
         const excludedEnd = this.convertTimeToMinutes('12:40');
-  
+
         // Adjust the total time if the shift spans the excluded period
         if (start < excludedEnd && end > excludedStart) {
           const overlapStart = Math.max(start, excludedStart);
           const overlapEnd = Math.min(end, excludedEnd);
           const overlapMinutes = overlapEnd - overlapStart;
-  
+
           if (overlapMinutes > 0) {
             totalMinutes -= overlapMinutes;
           }
         }
       }
-  
+
       this.ttperHourSwitches[`shift${shiftIndex}_TOTAL_TIME`] = Math.max(totalMinutes, 0); // Ensure no negative time
     }
   }
-  
+
   updateTotalTimeOTTL(index: number): void {
     const shiftIndex = this.getShiftIndex(index);
     const startTime = this.tlperHourSwitches[`shift${shiftIndex}_START_TIME`];
     const endTime = this.tlperHourSwitches[`shift${shiftIndex}_END_TIME`];
-  
+
     if (startTime && endTime) {
       const start = this.convertTimeToMinutes(startTime);
       const end = this.convertTimeToMinutes(endTime);
-  
+
       // Calculate total time in minutes (handle overnight shifts)
       let totalMinutes = end >= start ? end - start : 24 * 60 - start + end;
-  
+
       // Check if the day is Friday and only for Shift 1
       const eventDate = this.newEvent.date; // Replace with your actual event date
       const options: Intl.DateTimeFormatOptions = { weekday: 'long' };
       const dayName = eventDate.toLocaleDateString('en-US', options);
-  
+
       if (dayName === 'Friday' && shiftIndex === 1) {
         const excludedStart = this.convertTimeToMinutes('11:40');
         const excludedEnd = this.convertTimeToMinutes('12:40');
-  
+
         // Adjust the total time if the shift spans the excluded period
         if (start < excludedEnd && end > excludedStart) {
           const overlapStart = Math.max(start, excludedStart);
           const overlapEnd = Math.min(end, excludedEnd);
           const overlapMinutes = overlapEnd - overlapStart;
-  
+
           if (overlapMinutes > 0) {
             totalMinutes -= overlapMinutes;
           }
         }
       }
-  
+
       this.tlperHourSwitches[`shift${shiftIndex}_TOTAL_TIME`] = Math.max(totalMinutes, 0); // Ensure no negative time
     }
-  }  
+  }
 
   async saveHour(buffer: WDHoursSpecific) {
     const result = await Swal.fire({
@@ -580,7 +697,7 @@ export class ViewWorkDayComponent implements OnInit {
       confirmButtonText: 'Yes',
       cancelButtonText: 'No',
     });
-  
+
     if (result.isConfirmed) {
       try {
         const response = await this.workDayService.updateDWorkDayHoursSpecific(buffer).toPromise();
@@ -613,7 +730,7 @@ export class ViewWorkDayComponent implements OnInit {
       }
     }
   }
-  
+
 
   getMinTime(index: number, type: 'start' | 'end'): string {
     const minTimes = [
@@ -621,28 +738,28 @@ export class ViewWorkDayComponent implements OnInit {
       { start: '15:50', end: '23:30' }, // Shift 2
       { start: '23:30', end: '07:10' }, // Shift 3
     ];
-    
+
     return minTimes[index][type];
   }
-  
+
   getMaxTime(index: number, type: 'start' | 'end'): string {
     const maxTimes = [
       { start: '15:50', end: '23:30' }, // Shift 1
       { start: '23:30', end: '07:10' }, // Shift 2
       { start: '07:10', end: '15:50' }, // Shift 3
     ];
-  
+
     return maxTimes[index][type];
   }
-  
+
   resetShiftTime(mode: 'perHourShift' | 'ttperHourSwitches' | 'tlperHourSwitches', index: number): void {
     const shiftIndex = this.getShiftIndex(index);
     this[mode][`shift${shiftIndex}_START_TIME`] = "00:00";
     this[mode][`shift${shiftIndex}_END_TIME`] = "00:00";
     this[mode][`shift${shiftIndex}_TOTAL_TIME`] = "0"; // Reset total time
   }
-  
-  
+
+
   selectDay(day: dayCalendar) {
     this.Loading = true;
     this.work_days_hours = new WDHours;
@@ -654,15 +771,15 @@ export class ViewWorkDayComponent implements OnInit {
       // Create a date for the selected day
       const eventDate = new Date(this.calendar.year, day.month-1, day.days);
       this.newEvent.date = eventDate;
-      
+
       // Get the day name in English
-      const options: Intl.DateTimeFormatOptions = { weekday: 'long' }; 
+      const options: Intl.DateTimeFormatOptions = { weekday: 'long' };
       const dayName = eventDate.toLocaleDateString('en-US', options);
       this.isSaturday = dayName == "Saturday" ? true : false;
       // Extract day, month, and year
-      const dayValue = eventDate.getDate(); 
-      const monthValue = eventDate.getMonth(); 
-      const yearValue = eventDate.getFullYear(); 
+      const dayValue = eventDate.getDate();
+      const monthValue = eventDate.getMonth();
+      const yearValue = eventDate.getFullYear();
       this.newEvent.title = `${dayName}, ${dayValue} - ${this.monthNames[monthValue]} - ${yearValue}`;
       this.loadReason();
       this.loadSelectDay();
@@ -708,28 +825,28 @@ export class ViewWorkDayComponent implements OnInit {
       inputElement.blur();
     }
   }
-  
+
 
   async loadReason() {
     try {
       const dateToLoad = this.getdateselectedFlip();
       const hourIntervals = ["HShift 3", "HShift 1", "HShift 2"];
       const response = await this.workDayService.getDWorkDayByDate(this.getdateselected()).toPromise();
-  
+
       if (response?.data) {
         const defaultReason = (parent: string) => ({
           description: '',
           parent,
           date_WD: dateToLoad,
         });
-  
+
         const findReason = (parent: string) =>
           response.data.find(item => item.parent === parent && item.status === 1) ?? defaultReason(parent);
-  
+
         this.shift1Reasons = ["SHIFT 3", "SHIFT 1", "SHIFT 2"].map(findReason);
         this.ttReasons = ["OT TT SHIFT 3", "OT TT SHIFT 1", "OT TT SHIFT 2"].map(findReason);
         this.tlReasons = ["OT TL SHIFT 3", "OT TL SHIFT 1", "OT TL SHIFT 2"].map(findReason);
-  
+
         this.perHourReasons = hourIntervals.map(interval => findReason(interval));
         this.ttperHourReasons = hourIntervals.map(interval => findReason(`OT TT ${interval}`));
         this.tlperHourReasons = hourIntervals.map(interval => findReason(`OT TL ${interval}`));
@@ -738,28 +855,28 @@ export class ViewWorkDayComponent implements OnInit {
       this.errorMessage = 'Failed to update work day hours: ' + error.message;
     }
   }
-  
+
   loadSelectDay() {
     this.showModal = true;
-  
+
     // Assign shift switches
     const { iwd_SHIFT_1, iwd_SHIFT_2, iwd_SHIFT_3, iot_TL_1, iot_TL_2, iot_TL_3, iot_TT_1, iot_TT_2, iot_TT_3 } =
     this.selectedDay.detail;
-  
+
     this.shift1Switches = [iwd_SHIFT_3, iwd_SHIFT_1, iwd_SHIFT_2];
-  
+
     // Assign overtime switches
     this.ttSwitches = [iot_TT_3, iot_TT_1, iot_TT_2];
     this.tlSwitches = [iot_TL_3, iot_TL_1, iot_TL_2];
-  
+
     // Determine if any overtime switches are active
     this.overTimeSwitch = [iot_TL_1, iot_TL_2, iot_TL_3, iot_TT_1, iot_TT_2, iot_TT_3].some(value => value === 1);
-  
+
     // Assign weekend and load hours
     this.weekend = this.selectedDay.weekend;
     this.loadHours();
   }
-  
+
 
   async overtimeOn() {
     this.Loading = true;
@@ -769,7 +886,7 @@ export class ViewWorkDayComponent implements OnInit {
       { start: '15:50', end: '23:30' }, // Shift 2
     ];
     try{
-      
+
       for (let shiftIndex = 0; shiftIndex < Times.length; shiftIndex++) {
         const response = await this.workDayService.updateShiftTimes(
           shiftIndex == 0 ? "23:30":"00:00",
@@ -821,7 +938,7 @@ export class ViewWorkDayComponent implements OnInit {
     this.selectDay(this.selectedDay);
     this.Loading = false;
   }
-  
+
   async OffWorkday() {
   this.Loading = true;
     Object.assign(this.selectedDay.detail, {
@@ -850,7 +967,7 @@ export class ViewWorkDayComponent implements OnInit {
         }
       } catch (error) {
         this.errorMessage = 'Failed to update work day specific: ' + error.message;
-      }  
+      }
     }
     try {
       const response = await this.workDayService.updateWorkDay(this.selectedDay.detail).toPromise();
@@ -873,7 +990,7 @@ export class ViewWorkDayComponent implements OnInit {
       { start: '07:10', end: '15:50' }, // Shift 1
       { start: '15:50', end: '23:30' }, // Shift 2
     ];
-    
+
     try {
       for (let i = 0; i < Times.length; i++) {
         const response = await this.workDayService.updateShiftTimes(
@@ -887,7 +1004,7 @@ export class ViewWorkDayComponent implements OnInit {
       }
     } catch (error) {
       this.errorMessage = 'Failed to update work day specific: ' + error.message;
-    }    
+    }
     try {
       if (this.weekend) {
         Object.assign(this.selectedDay.detail, {
@@ -1130,7 +1247,7 @@ export class ViewWorkDayComponent implements OnInit {
 
       }
     }
-    
+
     // Enable worksheet protection
     worksheet.protect('your-password', {
       selectLockedCells: true,

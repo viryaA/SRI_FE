@@ -2,6 +2,8 @@ export class PMStopMachine  {
     last_UPDATE_DATE:       Date;
     status:                 string;
     creation_DATE:          Date;
+    startTimeFormatted:     string;
+    endTimeFormatted:       string;
     work_CENTER_TEXT:       string;
     end_TIME:               string;
     last_UPDATED_BY:        string;

@@ -52,7 +52,7 @@ export class ViewPmStopMachineComponent implements OnInit {
   pageOfItems: Array<any>;
   pageSize: number = 5;
   totalPages: number = 5;
-  displayedColumns: string[] = ['no', 'stop_MACHINE_ID', 'work_CENTER_TEXT', 'date_STOP', 'start_TIME', 'end_DATE', 'end_TIME', 'status', 'action'];
+  displayedColumns: string[] = ['no', 'work_CENTER_TEXT', 'date_STOP', 'start_TIME', 'end_TIME', 'status', 'action'];
   dataSource: MatTableDataSource<PMStopMachine>;
 
   @ViewChild(MatSort) sort: MatSort;
@@ -63,9 +63,8 @@ export class ViewPmStopMachineComponent implements OnInit {
       {
         work_CENTER_TEXTedit: ['', Validators.required],
         date_STOP: ['', Validators.required],
-        start_TIME: ['', Validators.required],
-        end_DATE: ['', Validators.required],
-        end_TIME: ['', Validators.required],
+        startTimeFormatted: ['', Validators.required],
+        endTimeFormatted: ['', Validators.required],
       },
       {
         validators: [this.timeValidator], // Tambahkan validator khusus di sini
@@ -76,7 +75,6 @@ export class ViewPmStopMachineComponent implements OnInit {
         work_CENTER_TEXTadd: ['', Validators.required],
         date_STOP: ['', Validators.required],
         start_TIME: ['', Validators.required],
-        // end_DATE: ['', Validators.required],
         end_TIME: ['', Validators.required],
       },
       // {
@@ -295,8 +293,8 @@ export class ViewPmStopMachineComponent implements OnInit {
         // const formattedEndDate = this.formatedate(this.edtPmStopMachineObject.end_DATE);
 
         // Default nilai waktu ke null jika tidak ada
-        const startTime = this.edtPmStopMachineObject.start_TIME || null;
-        const endTime = this.edtPmStopMachineObject.end_TIME || null;
+        const startTime = this.edtPmStopMachineObject.startTimeFormatted || null;
+        const endTime = this.edtPmStopMachineObject.endTimeFormatted || null;
         // const wct = this.edtPmStopMachineObject.work_CENTER_TEXT || "null";
 
         this.edtPmStopMachineFrom.patchValue({

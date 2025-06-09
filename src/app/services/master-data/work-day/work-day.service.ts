@@ -9,6 +9,7 @@ import { map, catchError } from 'rxjs/operators';
 // import { WDHours } from 'src/app/models/WDHours';
 import { DWorkDay } from 'src/app/models/DWorkDay';
 import { WDHoursSpecific } from 'src/app/models/WDHoursSpecific';
+import { PMStopMachine } from '../../../models/pm-stop-machine';
 
 @Injectable({
   providedIn: 'root',
@@ -24,7 +25,7 @@ export class WorkDayService {
       { startDate: dateStart, endDate: dateEnd }, // Send JSON body
     );
   }
-  
+
 
   updateWorkDay(workday: WorkDay): Observable<ApiResponse<WorkDay>> {
     return this.http.post<ApiResponse<WorkDay>>(
@@ -33,11 +34,11 @@ export class WorkDayService {
     );
   }
 
-  
+
   getWorkDayByDate(dateTarget: string): Observable<ApiResponse<WorkDay>> {
     return this.http.post<ApiResponse<WorkDay>>(
       environment.apiUrlWebAdmin + '/getWorkDayByDate',
-      { date: dateTarget }, 
+      { date: dateTarget },
     );
   }
 
@@ -47,14 +48,14 @@ export class WorkDayService {
       { dateWd: dateTarget }, // Send JSON body
     );
   }
-  
+
   getDWorkDayByDate(buffer: string): Observable<ApiResponse<DWorkDay[]>> {
     return this.http.post<ApiResponse<DWorkDay[]>>(
       environment.apiUrlWebAdmin + '/getDWorkDayByDate',
       { date: buffer },
     );
   }
-  
+
 
   saveDWorkDay(buffer: DWorkDay): Observable<ApiResponse<DWorkDay>> {
     return this.http.post<ApiResponse<DWorkDay>>(
@@ -78,7 +79,7 @@ export class WorkDayService {
 
   getDWorkDayHoursSpecificByDateDesc(target: string, type: string): Observable<ApiResponse<WDHoursSpecific>> {
     const body = { date: target, description: type };
-  
+
     return this.http.post<ApiResponse<WDHoursSpecific>>(
       environment.apiUrlWebAdmin + '/getDWDSpec',
       body,
@@ -93,7 +94,7 @@ export class WorkDayService {
       description: type,
       shift: shift
     };
-  
+
     return this.http.post<ApiResponse<WDHoursSpecific>>(
       environment.apiUrlWebAdmin + '/updateShiftTimes',
       requestBody,
@@ -105,14 +106,29 @@ export class WorkDayService {
       environment.apiUrlWebAdmin + '/saveDWorkDayHoursSpecific',
       wdhours,
     );
-  }  
+  }
   updateDWorkDayHoursSpecific(wdhours: WDHoursSpecific): Observable<ApiResponse<WDHoursSpecific>> {
     return this.http.post<ApiResponse<WDHoursSpecific>>(
       environment.apiUrlWebAdmin + '/updateDWorkDayHoursSpecific',
       wdhours,
     );
   }
- 
+
+  uploadFileExcel(file: FormData): Observable<ApiResponse<PMStopMachine>> {
+    return this.http.post<ApiResponse<PMStopMachine>>(environment.apiUrlWebAdmin + '/importWDExcel', file, {}).pipe(
+      map((response) => {
+        return response;
+      }),
+      catchError((err) => {
+        return throwError(err);
+      })
+    );
+  }
+
+  exportExcel(year: number, month: number): Observable<Blob> {
+    return this.http.get<Blob>(`${environment.apiUrlWebAdmin}/exportWorkDaysExcel/`+year+"/"+month, { responseType: 'blob' as 'json' });
+  }
+
     // getDWorkDayHoursByDateDesc(dateTarget: string, targetdesc: string): Observable<ApiResponse<WDHours>> {
   //   return this.http.get<ApiResponse<WDHours>>(
   //     environment.apiUrlWebAdmin + '/getDWorkDayHoursByDateDesc/' + dateTarget+"/"+targetdesc,
