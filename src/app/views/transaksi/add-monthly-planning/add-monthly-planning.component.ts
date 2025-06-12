@@ -27,15 +27,15 @@ declare var $: any;
   styleUrls: ['./add-monthly-planning.component.scss'],
   animations: [
     trigger('detailExpand', [
-      state('collapsed', style({ height: '0px', minHeight: '0', overflow: 'hidden' })), 
-      state('expanded', style({ height: '*' })), 
+      state('collapsed', style({ height: '0px', minHeight: '0', overflow: 'hidden' })),
+      state('expanded', style({ height: '*' })),
       transition('expanded <=> collapsed', animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)')),
     ]),
   ],
-     
+
 })
 export class AddMonthlyPlanningComponent implements OnInit {
-  
+
   // Variable declaration
   allData: any;
   changeDate: string = '';
@@ -56,7 +56,7 @@ export class AddMonthlyPlanningComponent implements OnInit {
     { 'Paket': 'Data 1', 'Item Curing': ['Data 2', 'Data 3'] },
     { 'Paket': 'Data 4', 'Item Curing': ['Data 5', 'Data 6', 'Data 7'] }
   ];
-  
+
 
   dataCheating = [
     { 'Item Curing': 'Value A1', 'Work Center Text': 'Value B1' },
@@ -93,7 +93,9 @@ export class AddMonthlyPlanningComponent implements OnInit {
   displayedColumnsMPDetail: string[] = ['no','ITEM_CURING','WCT_LIST','TOTAL','NET','GROSS','SELISIH'];
   innerDisplayedColumns = ['version'];
   innerDisplayedColumnsF = ['version', 'action'];
-  
+  executedMonth = null;
+  executedVersion = null;
+
   filteredChangeMould: any[] = [];  // Data yang sudah difilter
   filterType: string = 'changeDate';  // Default filter type
 
@@ -119,7 +121,7 @@ export class AddMonthlyPlanningComponent implements OnInit {
   searchTextMO: string = '';
   searchTextMOQS: string = '';
   selectedDetail: { idDetailDaily: number; countProduction: number } | null = null;
-  
+
   shift: number = 0;
   shiftMonthlyPlanningCuring: DetailShiftMonthlyPlanCuring[] = [];
   shiftMonthlyPlanningTass: any[] = [];
@@ -140,10 +142,10 @@ export class AddMonthlyPlanningComponent implements OnInit {
   @ViewChild('paginatorMP', { static: false }) paginatorMP!: MatPaginator;
   @ViewChildren(MatTable) innerTables!: QueryList<MatTable<any>>;
   @ViewChildren('innerSort') innerSort: QueryList<MatSort>;
-  
-  constructor(private router: Router, 
-    private moService: MarketingOrderService, 
-    private mpService: MonthlyPlanCuringService, 
+
+  constructor(private router: Router,
+    private moService: MarketingOrderService,
+    private mpService: MonthlyPlanCuringService,
     private parseDateService: ParsingDateService,
     private cd: ChangeDetectorRef
   ) { }
@@ -155,8 +157,8 @@ export class AddMonthlyPlanningComponent implements OnInit {
     }
     return value && !isNaN(Date.parse(value));
   }
-  
-  
+
+
   parseDate(dateParse: string): string {
     return this.parseDateService.convertDateToString(dateParse);
   }
@@ -170,7 +172,7 @@ export class AddMonthlyPlanningComponent implements OnInit {
     const formattedDate = `${('0' + dateObj.getDate()).slice(-2)}-${('0' + (dateObj.getMonth() + 1)).slice(-2)}-${dateObj.getFullYear()}`;
     return formattedDate;
   }
-  
+
 
   ngOnInit(): void {
     //this.getAllMarketingOrder();
@@ -189,7 +191,7 @@ export class AddMonthlyPlanningComponent implements OnInit {
     //   this.dataSourceMOQS.paginator = this.paginatorMOQS;
     // }
   }
-  
+
   selectedMo: any = null; // Track selected item
 
   onSelectionChange(month0: any, month1: any, month2: any) {
@@ -205,7 +207,7 @@ export class AddMonthlyPlanningComponent implements OnInit {
     let combinedDataFrontRear = filteredFrontRear.reduce((acc, item) => {
       // If frontRearParallelId is 0, set the value as "No FrontRear"
       const key = item.frontRearParallelId === 0 ? "No FrontRear" : item.frontRearParallelId;
-  
+
       // If the key doesn't exist in accumulator, add it
       if (!acc[key]) {
           acc[key] = {
@@ -218,8 +220,8 @@ export class AddMonthlyPlanningComponent implements OnInit {
       }
       return acc;
   }, {});
-  
-    
+
+
     // Convert the result to an array if needed
     let resultFronRear = Object.values(combinedDataFrontRear);
     // console.log(resultFronRear);
@@ -239,7 +241,7 @@ export class AddMonthlyPlanningComponent implements OnInit {
     }, {});
     let resultMachineProduct = Object.values(combinedDataMachineProduct);
     // console.log(resultMachineProduct);
-  
+
     const tableOne = this.createTable(resultFronRear, ['Paket', 'Data']);
     const tableTwo = this.createTable(resultMachineProduct, ['Item Curing', 'Work Center Text']);
     Swal.fire({
@@ -269,39 +271,44 @@ export class AddMonthlyPlanningComponent implements OnInit {
       tableHTML += `<th>${column}</th>`;
     });
     tableHTML += '</tr></thead><tbody>';
-  
+
     data.forEach(row => {
       tableHTML += '<tr>';
       columns.forEach(column => {
         let cellData = row[column];
-  
+
         // Check if the value in 'Item Curing' is an array
         if (Array.isArray(cellData)) {
           // Join array elements with commas or another separator
           cellData = cellData.join(', ');
         }
-  
+
         tableHTML += `<td>${cellData}</td>`;
       });
       tableHTML += '</tr>';
     });
     tableHTML += '</tbody></table>';
-    
+
     return tableHTML;
   }
-    
+
   onDetail(nd: any,version:any): void {
 
     this.selectedND = nd;
     this.openDetailModal(version);
   }
 
-  onExecute(mo: any, cheating: any): void {
+  onExecute(mo: any, cheating: any,month: any,version: any): void {
+    console.log(cheating)
+    console.log(month)
+    console.log(version)
+    this.executedMonth = month;
+    this.executedVersion = version;
     // console.log(this.dataSourceMOQS.data)
     // console.log(mo);
     const payload = {
       MO_ID: mo,              // Wrap mo in an array
-      CHEATING_ID: cheating,    // Optional if needed
+      CHEATING_ID: 0,    // Optional if needed
     };
 
     // Show loading dialog
@@ -313,7 +320,7 @@ export class AddMonthlyPlanningComponent implements OnInit {
         Swal.showLoading();
       }
     });
-    
+
     this.mpService.GenerateMP(JSON.stringify(payload)).subscribe({
       next: ( response ) => {
         console.log("API Response:", response);
@@ -343,7 +350,7 @@ export class AddMonthlyPlanningComponent implements OnInit {
     // this.mpService.GetDetailMP(moIdPayload).subscribe({
     //   next: (response) => {
     //     console.log("API Response:", response);
-        
+
     //     this.detailGenerateMp = response.data; // Example: assign it to a component variable
     //     this.dataSourceGenerateMPDetail = new MatTableDataSource(this.detailGenerateMp);
     //     this.dataSourceGenerateMPDetail.sort = this.sortMPDetail;
@@ -353,7 +360,7 @@ export class AddMonthlyPlanningComponent implements OnInit {
     //     console.error("Error fetching detail MP:", err);
     //   }
     // });
-    
+
 
   }
 
@@ -364,7 +371,7 @@ export class AddMonthlyPlanningComponent implements OnInit {
       .join('\n');
   }
 
-  
+
   selectAll(event: any): void {
     const checked = event.target.checked;
     this.marketingOrders.forEach((order) => {
@@ -410,7 +417,7 @@ export class AddMonthlyPlanningComponent implements OnInit {
     // Toggle row expansion
     if (element.versions && (element.versions as MatTableDataSource<any>).data.length) {
       this.expandedElement = this.expandedElement === element ? null : element;
-      this.cd.detectChanges(); 
+      this.cd.detectChanges();
     }else{
       Swal.fire({
         icon: 'info',
@@ -444,22 +451,22 @@ export class AddMonthlyPlanningComponent implements OnInit {
             month2: new Date(order.MONTH2),
           };
         });
-  
+
         let uniqueMap = new Map();
-    
+
         mapMonth.forEach(order => {
           let key = `${order.month0.getTime()}-${order.month1.getTime()}-${order.month2.getTime()}`;
           if (!uniqueMap.has(key)) {
             uniqueMap.set(key, order);
           }
         });
-    
+
         // Get the unique combinations of months
         let uniqueMonths = Array.from(uniqueMap.values());
         // console.log(uniqueMonths);
-    
+
         this.marketingOrders = uniqueMonths;
-    
+
         if (this.marketingOrders.length === 0) {
           Swal.fire({
             icon: 'info',
@@ -482,11 +489,11 @@ export class AddMonthlyPlanningComponent implements OnInit {
               // console.log("order",order)
               // console.log("key",key)
               if (!acc[key]) {
-                acc[key] = {  
-                  month0: month0Date,  
-                  month1: month1Date,  
-                  month2: month2Date,  
-                  MO_ID: [order.MO_ID], 
+                acc[key] = {
+                  month0: month0Date,
+                  month1: month1Date,
+                  month2: month2Date,
+                  MO_ID: [order.MO_ID],
                   mo_V: order.VERSION,
                 };
               } else {
@@ -494,11 +501,11 @@ export class AddMonthlyPlanningComponent implements OnInit {
               }
               return acc;
             }, {});
-  
+
           // Convert object back to array
           buffer = Object.values(buffer);
           // console.log("b",buffer)
-  
+
           // Create an array of promises for all getCheatingFrontRearByMoId calls
           const frontRearPromises = buffer.map(data => {
             return this.moService.getCheatingFrontRearByMoId(data.MO_ID[0], data.MO_ID[1]).toPromise()
@@ -507,14 +514,14 @@ export class AddMonthlyPlanningComponent implements OnInit {
                   .map(frontRear => frontRear.versionCheating)
                   .filter((value, index, self) => self.indexOf(value) === index)
                   .map(version => ({ version }));
-          
+
                 // console.log("Unique Versions:", uniqueVersions);
                 // console.log("Unique Versions data:", responseFrontRear.data);
-          
+
                 // if (uniqueVersions.length === 0) {
                 //   return null; // Skip this item if no versions
                 // }
-          
+
                 // Proceed to get machine products
                 return this.moService.getMachineProductsmoByIdMo(data.MO_ID[0], data.MO_ID[1]).toPromise()
                   .then((responseMachineProduct: ApiResponse<any[]>) => {
@@ -526,26 +533,26 @@ export class AddMonthlyPlanningComponent implements OnInit {
                     // if (machineProducts.length === 0) {
                     //   return null; // Skip this item if no machine products
                     // }
-          
+
                     const versionedData = {
                       ...data,
                       FrontRear: responseFrontRear.data,
                       versions: new MatTableDataSource(uniqueVersions),
                       machineProducts: machineProducts,
                     };
-          
+
                     // console.log("Versioned Data:", versionedData);
                     return versionedData;
                   });
               });
           });
-          
-          
-  
+
+
+
           // Wait for all the promises to resolve
           const versionedBuffer = await Promise.all(frontRearPromises);
           // console.log(versionedBuffer);
-  
+
           // Use the versionedBuffer data for dataSourceMOQS
           this.dataSourceMOQS = new MatTableDataSource(versionedBuffer);
           this.dataSourceMOQS.sort = this.sortmMOQS;
@@ -563,11 +570,11 @@ export class AddMonthlyPlanningComponent implements OnInit {
       }
     );
   }
-  
+
   getRandomVersion() {
     return Math.floor(Math.random() * 10) + 1; // Generates a random number between 1 and 10
   }
-  
+
 
   getDailyMonthPlan(  month: number, year: number,
     limitChange: number,
@@ -621,16 +628,16 @@ export class AddMonthlyPlanningComponent implements OnInit {
   navigateToAddArDefectReject(month0: Date, month1: Date, month2: Date) {
     this.navigateWithFormattedDates('/transaksi/add-mo-ar-defect-reject/', month0, month1, month2);
   }
-  
+
   navigateToFrontRear(month0: Date, month1: Date, month2: Date, version: string) {
     this.navigateWithFormattedDates('/transaksi/add-mo-front-rear/', month0, month1, month2, version);
   }
-  
+
   navigateWithFormattedDates(route: string, month0: Date, month1: Date, month2: Date, version?: string) {
     const formattedMonth0 = this.formatDate(month0);
     const formattedMonth1 = this.formatDate(month1);
     const formattedMonth2 = this.formatDate(month2);
-  
+
     // If version is provided, add it to the route
     if (version) {
       this.router.navigate([route, formattedMonth0, formattedMonth1, formattedMonth2, version]);
@@ -638,7 +645,7 @@ export class AddMonthlyPlanningComponent implements OnInit {
       this.router.navigate([route, formattedMonth0, formattedMonth1, formattedMonth2]);
     }
   }
-  
+
 
   navigateToViewMp() {
     this.router.navigate(['/transaksi/view-monthly-planning']);
@@ -894,7 +901,7 @@ export class AddMonthlyPlanningComponent implements OnInit {
     this.monthNow = month;
     this.yearNow = year;
 
-    const monthDescription = monthNames[this.monthNow - 1]; 
+    const monthDescription = monthNames[this.monthNow - 1];
 
     const filename = `PREPARE PROD ${monthDescription.toUpperCase()} ${this.yearNow}.xlsx`;
 
@@ -903,11 +910,11 @@ export class AddMonthlyPlanningComponent implements OnInit {
         month, year, limitChange,
         minA, maxA, minB,
         maxB, minC, maxC,
-        minD, maxD
+        minD, maxD,this.executedVersion
       )
       .subscribe(
         (response) => {
-          Swal.close(); 
+          Swal.close();
 
           saveAs(response, filename);
 
@@ -919,7 +926,7 @@ export class AddMonthlyPlanningComponent implements OnInit {
           });
         },
         (error) => {
-          Swal.close(); 
+          Swal.close();
 
           Swal.fire({
             icon: 'error',
@@ -938,7 +945,7 @@ export class AddMonthlyPlanningComponent implements OnInit {
       html: 'Please wait while we Download Excel the monthly plan. This might take a while.',
       allowOutsideClick: false,
       didOpen: () => {
-        Swal.showLoading(); 
+        Swal.showLoading();
       },
     });
     const checkedMonths = this.dataSourceMO.data
@@ -950,18 +957,18 @@ export class AddMonthlyPlanningComponent implements OnInit {
     let month: number | null = null;
     let year: number | null = null;
 
-    if (checkedMonths.length > 0) {
-      const firstMonthDate = checkedMonths[0];
-      month = firstMonthDate.getMonth() + 1;
-      year = firstMonthDate.getFullYear();
+    if (this.executedMonth != null) {
+      month = this.executedMonth.getMonth() + 1;
+      year = this.executedMonth.getFullYear();
+      console.log("Month: " + month + " Year: " + year);
+      console.log("Limit Change: " + this.objVarLim.limitChange);
+      console.log("min A: ",this.objVarLim);
+      this.exportExcelMP(month, year, this.objVarLim.limitChange, this.objVarLim.minA, this.objVarLim.maxA, this.objVarLim.minB,
+        this.objVarLim.maxB, this.objVarLim.minC, this.objVarLim.maxC, this.objVarLim.minD, this.objVarLim.maxD
+      );
     }
 
-    // console.log("Month: " + month + " Year: " + year);
-    // console.log("Limit Change: " + this.objVarLim.limitChange);
-    // console.log("min A: " + this.objVarLim.minA);
-    this.exportExcelMP(month, year, this.objVarLim.limitChange, this.objVarLim.minA, this.objVarLim.maxA, this.objVarLim.minB,
-      this.objVarLim.maxB, this.objVarLim.minC, this.objVarLim.maxC, this.objVarLim.minD, this.objVarLim.maxD
-    );
+    console.log(month,year)
   }
 
 }

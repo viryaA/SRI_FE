@@ -75,7 +75,7 @@ export class ViewWorkDayComponent implements OnInit {
     Swal.fire({
       icon: 'info',
       title: 'Processing...',
-      html: 'Please wait while downloading PM Stop Machine Data.',
+      html: `Please wait while downloading Work Day ${this.monthNames[month-1]}-${year} Data.`,
       allowOutsideClick: false,
       didOpen: () => {
         Swal.showLoading();
@@ -124,10 +124,11 @@ export class ViewWorkDayComponent implements OnInit {
 
   uploadFileExcel() {
     if (this.file) {
+      // const namefile = this.file.name;
       Swal.fire({
         icon: 'info',
         title: 'Processing...',
-        html: 'Please wait while saving data Plant.',
+        html: `Please wait while saving data Work Day.`,
         allowOutsideClick: false,
         didOpen: () => {
           Swal.showLoading();
