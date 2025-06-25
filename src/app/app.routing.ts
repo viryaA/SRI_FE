@@ -9,40 +9,26 @@ import { P500Component } from './views/error/500.component';
 import { LoginComponent } from './views/login/login.component';
 import { RegisterComponent } from './views/register/register.component';
 import { AuthGuard } from './services/auth.guard';
-import { DashboardComponent } from './views/dashboard/dashboard.component';
 import { ViewPlantComponent } from './views/master-data/view-plant/view-plant.component';
 import { ViewMoPpcComponent } from './views/transaksi/marketing-order/ppc/view-mo-ppc/view-mo-ppc.component';
 import { AddMoPpcComponent } from './views/transaksi/marketing-order/ppc/add-mo-ppc/add-mo-ppc.component';
 import { ViewSettingComponent } from './views/master-data/view-setting/view-setting.component';
-import { ViewQuadrantComponent } from './views/master-data/view-quadrant/view-quadrant.component';
 import { ViewProductTypeComponent } from './views/master-data/view-product-type/view-product-type.component';
 import { ViewSizeComponent } from './views/master-data/view-size/view-size.component';
 import { ViewBuildingComponent } from './views/master-data/view-building/view-building.component';
-import { ViewBDistanceComponent } from './views/master-data/view-bdistance/view-bdistance.component';
-import { ViewQDistanceComponent } from './views/master-data/view-qdistance/view-qdistance.component';
 import { ViewPatternComponent } from './views/master-data/view-pattern/view-pattern.component';
 import { ViewProductComponent } from './views/master-data/view-product/view-product.component';
-import { ViewMachineTassComponent } from './views/master-data/view-machine-tass/view-machine-tass.component';
-import { ViewRoutingMachineComponent } from './views/master-data/view-routing-machine/view-routing-machine.component';
-import { ViewDeliveryScheduleComponent } from './views/master-data/view-delivery-schedule/view-delivery-schedule.component';
 import { ViewMachineCuringTypeComponent } from './views/master-data/view-machine-curing-type/view-machine-curing-type.component';
-import { ViewMachineTassTypeComponent } from './views/master-data/view-machine-tass-type/view-machine-tass-type.component';
 import { ViewMaxCapacityComponent } from './views/master-data/view-max-capacity/view-max-capacity.component';
 import { ViewCuringMachineComponent } from './views/master-data/view-curing-machine/view-curing-machine.component';
 import { ViewItemCuringComponent } from './views/master-data/view-item-curing/view-item-curing.component';
-import { ViewTassSizeComponent } from './views/master-data/view-tass-size/view-tass-size.component';
 import { ViewMonthlyPlanningComponent } from './views/transaksi/view-monthly-planning/view-monthly-planning.component';
 import { AddMonthlyPlanningComponent } from './views/transaksi/add-monthly-planning/add-monthly-planning.component';
 import { ViewCtCuringComponent } from './views/master-data/view-ct-curing/view-ct-curing.component';
-import { ViewMachineAllowenceComponent } from './views/master-data/view-machine-allowence/view-machine-allowence.component';
 import { ViewItemAssyComponent } from './views/master-data/view-item-assy/view-item-assy.component';
-import { ViewMachineExtrudingComponent } from './views/master-data/view-machine-extruding/view-machine-extruding.component';
-import { ViewCtKapaComponent } from './views/master-data/view-ct-kapa/view-ct-kapa.component';
-import { ViewDDeliveryScheduleComponent } from './views/master-data/view-d-deliveryschedule/view-d-deliveryschedule.component';
 import { ViewMoMarketingComponent } from './views/transaksi/marketing-order/marketing/view-mo-marketing/view-mo-marketing.component';
 import { AddMoMarketingComponent } from './views/transaksi/marketing-order/marketing/add-mo-marketing/add-mo-marketing.component';
 import { EditMoPpcComponent } from './views/transaksi/marketing-order/ppc/edit-mo-ppc/edit-mo-ppc.component';
-import { ViewCuringSizeComponent } from './views/master-data/view-curing-size/view-curing-size.component';
 import { EditMoMarketingComponent } from './views/transaksi/marketing-order/marketing/edit-mo-marketing/edit-mo-marketing.component';
 import { ViewDetailRevisiPpcComponent } from './views/transaksi/marketing-order/ppc/view-detail-revisi-ppc/view-detail-revisi-ppc.component';
 import { ViewPmStopMachineComponent } from './views/master-data/view-pm-stop-machine/view-pm-stop-machine.component';
@@ -51,6 +37,13 @@ import { ViewDetailRevisiMarketingComponent } from './views/transaksi/marketing-
 import { AddMoFrontRearComponent } from './views/transaksi/add-mo-front-rear/add-mo-front-rear.component';
 import { AddArDefactRejectComponent } from './views/transaksi/add-ar-defact-reject/add-ar-defact-reject.component';
 import { ViewDetailMonthlyPlanningComponent } from './views/transaksi/view-detail-monthly-planning/view-detail-monthly-planning.component';
+// import { ViewMachineAllowenceComponent } from './views/master-data/view-machine-allowence/view-machine-allowence.component';
+// import { ViewTassSizeComponent } from './views/master-data/view-tass-size/view-tass-size.component';
+// import { ViewMachineExtrudingComponent } from './views/master-data/view-machine-extruding/view-machine-extruding.component';
+// import { ViewCtKapaComponent } from './views/master-data/view-ct-kapa/view-ct-kapa.component';
+// import { ViewDDeliveryScheduleComponent } from './views/master-data/view-d-deliveryschedule/view-d-deliveryschedule.component';
+// import { ViewMachineTassTypeComponent } from './views/master-data/view-machine-tass-type/view-machine-tass-type.component';
+// import { ViewCuringSizeComponent } from './views/master-data/view-curing-size/view-curing-size.component';
 
 
 
@@ -115,20 +108,6 @@ export const routes: Routes = [
         },
       },
       {
-        path: 'master-data/view-quadrant',
-        component: ViewQuadrantComponent,
-        data: {
-          title: 'Master Data / View Quadrant',
-        },
-      },
-      {
-        path: 'master-data/view-d-deliveryschedule',
-        component: ViewDDeliveryScheduleComponent,
-        data: {
-          title: 'Master Data / View Detail Delivery Schedule',
-        },
-      },
-      {
         path: 'master-data/view-product-type',
         component: ViewProductTypeComponent,
         data: {
@@ -136,31 +115,10 @@ export const routes: Routes = [
         },
       },
       {
-        path: 'master-data/view-machine-extruding',
-        component: ViewMachineExtrudingComponent,
-        data: {
-          title: 'Master Data / View Machine Extruding',
-        },
-      },
-      {
         path: 'master-data/view-size',
         component: ViewSizeComponent,
         data: {
           title: 'Master Data / View Size',
-        },
-      },
-      {
-        path: 'master-data/view-bdistance',
-        component: ViewBDistanceComponent,
-        data: {
-          title: 'Master Data / View Building Distance',
-        },
-      },
-      {
-        path: 'master-data/view-qdistance',
-        component: ViewQDistanceComponent,
-        data: {
-          title: 'Master Data / View Quadrant Distance',
         },
       },
       {
@@ -185,31 +143,10 @@ export const routes: Routes = [
         },
       },
       {
-        path: 'master-data/view-ct-kapa',
-        component: ViewCtKapaComponent,
-        data: {
-          title: 'Master Data / View CT Kapa',
-        },
-      },
-      {
         path: 'master-data/view-machine-curing-type',
         component: ViewMachineCuringTypeComponent,
         data: {
           title: 'Master Data / View Machine Curing Type',
-        },
-      },
-      {
-        path: 'master-data/view-machine-tass-type',
-        component: ViewMachineTassTypeComponent,
-        data: {
-          title: 'Master Data / View Machine Tass Type',
-        },
-      },
-      {
-        path: 'master-data/view-machine-tass',
-        component: ViewMachineTassComponent,
-        data: {
-          title: 'Master Data / View Machine Tass',
         },
       },
       {
@@ -231,13 +168,6 @@ export const routes: Routes = [
         component: ViewItemCuringComponent,
         data: {
           title: 'Master Data / View Item Curing',
-        },
-      },
-      {
-        path: 'master-data/view-tass-size',
-        component: ViewTassSizeComponent,
-        data: {
-          title: 'Master Data / View Tass Size',
         },
       },
       {
@@ -276,38 +206,10 @@ export const routes: Routes = [
         },
       },
       {
-        path: 'master-data/view-routing-machine',
-        component: ViewRoutingMachineComponent,
-        data: {
-          title: 'Master Data / View Routing Machine',
-        },
-      },
-      {
-        path: 'master-data/view-delivery-schedule',
-        component: ViewDeliveryScheduleComponent,
-        data: {
-          title: 'Master Data / View Delivery Schedule',
-        },
-      },
-      {
-        path: 'master-data/view-machine-allowence',
-        component: ViewMachineAllowenceComponent,
-        data: {
-          title: 'Master Data / View Machine Allowence',
-        },
-      },
-      {
         path: 'master-data/view-item-assy',
         component: ViewItemAssyComponent,
         data: {
           title: 'Master Data / View Item Assy',
-        },
-      },
-      {
-        path: 'master-data/view-curing-size',
-        component: ViewCuringSizeComponent,
-        data: {
-          title: 'Master Data / View Curing Size',
         },
       },
       {

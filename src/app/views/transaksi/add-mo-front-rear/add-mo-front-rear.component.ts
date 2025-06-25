@@ -70,7 +70,6 @@ export class AddMoFrontRearComponent implements OnInit {
   selectedItemCuring: string = '';
   selectedPartNumber: number = 0;
   savedEntries: any[] = [];
-  data1 : any[] = [];
   showMappingMachine: boolean = false;
 
   //Cheating front rear
@@ -623,7 +622,6 @@ export class AddMoFrontRearComponent implements OnInit {
       detailMoFdr: this.dmoFdr,
     };
 
-    console.log(this.dmoFed[0])
 
     this.loading = true;
     Swal.fire({
@@ -1749,57 +1747,54 @@ export class AddMoFrontRearComponent implements OnInit {
   // Function to save the current selections
   saveEntries(): void {
 
-    console.log(this.mesinSelect);
+      let bufferMesin: { item_curing: string; work_CENTER_TEXT: string }[] = [];
+    
+      this.machineEntries.forEach((buffer) => {
 
-    this.mesinSelect.forEach((mesin) => {
-      const obj = {
-        item_curing: this.selectedItemCuring,
-        work_CENTER_TEXT: mesin
-      };
-      const isDuplicate = this.data1.find(
-        (item) => item.item_curing === obj.item_curing && item.work_CENTER_TEXT === obj.work_CENTER_TEXT
-      );
-
-      if (!isDuplicate) {
-        this.data1.push({...obj});
-      }
-    });
-    this.savedEntries = this.data1;
-    Swal.fire({
-      icon: 'success',
-      title: 'Data Saved',
-      text: 'Machine details have been successfully saved.',
-      confirmButtonText: 'OK',
-    });
-    console.log(this.savedEntries);
-    this.mesinSelect = [];
-  }
-
-  loadSavedEntries(): void {
-    console.table("yooooo " + this.savedEntries);
-    if (this.savedEntries.length > 0) {
-      // Restore saved entries to machineEntries
-      this.machineEntries = this.savedEntries.map(entry => ({
-        selectedGedung: entry.selectedGedung,
-        selectedMachine: entry.selectedMachine,
-        filteredMesinOptions: [], // Ensure options are preserved
-      }));
-    } else {
-      Swal.fire({
-        icon: 'info',
-        title: 'No Data',
-        text: 'No saved data found. Starting with a fresh entry.',
-        confirmButtonText: 'OK',
+        const obj = {
+          item_curing: this.selectedItemCuring,
+          work_CENTER_TEXT: buffer.selectedMachine
+        };
+    
+        const isDuplicate = bufferMesin.find(
+          (item) => item.item_curing === obj.item_curing && item.work_CENTER_TEXT === obj.work_CENTER_TEXT
+        );
+    
+        if (!isDuplicate && buffer.selectedGedung != '' && buffer.selectedMachine != '') {
+          bufferMesin.push({ ...obj });
+        }
       });
-    }
+
+      if(bufferMesin.length == 0){
+        Swal.fire({
+          icon: 'info',
+          title: 'No Data Available',
+          text: 'No machine details have been saved.',
+          confirmButtonText: 'OK',
+        });
+      }else{
+        this.savedEntries = this.savedEntries.filter(
+          (entry) => entry.item_curing !== this.selectedItemCuring
+        );
+      
+        this.savedEntries.push(...bufferMesin);
+      
+        Swal.fire({
+          icon: 'success',
+          title: 'Data Saved',
+          text: 'Machine details have been successfully saved.',
+          confirmButtonText: 'OK',
+        });
+      }
+    
+    
+    $('#dmpModal').modal('hide');
   }
 
   viewDetail(itemCuring: string, partNumber: number): void {
     this.selectedItemCuring = itemCuring; // Save selected itemCuring
     this.selectedPartNumber = partNumber; // Save selected partnumber
 
-    console.log('Item Curing:', itemCuring);
-    console.log('Partnumber:', partNumber);
 
     if (itemCuring) {
       this.machineEntries = []; // Clear existing data
@@ -1824,10 +1819,10 @@ export class AddMoFrontRearComponent implements OnInit {
   machineEntries: Array<{ selectedGedung: string, filteredMesinOptions: string[], selectedMachine: string }> = [];
   selectedMachine: string = '';
   mesinOptions: string[] = [];
-  mesinSelect: string[] = []; // All machines from the API
 
   // Method for selecting Gedung
   onGedungSelect(entry: any, selectedGedung: string): void {
+    entry.selectedMachine = ''
     entry.filteredMesinOptions = this.filterMachines(selectedGedung);
   }
 
@@ -1880,17 +1875,16 @@ export class AddMoFrontRearComponent implements OnInit {
   // Add row functionality
   addRow(): void {
     if (this.selectedItemCuring) {
-      // Add new row with independent filteredMesinOptions
-      this.machineEntries.push({
-        selectedGedung: '',
-        filteredMesinOptions: [...this.mesinOptions], // Create a fresh copy
-        selectedMachine: ''
-      });
-
-      // Fetch machines for the selected item curing (if not already fetched)
       if (!this.mesinOptions.length) {
+
         this.getMachine(this.selectedItemCuring);
       }
+      this.machineEntries.push({
+        selectedGedung: "",
+        filteredMesinOptions: [...this.mesinOptions],
+        selectedMachine: ""
+      });
+
     } else {
       Swal.fire({
         icon: 'error',
@@ -1912,22 +1906,12 @@ export class AddMoFrontRearComponent implements OnInit {
 
 
   onMachineSelect(mesin: string): void {
-    console.log('Selected Machine:', mesin);
-
     // Contoh: Lakukan tindakan berdasarkan mesin yang dipilih
-    if (mesin) {
-      this.mesinSelect.push(mesin);
-      console.log(`Machine selected: ${mesin}`);
-    } else {
-      console.log('No machine selected.');
-    }
   }
 
   frontRearCounter: number = 1;
   i: number = 1;
 
-  //FRONT REAR  
-  // FRONT REAR  
   addToSelectedList() {
     const selectedItems = this.dataSourceDmo.data.filter((mo) => mo.selected);
 
@@ -1968,10 +1952,8 @@ export class AddMoFrontRearComponent implements OnInit {
         console.error("Not enough unique MO IDs to process.");
         return;
     }
-    console.log(uniqueMOID);
 
     try {
-      console.log(this.selectedList);
 
       frontRearItems = this.selectedList.map(item => ({
         mo_id_1: uniqueMOID[0],
@@ -1987,7 +1969,6 @@ export class AddMoFrontRearComponent implements OnInit {
           item_curing: "No FrontRear"
         }
       }
-      console.log("Final frontRearItems:", frontRearItems);
 
       this.frontrear.saveFrontRearItems(frontRearItems).subscribe({
         next: (saveResult) => {
