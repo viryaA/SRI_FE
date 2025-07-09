@@ -156,13 +156,13 @@ export const routes: Routes = [
           title: 'Master Data / View Curing Machine',
         },
       },
-      {
-        path: 'master-data/view-max-capacity',
-        component: ViewMaxCapacityComponent,
-        data: {
-          title: 'Master Data / View Max Capacity',
-        },
-      },
+      // {
+      //   path: 'master-data/view-max-capacity',
+      //   component: ViewMaxCapacityComponent,
+      //   data: {
+      //     title: 'Master Data / View Max Capacity',
+      //   },
+      // },
       {
         path: 'master-data/view-item-curing',
         component: ViewItemCuringComponent,

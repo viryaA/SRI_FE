@@ -33,19 +33,20 @@ export class ViewItemCuringComponent implements OnInit {
   pageSize: number = 5;
   totalPages: number = 5;
   sortBuffer: Array<any>;
-  displayedColumns: string[] = ['no', 'item_CURING', 'machine_TYPE','kapa_PER_MOULD','number_OF_MOULD', 'spare_MOULD', 'mould_MONTHLY_PLAN',  'status', 'action'];
+  displayedColumns: string[] = ['no', 'item_CURING', 'machine_TYPE','kapa_PER_MOULD','number_OF_MOULD', 'spare_MOULD', 'mould_MONTHLY_PLAN','mould_NOTES',  'status', 'action'];
   dataSource: MatTableDataSource<Item_Curing>;
 
   @ViewChild(MatSort) sort: MatSort;
   @ViewChild(MatPaginator) paginator: MatPaginator;
 
-  constructor(private itemcuringService: ItemCuringService, private fb: FormBuilder) { 
+  constructor(private itemcuringService: ItemCuringService, private fb: FormBuilder) {
     this.editItemCuringForm = this.fb.group({
       machineType: ['', Validators.required],
       kapaPerMould: ['', Validators.required],
       numberOfMould: ['', Validators.required],
       spareMould: ['', Validators.required],
-      mouldMonthlyPlan: ['', Validators.required]
+      mouldMonthlyPlan: ['', Validators.required],
+      mouldnotes: ['', Validators.required]
     });
   }
 
@@ -59,7 +60,7 @@ export class ViewItemCuringComponent implements OnInit {
       event.preventDefault(); // Prevent non-numeric input
     }
   }
-  
+
   getAllItemCuring(): void {
     Swal.fire({
       title: 'Loading...',
@@ -187,7 +188,7 @@ export class ViewItemCuringComponent implements OnInit {
       confirmButtonText: 'Yes',
       cancelButtonText: 'No',
     }).then((result) => {
-      if (result.isConfirmed) { 
+      if (result.isConfirmed) {
         this.itemcuringService.activateItemCuring(item_curing).subscribe(
           (response) => {
             Swal.fire('Activated!', 'Data item curing has been Activated', 'success').then(() => {

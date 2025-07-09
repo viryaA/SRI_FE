@@ -80,19 +80,29 @@ export class PMStopMachineService {
   SavePMStopMachine(pmStopMachine: PMStopMachine): Observable<ApiResponse<PMStopMachine>> {
     let currentUserSubject = JSON.parse(localStorage.getItem('currentUser'));
     const name = currentUserSubject.fullName;
+    const date = new Date(pmStopMachine.date_STOP); // convert string to Date
+    // date.setDate(date.getDate() - 1);
+    const dd = String(date.getDate()).padStart(2, '0');
+    const mm = String(date.getMonth() + 1).padStart(2, '0');
+    const yyyy = date.getFullYear();
+
+    console.log(`${yyyy}-${mm}-${dd}`);
+
     const formattedData = {
       ...pmStopMachine,
       "created_BY": name,
       "last_UPDATED_BY": name,
-      date_STOP: toBackendTimestamp(pmStopMachine.date_STOP.toString(), '00:00'),
-      start_TIME: toBackendTimestamp(pmStopMachine.date_STOP.toString(), pmStopMachine.start_TIME),
-      end_TIME: toBackendTimestamp(pmStopMachine.date_STOP.toString(), pmStopMachine.end_TIME)
+      date_STOP: toBackendTimestamp(`${yyyy}-${mm}-${dd}`, '00:00'),
+      start_TIME: toBackendTimestamp(`${yyyy}-${mm}-${dd}`, pmStopMachine.start_TIME),
+      end_TIME: toBackendTimestamp(`${yyyy}-${mm}-${dd}`, pmStopMachine.end_TIME)
     };
+    console.log(formattedData)
 
     return this.http
       .post<ApiResponse<PMStopMachine>>(
         environment.apiUrlWebAdmin + '/insertPMStop',
         formattedData,
+        // null,
         { headers: this.getHeaders() } // Menyertakan header
       )
       .pipe(

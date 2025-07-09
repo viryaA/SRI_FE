@@ -15,4 +15,5 @@ export class PMStopMachine  {
     total_TIME_STOP_SHIFT3: number;
     total_TIME_STOP_SHIFT2: number;
     total_TIME_STOP:        number;
+
 }

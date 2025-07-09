@@ -21,6 +21,7 @@ declare var $: any;
 })
 export class ViewWorkDayComponent implements OnInit {
   shifts = ["Shift 3", "Shift 1", "Shift 2"];
+  shiftOT = ["Shift 3", "Shift 1", "Shift 2"];
   title = "Normal Work Day"
   shift1Switches = Array(3).fill(true);
   shift1Reasons = Array(3).fill(new DWorkDay);
@@ -33,6 +34,7 @@ export class ViewWorkDayComponent implements OnInit {
 
   ttperHourSwitches = new WDHoursSpecific;
   ttperHourReasons = Array(3).fill(new DWorkDay);
+  prevdayselected = ""
 
   Loading = true;
   isSaturday = false;
@@ -199,6 +201,45 @@ export class ViewWorkDayComponent implements OnInit {
     return ( `${dayValue}-${monthValue}-${yearValue}`);
   }
 
+  getdateselectedOffsetMin1() {
+    // Original selected date
+    const targetDate = new Date(this.calendar.year, this.selectedDay.month - 1, this.selectedDay.days);
+
+    // Offset by 1 day
+    targetDate.setDate(targetDate.getDate() - 1);
+
+    // Optional: get day name (not returned in this function, but available if needed)
+    const options: Intl.DateTimeFormatOptions = { weekday: 'long' };
+    const dayName = targetDate.toLocaleDateString('en-US', options);
+
+    // Extract day, month, and year
+    const dayValue = String(targetDate.getDate()).padStart(2, '0');
+    const monthValue = String(targetDate.getMonth() + 1).padStart(2, '0');
+    const yearValue = targetDate.getFullYear();
+
+    return `${dayValue}-${monthValue}-${yearValue}`;
+  }
+
+  getdateselectedOffsetPlus1() {
+    // Original selected date
+    const targetDate = new Date(this.calendar.year, this.selectedDay.month - 1, this.selectedDay.days);
+
+    // Offset by 1 day
+    targetDate.setDate(targetDate.getDate() + 1);
+
+    // Optional: get day name (not returned in this function, but available if needed)
+    const options: Intl.DateTimeFormatOptions = { weekday: 'long' };
+    const dayName = targetDate.toLocaleDateString('en-US', options);
+
+    // Extract day, month, and year
+    const dayValue = String(targetDate.getDate()).padStart(2, '0');
+    const monthValue = String(targetDate.getMonth() + 1).padStart(2, '0');
+    const yearValue = targetDate.getFullYear();
+
+    return `${dayValue}-${monthValue}-${yearValue}`;
+  }
+
+
   getdateselectedFlip(){
     const targetDate = new Date(this.calendar.year, this.selectedDay.month -1, this.selectedDay.days);
     const options: Intl.DateTimeFormatOptions = { weekday: 'long' };
@@ -213,6 +254,8 @@ export class ViewWorkDayComponent implements OnInit {
   async handleShiftChange(shiftIndex: number, shift: string) {
     this.Loading = true;
     const ftargetDate = this.getdateselected();
+    console.log("overtimebukan bang :"+this.overTimeSwitch);
+
     try {
       if (this.shift1Switches[shiftIndex]) {
         const Times = [
@@ -232,6 +275,7 @@ export class ViewWorkDayComponent implements OnInit {
         } catch (error) {
           this.errorMessage = 'Failed to update work day specific: ' + error.message;
         }
+
       } else {
         try{
           const response = await this.workDayService.updateShiftTimes(
@@ -242,8 +286,80 @@ export class ViewWorkDayComponent implements OnInit {
             shiftIndex == 0 ? 3 : shiftIndex
           ).toPromise();
           this.perHourShift = response.data;
+
         } catch (error) {
           this.errorMessage = 'Failed to update work day specific: ' + error.message;
+        }
+      }
+
+      if(this.overTimeSwitch){
+        this.tlSwitches[shiftIndex] = !this.shift1Switches[shiftIndex];
+        this.ttSwitches[shiftIndex] = !this.shift1Switches[shiftIndex];
+        if (this.tlSwitches[shiftIndex]) {
+          const Times = [
+            { start: '23:30', end: '07:10' }, // Shift 3
+            { start: '07:10', end: '15:50' }, // Shift 1
+            { start: '15:50', end: '23:30' }, // Shift 2
+          ];
+          try{
+            const response = await this.workDayService.updateShiftTimes(
+              Times[shiftIndex].start,
+              Times[shiftIndex].end,
+              this.getdateselected(),
+              this.tlperHourSwitches.description,
+              shiftIndex == 0 ? 3 : shiftIndex
+            ).toPromise();
+            this.tlperHourSwitches = response.data;
+          } catch (error) {
+            this.errorMessage = 'Failed to update work day specific: ' + error.message;
+          }
+        } else {
+          try{
+            const response = await this.workDayService.updateShiftTimes(
+              "00:00",
+              "00:00",
+              this.getdateselected(),
+              this.tlperHourSwitches.description,
+              shiftIndex == 0 ? 3 : shiftIndex
+            ).toPromise();
+            this.tlperHourSwitches = response.data;
+          } catch (error) {
+            this.errorMessage = 'Failed to update work day specific: ' + error.message;
+          }
+        }
+
+        if (this.ttSwitches[shiftIndex]) {
+          const Times = [
+            { start: '23:30', end: '07:10' }, // Shift 3
+            { start: '07:10', end: '15:50' }, // Shift 1
+            { start: '15:50', end: '23:30' }, // Shift 2
+          ];
+          try{
+            const response = await this.workDayService.updateShiftTimes(
+              Times[shiftIndex].start,
+              Times[shiftIndex].end,
+              this.getdateselected(),
+              this.ttperHourSwitches.description,
+              shiftIndex == 0 ? 3 : shiftIndex
+            ).toPromise();
+            // console.log(response.data);
+            this.ttperHourSwitches = response.data;
+          } catch (error) {
+            this.errorMessage = 'Failed to update work day specific: ' + error.message;
+          }
+        } else {
+          try{
+            const response = await this.workDayService.updateShiftTimes(
+              "00:00",
+              "00:00",
+              this.getdateselected(),
+              this.ttperHourSwitches.description,
+              shiftIndex == 0 ? 3 : shiftIndex
+            ).toPromise();
+            this.ttperHourSwitches = response.data;
+          } catch (error) {
+            this.errorMessage = 'Failed to update work day specific: ' + error.message;
+          }
         }
       }
 
@@ -346,8 +462,6 @@ export class ViewWorkDayComponent implements OnInit {
         }
       }
 
-      // await this.loadWorkday();
-      // await this.loadHours();
     } catch (error) {
       this.errorMessage = 'Failed to load work day: ' + error.message;
     }
@@ -710,6 +824,7 @@ export class ViewWorkDayComponent implements OnInit {
           });
           try{
             const response = await this.workDayService.getWorkDayByDate(this.getdateselected()).toPromise();
+            console.log(response);
             if(response.data){
               this.selectedDay.detail = response.data;
             }
@@ -777,11 +892,26 @@ export class ViewWorkDayComponent implements OnInit {
       const options: Intl.DateTimeFormatOptions = { weekday: 'long' };
       const dayName = eventDate.toLocaleDateString('en-US', options);
       this.isSaturday = dayName == "Saturday" ? true : false;
+      this.isMonday = dayName == "Monday" ? true : false;
+      if(this.isMonday){
+        this.shifts = ["Shift 1", "Shift 2"];
+      }else{
+        this.shifts = ["Shift 3", "Shift 1", "Shift 2"];
+      }
+
+      const previousDate = new Date(eventDate);
+      previousDate.setDate(eventDate.getDate() - 1);
+      const previousDayName = previousDate.toLocaleDateString('en-US', options);
+
+      const pdayValue = previousDate.getDate();
+      const pmonthValue = previousDate.getMonth();
+      const pyearValue = previousDate.getFullYear();
+      this.prevdayselected = `${previousDayName}, ${pdayValue} ${this.monthNames[pmonthValue]} ${pyearValue}`;
       // Extract day, month, and year
       const dayValue = eventDate.getDate();
       const monthValue = eventDate.getMonth();
       const yearValue = eventDate.getFullYear();
-      this.newEvent.title = `${dayName}, ${dayValue} - ${this.monthNames[monthValue]} - ${yearValue}`;
+      this.newEvent.title = `${dayName}, ${dayValue} ${this.monthNames[monthValue]} ${yearValue}`;
       this.loadReason();
       this.loadSelectDay();
       if(this.tabset)
@@ -890,9 +1020,9 @@ export class ViewWorkDayComponent implements OnInit {
 
       for (let shiftIndex = 0; shiftIndex < Times.length; shiftIndex++) {
         const response = await this.workDayService.updateShiftTimes(
-          shiftIndex == 0 ? "23:30":"00:00",
-          shiftIndex == 0 ? "07:10":"00:00",
-          this.getdateselected(),
+          "00:00",
+          "00:00",
+          shiftIndex == 0 ? this.getdateselectedOffsetPlus1() :this.getdateselected(),
           "WD_NORMAL",
           shiftIndex == 0 ? 3 : shiftIndex
         ).toPromise();
@@ -903,7 +1033,7 @@ export class ViewWorkDayComponent implements OnInit {
         const response = await this.workDayService.updateShiftTimes(
           Times[shiftIndex].start,
           Times[shiftIndex].end,
-          this.getdateselected(),
+          shiftIndex == 0 ? this.getdateselectedOffsetPlus1() :this.getdateselected(),
           "OT_TT",
           shiftIndex == 0 ? 3 : shiftIndex
         ).toPromise();
@@ -914,7 +1044,7 @@ export class ViewWorkDayComponent implements OnInit {
         const response = await this.workDayService.updateShiftTimes(
           Times[shiftIndex].start,
           Times[shiftIndex].end,
-          this.getdateselected(),
+          shiftIndex == 0 ? this.getdateselectedOffsetPlus1() :this.getdateselected(),
           "OT_TL",
           shiftIndex == 0 ? 3 : shiftIndex
         ).toPromise();
@@ -941,19 +1071,23 @@ export class ViewWorkDayComponent implements OnInit {
   }
 
   async OffWorkday() {
-  this.Loading = true;
-    Object.assign(this.selectedDay.detail, {
-      iot_TL_1: 0,
-      iot_TL_2: 0,
+    this.Loading = true;
+    const responsePlus = await this.workDayService.getWorkDayByDate(this.getdateselectedOffsetPlus1()).toPromise();
+    let dataOffsetPlus = responsePlus.data
+    const isShift1Off = dataOffsetPlus.iwd_SHIFT_1 === 0;
+    const isShift2Off = dataOffsetPlus.iwd_SHIFT_2 === 0;
+
+    const off = isShift1Off && isShift2Off ? 1 : 0;
+    const semi_OFF = off === 0 && (isShift1Off || isShift2Off) ? 1 : 0;
+
+    Object.assign(dataOffsetPlus, {
       iot_TL_3: 0,
-      iot_TT_1: 0,
-      iot_TT_2: 0,
       iot_TT_3: 0,
-      iwd_SHIFT_1: 0,
-      iwd_SHIFT_2: 0,
       iwd_SHIFT_3: 0,
-      off: 1,
-    });
+      off: off,
+      semi_OFF: semi_OFF,
+    })
+
     if(!this.overTimeSwitch){
       try {
         for (let i = 1; i <= 3; i++) {
@@ -970,14 +1104,33 @@ export class ViewWorkDayComponent implements OnInit {
         this.errorMessage = 'Failed to update work day specific: ' + error.message;
       }
     }
+
     try {
-      const response = await this.workDayService.updateWorkDay(this.selectedDay.detail).toPromise();
-      if (response.data) {
-        await this.refreshWorkday();
-        if (this.weekend) {
-          // Add logic here if needed
-        }
-      }
+      const responseNextDay = await this.workDayService.updateWorkDay(dataOffsetPlus).toPromise();
+      // if (responseNextDay.data) {
+      //   console.log("data ada di pertama")
+      //   await this.refreshWorkday();
+      //   console.log("selesai data pertama");
+      // }
+      Object.assign(this.selectedDay.detail, {
+        iot_TL_1: 0,
+        iot_TL_2: 0,
+        iot_TT_1: 0,
+        iot_TT_2: 0,
+        iwd_SHIFT_1: 0,
+        iwd_SHIFT_2: 0,
+        off: 1,
+        semi_OFF: 0,
+      });
+
+      console.log(this.selectedDay.detail);
+      const responseCurrentDay = await this.workDayService.updateWorkDay(this.selectedDay.detail).toPromise();
+      // if (responseCurrentDay.data) {
+      //   console.log("data ke 2 ada")
+      //   await this.refreshWorkday();
+      //   console.log("selesai data ke2");
+      // }
+      await this.refreshWorkday();
     } catch (error) {
       this.errorMessage = 'Failed to update work day hours: ' + error.message;
     }
@@ -994,14 +1147,49 @@ export class ViewWorkDayComponent implements OnInit {
 
     try {
       for (let i = 0; i < Times.length; i++) {
+        // if(this.isMonday && i == 0){
+        //   continue
+        //   // const response = await this.workDayService.updateShiftTimes(
+        //   //   "00:00",
+        //   //   "00:00",
+        //   //   i === 0 ? this.getdateselectedOffsetMin1() : this.getdateselected(),
+        //   //   "WD_NORMAL",
+        //   //   i == 0 ? 3 : i
+        //   // ).toPromise();
+        //   // this.perHourShift = response.data;
+        //   console.log(this.ttperHourSwitches);
+        //   console.log(this.tlperHourSwitches);
+        // }else{
+          const response = await this.workDayService.updateShiftTimes(
+            Times[i].start,
+            Times[i].end,
+            i === 0 ? this.getdateselectedOffsetPlus1() : this.getdateselected(),
+            "WD_NORMAL",
+            i == 0 ? 3 : i
+          ).toPromise();
+          this.perHourShift = response.data;
+        // }
+      }
+
+      for (let shiftIndex = 0; shiftIndex < Times.length; shiftIndex++) {
         const response = await this.workDayService.updateShiftTimes(
-          Times[i].start,
-          Times[i].end,
-          this.getdateselected(),
-          "WD_NORMAL",
-          i === 0 ? 3 : i
+          "00:00",
+          "00:00",
+          shiftIndex === 0 ? this.getdateselectedOffsetPlus1() : this.getdateselected(),
+          "OT_TT",
+          shiftIndex == 0 ? 3 : shiftIndex
         ).toPromise();
-        this.perHourShift = response.data;
+        this.ttperHourSwitches = response.data;
+      }
+
+      for (let shiftIndex = 0; shiftIndex < Times.length; shiftIndex++) {
+        const response = await this.workDayService.updateShiftTimes(
+          "00:00",
+          "00:00",
+          shiftIndex === 0 ? this.getdateselectedOffsetPlus1() : this.getdateselected(),
+          "OT_TL",
+          shiftIndex == 0 ? 3 : shiftIndex
+        ).toPromise();
       }
     } catch (error) {
       this.errorMessage = 'Failed to update work day specific: ' + error.message;
@@ -1011,26 +1199,24 @@ export class ViewWorkDayComponent implements OnInit {
         Object.assign(this.selectedDay.detail, {
           iot_TL_1: 1,
           iot_TL_2: 1,
-          iot_TL_3: 1,
+          // iot_TL_3: 1,
           iot_TT_1: 1,
           iot_TT_2: 1,
-          iot_TT_3: 1,
+          // iot_TT_3: 1,
           iwd_SHIFT_1: 0,
           iwd_SHIFT_2: 0,
-          iwd_SHIFT_3: 0,
+          // iwd_SHIFT_3: 0,
           off: 1,
         });
       } else {
         Object.assign(this.selectedDay.detail, {
           iot_TL_1: 0,
           iot_TL_2: 0,
-          iot_TL_3: 0,
           iot_TT_1: 0,
           iot_TT_2: 0,
-          iot_TT_3: 0,
           iwd_SHIFT_1: 1,
           iwd_SHIFT_2: 1,
-          iwd_SHIFT_3: 1,
+          semi_OFF:0,
           off: 0,
         });
       }
@@ -1052,220 +1238,5 @@ export class ViewWorkDayComponent implements OnInit {
     this.loadReason();
     this.loadSelectDay();
   }
-  async exportWorkdayTemplate(month: number, year: number) {
-    const workbook = new ExcelJS.Workbook();
-    const worksheet = workbook.addWorksheet('Workday Schedule');
 
-    const columns = [
-      'DATE_WD', 'SHIFT1_START_TIME', 'SHIFT1_END_TIME', 'SHIFT1_OFF', 'SHIFT1_REASON_OFF', 'SHIFT1_START_OVERTIME', 'SHIFT1_END_OVERTIME',
-      'SHIFT2_START_TIME', 'SHIFT2_END_TIME', 'SHIFT2_OFF', 'SHIFT2_REASON_OFF', 'SHIFT2_START_OVERTIME', 'SHIFT2_END_OVERTIME',
-      'SHIFT3_START_TIME', 'SHIFT3_END_TIME', 'SHIFT3_OFF', 'SHIFT3_REASON_OFF', 'SHIFT3_START_OVERTIME', 'SHIFT3_END_OVERTIME',
-      'DESCRIPTION'
-    ];
-
-    worksheet.columns = columns.map(header => ({ header, key: header, width: 20 }));
-
-    const daysInMonth = new Date(year, month, 0).getDate(); // Last day of month
-
-    // Add 3 rows per day: WD_NORMAL, OT_TT, OT_TL
-    for (let day = 1; day <= daysInMonth; day++) {
-      const dateStr = new Date(year, month - 1, day).toLocaleDateString('en-GB'); // format: DD/MM/YYYY
-      const dateFormat = dateStr.replace(/\//g, '-');
-
-      const descriptions = ['WD_NORMAL', 'OT_TT', 'OT_TL'];
-
-      for (const description of descriptions) {
-        const row = worksheet.addRow({ DATE_WD: dateStr, DESCRIPTION: description });
-
-        const baseCols = [
-          'SHIFT1_START_TIME', 'SHIFT1_END_TIME', 'SHIFT1_OFF', 'SHIFT1_REASON_OFF',
-          'SHIFT2_START_TIME', 'SHIFT2_END_TIME', 'SHIFT2_OFF', 'SHIFT2_REASON_OFF',
-          'SHIFT3_START_TIME', 'SHIFT3_END_TIME', 'SHIFT3_OFF', 'SHIFT3_REASON_OFF'
-        ];
-
-        const overtimeCols = [
-          'SHIFT1_START_OVERTIME', 'SHIFT1_END_OVERTIME',
-          'SHIFT2_START_OVERTIME', 'SHIFT2_END_OVERTIME',
-          'SHIFT3_START_OVERTIME', 'SHIFT3_END_OVERTIME'
-        ];
-
-        // Lock DATE_WD and DESCRIPTION always
-        row.getCell('DATE_WD').protection = { locked: true };
-        row.getCell('DESCRIPTION').protection = { locked: true };
-
-        if (description === 'WD_NORMAL') {
-          const responseWDS = await this.workDayService.getDWorkDayHoursSpecificByDateDesc(dateFormat, "WD_NORMAL").toPromise();
-          const dataWDN = responseWDS?.data;
-
-          const flipDate = (dateStr: string): string => {
-            const [year, month, day] = dateStr.split("-");
-            return `${day}-${month}-${year}`;
-          };
-
-          const on_off = this.work_days.find(item =>
-            String(item.date_WD).includes(flipDate(dateFormat))
-          );
-
-          const responseReason = await this.workDayService.getDWorkDayByDate(dateFormat).toPromise();
-          const reason = responseReason?.data
-          console.log(on_off)
-          const timeCols = [
-            { key: 'SHIFT1_START_TIME', value: dataWDN?.shift1_START_TIME },
-            { key: 'SHIFT1_END_TIME', value: dataWDN?.shift1_END_TIME },
-            { key: 'SHIFT2_START_TIME', value: dataWDN?.shift2_START_TIME },
-            { key: 'SHIFT2_END_TIME', value: dataWDN?.shift2_END_TIME },
-            { key: 'SHIFT3_START_TIME', value: dataWDN?.shift3_START_TIME },
-            { key: 'SHIFT3_END_TIME', value: dataWDN?.shift3_END_TIME },
-            { key: 'SHIFT1_OFF', value: on_off?.iwd_SHIFT_1 === 1 ? "yes" : "no" },
-            { key: 'SHIFT2_OFF', value: on_off?.iwd_SHIFT_2 === 1 ? "yes" : "no" },
-            { key: 'SHIFT3_OFF', value: on_off?.iwd_SHIFT_3 === 1 ? "yes" : "no" },
-          ];
-
-          // If reasons exist, add them
-          if (reason?.length >= 1) {
-            timeCols.push(
-              { key: 'SHIFT1_REASON_OFF', value: String(reason[0]?.description ?? '') },
-              { key: 'SHIFT2_REASON_OFF', value: String(reason[1]?.description ?? '') },
-              { key: 'SHIFT3_REASON_OFF', value: String(reason[2]?.description ?? '') }
-            );
-          }
-
-
-          timeCols.forEach(({ key, value }) => {
-            const cell = row.getCell(key);
-            cell.value = value ?? '';
-            cell.protection = { locked: false };
-            cell.fill = null;
-          });
-
-          // Unlock OFF and REASON_OFF columns
-          ['SHIFT1_OFF', 'SHIFT1_REASON_OFF', 'SHIFT2_OFF', 'SHIFT2_REASON_OFF', 'SHIFT3_OFF', 'SHIFT3_REASON_OFF'].forEach(col => {
-            const cell = row.getCell(col);
-            cell.protection = { locked: false };
-            cell.fill = null;
-          });
-
-          // Lock and highlight OT columns
-          overtimeCols.forEach(col => {
-            const cell = row.getCell(col);
-            cell.protection = { locked: true };
-            cell.fill = {
-              type: 'pattern',
-              pattern: 'solid',
-              fgColor: { argb: 'FFFF0000' }
-            };
-          });
-
-        } else {
-          // OT_TT or OT_TL
-          const responseWDS = await this.workDayService.getDWorkDayHoursSpecificByDateDesc(dateFormat, description).toPromise();
-
-          const dataWDN = responseWDS?.data;
-
-                    const timeCols = [
-            { key: 'SHIFT1_START_OVERTIME', value: dataWDN?.shift1_START_TIME },
-            { key: 'SHIFT1_END_OVERTIME', value: dataWDN?.shift1_END_TIME },
-            { key: 'SHIFT2_START_OVERTIME', value: dataWDN?.shift2_START_TIME },
-            { key: 'SHIFT2_END_OVERTIME', value: dataWDN?.shift2_END_TIME },
-            { key: 'SHIFT3_START_OVERTIME', value: dataWDN?.shift3_START_TIME },
-            { key: 'SHIFT3_END_OVERTIME', value: dataWDN?.shift3_END_TIME }
-          ];
-
-
-          timeCols.forEach(({ key, value }) => {
-            const cell = row.getCell(key);
-            cell.value = value ?? '';
-            cell.protection = { locked: false };
-            cell.fill = null;
-          });
-
-          baseCols.forEach(col => {
-            const cell = row.getCell(col);
-            cell.protection = { locked: true };
-            cell.fill = {
-              type: 'pattern',
-              pattern: 'solid',
-              fgColor: { argb: 'FFFF0000' }
-            };
-          });
-
-          overtimeCols.forEach(col => {
-            const cell = row.getCell(col);
-            cell.protection = { locked: false };
-            cell.fill = null;
-          });
-        }
-
-        // Apply dropdown validation to SHIFTx_OFF
-        const dropDownCols = ['SHIFT1_OFF', 'SHIFT2_OFF', 'SHIFT3_OFF'];
-        dropDownCols.forEach(col => {
-          const cell = row.getCell(col);
-          worksheet.dataValidations.add(cell.address, {
-            type: 'list',
-            allowBlank: true,
-            formulae: ['"yes,no"'],
-            showErrorMessage: true,
-            errorStyle: 'warning',
-            errorTitle: 'Invalid input',
-            error: 'Please select either "yes" or "no"'
-          });
-        });
-        const borderStyle = {
-          top: { style: 'thin' },
-          left: { style: 'thin' },
-          bottom: { style: 'thin' },
-          right: { style: 'thin' }
-        };
-
-        columns.forEach(col => {
-          const cell = row.getCell(col);
-          cell.border = borderStyle;
-
-          // Only apply background color if not already set
-          if (!cell.fill) {
-            if (col.includes('SHIFT1_')) {
-              cell.fill = {
-                type: 'pattern',
-                pattern: 'solid',
-                fgColor: { argb: 'FFCCE5FF' } // Light Blue
-              };
-            } else if (col.includes('SHIFT2_')) {
-              cell.fill = {
-                type: 'pattern',
-                pattern: 'solid',
-                fgColor: { argb: 'FFD5F5D5' } // Light Green
-              };
-            } else if (col.includes('SHIFT3_')) {
-              cell.fill = {
-                type: 'pattern',
-                pattern: 'solid',
-                fgColor: { argb: 'FFE5CCFF' } // Light Purple
-              };
-            }
-          }
-        });
-
-
-      }
-    }
-
-    // Enable worksheet protection
-    worksheet.protect('your-password', {
-      selectLockedCells: true,
-      selectUnlockedCells: true,
-      formatCells: false,
-      formatColumns: false,
-      formatRows: false,
-      insertColumns: false,
-      insertRows: false,
-      insertHyperlinks: false,
-      deleteColumns: false,
-      deleteRows: false
-    });
-
-    // Export file
-    const buffer = await workbook.xlsx.writeBuffer();
-    const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-    saveAs(blob, `Workday_Template_${month}_${year}.xlsx`);
-  }
 }

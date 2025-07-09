@@ -7,6 +7,7 @@ import { HttpClient } from '@angular/common/http';
 import { User } from '../models/User';
 import { RestService } from './rest.service';
 import { MarketingOrderService } from './transaksi/marketing order/marketing-order.service';
+import {jwtDecode} from 'jwt-decode';
 
 @Injectable({
   providedIn: 'root',
@@ -42,24 +43,11 @@ export class AuthenticationService {
     );
   }
 
-  // login(userName: string, pin: string) {
-  //     // return this.http.post(environment.apiUrlWebAdmin+'/login', JSON.stringify({ userName: userName, password: pin }),{ observe: "response" }) // << PASSWORD
-  //     return this.http.post(environment.apiUrlLocalAdmin+'/login', JSON.stringify({ userName: userName, pin: pin }),{ observe: "response" }) // PIN
-  //         .pipe(map(res => {
-  //           this.token = res.headers.get("authorization");
-  //             // login successful if there's a jwt token in the response
-  //             if (res && this.token) {
-  //                   this.fetchUsername(userName)
-  //             }
-
-  //         }));
-  // }
-
   fetchUsername(userName) {
+    localStorage.setItem('token', this.token);
     this.rest.getUserByUserName(userName).subscribe((res) => {
       this.data = res.data;
       localStorage.setItem('currentUser', JSON.stringify(this.data));
-      localStorage.setItem('token', this.token);
       this.currentUserSubject.next(this.data);
       location.reload();
     });
@@ -71,4 +59,16 @@ export class AuthenticationService {
     localStorage.removeItem('token');
     this.currentUserSubject.next(null);
   }
+
+  // In authentication.service.ts
+  isTokenExpired(token: string): boolean {
+    if (!token) return true;
+    try {
+      const decoded: { exp: number } = jwtDecode(token);
+      return decoded.exp < Math.floor(Date.now() / 1000);
+    } catch {
+      return true;
+    }
+  }
+
 }

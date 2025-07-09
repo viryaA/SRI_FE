@@ -31,10 +31,10 @@ export class DefaultLayoutComponent {
 
     this.masterPPC = [
       { name: 'Plant', url: '/master-data/view-plant', icon: 'cil-minus' },
-      { name: 'Building', url: '/master-data/view-building', icon: 'cil-minus' },      
+      { name: 'Building', url: '/master-data/view-building', icon: 'cil-minus' },
       { name: 'Machine Curing', url: '/master-data/view-curing-machine', icon: 'cil-minus' },
       { name: 'Machine Curing Type', url: '/master-data/view-machine-curing-type', icon: 'cil-minus' },
-      { name: 'Max Capacity', url: '/master-data/view-max-capacity', icon: 'cil-minus' },
+      // { name: 'Max Capacity', url: '/master-data/view-max-capacity', icon: 'cil-minus' },
       { name: 'Pattern', url: '/master-data/view-pattern', icon: 'cil-minus' },
       { name: 'Size', url: '/master-data/view-size', icon: 'cil-minus' },
       { name: 'Product Type', url: '/master-data/view-product-type', icon: 'cil-minus' },
@@ -56,6 +56,13 @@ export class DefaultLayoutComponent {
   }
 
   ngOnInit(): void {
+    // const token = localStorage.getItem('token');
+    //
+    // if (this.authenticationService.isTokenExpired(token)) {
+    //   this.logout();
+    //   return;
+    // }
+
     if (this.role === 'PPC') {
       // PPC: show Master Data and Transaksi
       this.masterPPC.forEach((item) => {
@@ -80,4 +87,5 @@ export class DefaultLayoutComponent {
     this.authenticationService.logout();
     this.router.navigate(['/login']);
   }
+
 }

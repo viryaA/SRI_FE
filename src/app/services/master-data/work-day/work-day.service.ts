@@ -6,7 +6,6 @@ import { ApiResponse } from 'src/app/response/Response';
 import { throwError } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { map, catchError } from 'rxjs/operators';
-// import { WDHours } from 'src/app/models/WDHours';
 import { DWorkDay } from 'src/app/models/DWorkDay';
 import { WDHoursSpecific } from 'src/app/models/WDHoursSpecific';
 import { PMStopMachine } from '../../../models/pm-stop-machine';

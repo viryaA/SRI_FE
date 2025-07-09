@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable, throwError } from 'rxjs';
 import { User } from '../models/User';
@@ -15,13 +15,19 @@ export class RestService {
   constructor(private http: HttpClient, private router: Router) {}
 
   //----START OF GET
-  public getUserByUserName(userName): Observable<User> {
-    return this.http.get(environment.apiUrlLocalAdmin + '/getUsername/' + userName).pipe(
+  public getUserByUserName(userName: string): Observable<User> {
+    const token = localStorage.getItem('token');
+    console.log(token);
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+
+    return this.http.get<any>(`${environment.apiUrlLocalAdmin}/getUsername/${userName}`, { headers }).pipe(
       map((response) => {
         return new User(response);
       }),
       catchError((err) => {
-        return throwError(err);
+        return throwError(() => err);
       })
     );
   }
