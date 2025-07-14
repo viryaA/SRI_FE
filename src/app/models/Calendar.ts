@@ -15,12 +15,14 @@ export class dayCalendar{
   month: number;
   days: number;
   weekend: boolean;
+  overtime: boolean;
   detail: WorkDay;
-  constructor( days: number, month: number, weekend: boolean,  detail:WorkDay) {
+  constructor( days: number, month: number, weekend: boolean, detail:WorkDay, overtime: boolean) {
     this.month = month;
     this.days = days;
     this.weekend = weekend;
     this.detail = detail;
+    this.overtime = overtime;
   }
 }
 export interface Event {

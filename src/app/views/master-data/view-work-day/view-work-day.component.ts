@@ -475,7 +475,7 @@ export class ViewWorkDayComponent implements OnInit {
     'September', 'Oktober', 'November', 'Desember'
   ];
   calendar: Calendar;
-  selectedDay: dayCalendar = new dayCalendar(null,null,null,null);
+  selectedDay: dayCalendar = new dayCalendar(null,null,null,null,null);
   events: Event[] = [];
   @ViewChild('tabset', { static: false }) tabset: TabsetComponent;
 
@@ -520,9 +520,26 @@ export class ViewWorkDayComponent implements OnInit {
         // Assign work day details to calendar days
         this.calendar.days.forEach(week => {
           week.forEach(day => {
+            console.log("lenght: ",this.work_days.length);
             if (index < this.work_days.length) {
               day.detail = this.work_days[index];
+              console.log("Shift 1 TL: ",day.detail.iot_TL_1);
+              console.log("Shift 2 TL: ",day.detail.iot_TL_2);
+              console.log("Shift 3 TL: ",this.work_days[index +1]?.iot_TL_3);
+              console.log("Shift 1 TT: ",day.detail.iot_TT_1);
+              console.log("Shift 2 TT: ",day.detail.iot_TT_2);
+              console.log("Shift 3 TT: ",this.work_days[index +1]?.iot_TT_3);
+              console.log("Index : ", index);
+              day.overtime = !!(
+                day.detail.iot_TL_1 ||
+                day.detail.iot_TL_2 ||
+                this.work_days[index + 1]?.iot_TL_3 ||
+                day.detail.iot_TT_1 ||
+                day.detail.iot_TT_2 ||
+                this.work_days[index + 1]?.iot_TT_3
+              );
               index++;
+
             }
           });
         });
@@ -547,7 +564,7 @@ export class ViewWorkDayComponent implements OnInit {
 
   async previousMonth() {
     this.Loading = true;
-    this.selectedDay = new dayCalendar(null,null,null,null);
+    this.selectedDay = new dayCalendar(null,null,null,null,null);
     const { year, month } = this.calendar;
     const newMonth = month === 1 ? 12 : month - 1;
     const newYear = month === 1 ? year - 1 : year;
@@ -558,7 +575,7 @@ export class ViewWorkDayComponent implements OnInit {
 
   async nextMonth() {
     this.Loading = true;
-    this.selectedDay = new dayCalendar(null,null,null,null);
+    this.selectedDay = new dayCalendar(null,null,null,null,null);
     const { year, month } = this.calendar;
     const newMonth = month === 12 ? 1 : month + 1;
     const newYear = month === 12 ? year + 1 : year;
@@ -881,7 +898,7 @@ export class ViewWorkDayComponent implements OnInit {
     this.work_days_hours = new WDHours;
     this.work_days_hoursTT = new WDHours;
     this.work_days_hoursTL = new WDHours;
-    this.selectedDay = new dayCalendar(null, null, null,null);
+    this.selectedDay = new dayCalendar(null, null, null,null,null);
     if (day.days > 0) {
       this.selectedDay = day;
       // Create a date for the selected day
@@ -1073,7 +1090,9 @@ export class ViewWorkDayComponent implements OnInit {
   async OffWorkday() {
     this.Loading = true;
     const responsePlus = await this.workDayService.getWorkDayByDate(this.getdateselectedOffsetPlus1()).toPromise();
+    const responseMin = await this.workDayService.getWorkDayByDate(this.getdateselectedOffsetMin1()).toPromise();
     let dataOffsetPlus = responsePlus.data
+    let dataOffsetMin = responseMin.data
     const isShift1Off = dataOffsetPlus.iwd_SHIFT_1 === 0;
     const isShift2Off = dataOffsetPlus.iwd_SHIFT_2 === 0;
 
@@ -1107,11 +1126,7 @@ export class ViewWorkDayComponent implements OnInit {
 
     try {
       const responseNextDay = await this.workDayService.updateWorkDay(dataOffsetPlus).toPromise();
-      // if (responseNextDay.data) {
-      //   console.log("data ada di pertama")
-      //   await this.refreshWorkday();
-      //   console.log("selesai data pertama");
-      // }
+
       Object.assign(this.selectedDay.detail, {
         iot_TL_1: 0,
         iot_TL_2: 0,
@@ -1123,13 +1138,8 @@ export class ViewWorkDayComponent implements OnInit {
         semi_OFF: 0,
       });
 
-      console.log(this.selectedDay.detail);
       const responseCurrentDay = await this.workDayService.updateWorkDay(this.selectedDay.detail).toPromise();
-      // if (responseCurrentDay.data) {
-      //   console.log("data ke 2 ada")
-      //   await this.refreshWorkday();
-      //   console.log("selesai data ke2");
-      // }
+      const responsePrevDay = await this.workDayService.updateWorkDay(dataOffsetMin).toPromise();
       await this.refreshWorkday();
     } catch (error) {
       this.errorMessage = 'Failed to update work day hours: ' + error.message;

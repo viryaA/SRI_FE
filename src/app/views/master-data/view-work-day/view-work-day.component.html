@@ -80,12 +80,12 @@
               [ngStyle]="{
                 'background-color':
                   (day.detail.off === 1  && day.weekend && day.detail.off === 1 && day.detail.iwd_SHIFT_1 === 0 && day.detail.iwd_SHIFT_2 === 0 && day.detail.iwd_SHIFT_3 === 0 && day.detail.iot_TL_1 === 0 && day.detail.iot_TL_2 === 0 && day.detail.iot_TL_3 === 0 && day.detail.iot_TT_1 === 0 && day.detail.iot_TT_2 === 0 && day.detail.iot_TT_3 === 0) ? 'red' :
-                  (day.detail.off === 1 || day.detail.semi_OFF === 1) && (day.detail.iot_TL_1 === 1 || day.detail.iot_TL_2 === 1 || day.detail.iot_TL_3 === 1 || day.detail.iot_TT_1 === 1 || day.detail.iot_TT_2 === 1 || day.detail.iot_TT_3 === 1)  ? '#00ff73' :
+                  day.overtime ? '#00ff73' :
                   (day.detail.off === 1)  ? 'red' :
                   day.detail.semi_OFF === 1 ? 'yellow' : 'inherit',
                   'color':
                   (day.detail.off === 1  && day.weekend && day.detail.off === 1 && day.detail.iwd_SHIFT_1 === 0 && day.detail.iwd_SHIFT_2 === 0 && day.detail.iwd_SHIFT_3 === 0 && day.detail.iot_TL_1 === 0 && day.detail.iot_TL_2 === 0 && day.detail.iot_TL_3 === 0 && day.detail.iot_TT_1 === 0 && day.detail.iot_TT_2 === 0 && day.detail.iot_TT_3 === 0) || (day.detail.off === 1 && day.detail.semi_OFF === 0 && day.detail.iwd_SHIFT_1 === 0 && day.detail.iwd_SHIFT_2 === 0 && day.detail.iwd_SHIFT_3 === 0 && day.detail.iot_TL_1 === 0 && day.detail.iot_TL_2 === 0 && day.detail.iot_TL_3 === 0 && day.detail.iot_TT_1 === 0 && day.detail.iot_TT_2 === 0 && day.detail.iot_TT_3 === 0)   ? 'white':
-                  (day.detail.off === 1 && !(day.detail.iot_TL_1 === 1 || day.detail.iot_TL_2 === 1 || day.detail.iot_TL_3 === 1 || day.detail.iot_TT_1 === 1 || day.detail.iot_TT_2 === 1 || day.detail.iot_TT_3 === 1) )  ? 'white' : 'inherit'
+                  (day.detail.off === 1 && !day.overtime )  ? 'white' : 'inherit'
               }"
               [ngClass]="{ 'selected': day.days === selectedDay.days && day.month=== selectedDay.month  }"
               (click)="selectDay(day)" >
@@ -163,15 +163,15 @@
                   <!-- OverTime Switch -->
                   <div class="form-group d-flex">
                     <div class="mx-3">
-                        <button type="button" class="btn btn-primary "  (click)="overtimeOn()">OverTime</button>
+                        <button type="button" class="btn btn-primary "  [disabled]="overTimeSwitch || selectedDay.detail.off === 0" (click)="overtimeOn()">OverTime</button>
 <!--                      [disabled]="overTimeSwitch || selectedDay.detail.off === 0"-->
                     </div>
                     <div class="mx-3">
-                        <button type="button" class="btn btn-primary "  (click)="OffWorkday()">Off</button>
+                        <button type="button" class="btn btn-primary " [disabled]="(selectedDay.detail.off === 1  && !weekend && !overTimeSwitch) || (weekend && !overTimeSwitch)"  (click)="OffWorkday()">Off</button>
 <!--                      [disabled]="(selectedDay.detail.off === 1  && !weekend && !overTimeSwitch) || (weekend && !overTimeSwitch)"-->
                     </div>
                     <div class="mx-3">
-                        <button type="button" class="btn btn-primary " [disabled]="(weekend)" (click)="OnWorkday()">On</button>
+                        <button type="button" class="btn btn-primary " [disabled]="(selectedDay.detail.off === 0 && !overTimeSwitch) || (weekend)" (click)="OnWorkday()">On</button>
 <!--                      [disabled]="(selectedDay.detail.off === 0 && !overTimeSwitch) || (weekend)"-->
                     </div>
                   </div>
