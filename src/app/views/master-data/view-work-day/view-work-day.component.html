@@ -140,7 +140,7 @@
                       <li>Shift 2: {{ shift1Reasons[2] ? shift1Reasons[2].description : '-' }}</li>
                     </ul>
                   </div>
-                  <div *ngIf="overTimeSwitch">
+                  <div *ngIf="yesterdayOverTimeSwitch || overTimeSwitch">
                     <h4>Reason of deactive shift of overtime TT</h4>
                     <ul>
                       <li>Shift 3: {{ ttReasons[0] ? ttReasons[0].description : '-' }}</li>
@@ -158,7 +158,7 @@
               </tab>
 
               <!-- Tab 2: Shift -->
-              <tab style="width: 680px; height: 250px; overflow: auto; white-space: nowrap;" heading="Shift" >
+              <tab style="width: 680px; height: 250px; overflow: auto; white-space: nowrap;" heading="Shift"  [active]="true" >
                 <div class="form-group">
                   <!-- OverTime Switch -->
                   <div class="form-group d-flex">
@@ -233,7 +233,7 @@
                   <hr style="flex: 1; border: none; border-top: 1px solid #ccc; margin: 0 10px;">
                 </div>
                 <tabset>
-                  <tab *ngIf="overTimeSwitch" heading="TT">
+                  <tab *ngIf="yesterdayOverTimeSwitch || overTimeSwitch" heading="TT">
                     <div class="form-group">
                       <!-- TT Shift 3 -->
                       <div class="form-group">
@@ -241,7 +241,7 @@
                           <h4 style="min-width: 70px;">Shift 3</h4>
                           <label class="switch switch-label switch-primary">
                             <input type="checkbox" class="switch-input" [(ngModel)]="ttSwitches[0]" (ngModelChange)="handleShiftChangeTT(0)"
-                               [disabled]="overTimeSwitch && (shift1Switches[0] && !isMonday)"
+                               [disabled]="(shift1Switches[0] && !isMonday)"
                             >
                             <span class="switch-slider" data-checked="On" data-unchecked="Off"></span>
                           </label>{{prevdayselected}}
@@ -257,7 +257,7 @@
                           <h4 style="min-width: 70px;">Shift 1</h4>
                           <label class="switch switch-label switch-primary">
                             <input type="checkbox" class="switch-input" [(ngModel)]="ttSwitches[1]" (ngModelChange)="handleShiftChangeTT(1)"
-                               [disabled]="overTimeSwitch && shift1Switches[1]"
+                               [disabled]="shift1Switches[1]"
                             >
                             <span class="switch-slider" data-checked="On" data-unchecked="Off"></span>
                           </label>{{newEvent.title}}
@@ -273,7 +273,7 @@
                           <h4 style="min-width: 70px;">Shift 2</h4>
                           <label class="switch switch-label switch-primary">
                             <input type="checkbox" class="switch-input" [(ngModel)]="ttSwitches[2]" (ngModelChange)="handleShiftChangeTT(2)"
-                               [disabled]="overTimeSwitch && shift1Switches[2]"
+                               [disabled]="shift1Switches[2]"
                             >
                             <span class="switch-slider" data-checked="On" data-unchecked="Off"></span>
                           </label>{{newEvent.title}}
@@ -286,7 +286,7 @@
                     </div>
                   </tab>
 
-                  <tab *ngIf="overTimeSwitch" heading="TL">
+                  <tab *ngIf="yesterdayOverTimeSwitch || overTimeSwitch" heading="TL">
                     <div class="form-group">
                       <!-- TL Shift 3 -->
                       <div class="form-group">
@@ -294,7 +294,7 @@
                           <h4 style="min-width: 70px;">Shift 3</h4>
                           <label class="switch switch-label switch-primary">
                             <input type="checkbox" class="switch-input" [(ngModel)]="tlSwitches[0]" (ngModelChange)="handleShiftChangeTL(0)"
-                               [disabled]="overTimeSwitch && (shift1Switches[0] && !isMonday)"
+                               [disabled]="shift1Switches[0] && !isMonday"
                             >
                             <span class="switch-slider" data-checked="On" data-unchecked="Off"></span>
                           </label>{{prevdayselected}}
@@ -309,7 +309,7 @@
                           <h4 style="min-width: 70px;">Shift 1</h4>
                           <label class="switch switch-label switch-primary">
                             <input type="checkbox" class="switch-input" [(ngModel)]="tlSwitches[1]" (ngModelChange)="handleShiftChangeTL(1)"
-                               [disabled]="overTimeSwitch && shift1Switches[1]"
+                               [disabled]="shift1Switches[1]"
                             >
                             <span class="switch-slider" data-checked="On" data-unchecked="Off"></span>
                           </label>{{newEvent.title}}
@@ -325,7 +325,7 @@
                           <h4 style="min-width: 70px;">Shift 2</h4>
                           <label class="switch switch-label switch-primary">
                             <input type="checkbox" class="switch-input" [(ngModel)]="tlSwitches[2]" (ngModelChange)="handleShiftChangeTL(2)"
-                               [disabled]="overTimeSwitch && shift1Switches[2]"
+                               [disabled]="shift1Switches[2]"
                             >
                             <span class="switch-slider" data-checked="On" data-unchecked="Off"></span>
                           </label>{{newEvent.title}}
@@ -403,7 +403,7 @@
                 </div>
               </tab>
 
-              <tab style="width: 680px; height: 250px; overflow: auto; white-space: nowrap;" heading="Per Hour Overtime TT" *ngIf="overTimeSwitch">
+              <tab style="width: 680px; height: 250px; overflow: auto; white-space: nowrap;" heading="Per Hour Overtime TT" *ngIf="yesterdayOverTimeSwitch || overTimeSwitch">
                 <div class="form-group">
                   <div *ngFor="let shift of shiftOT; let i = index" class="hour-group mt-3">
                     <h5>{{ shift }} - {{isMonday ? newEvent.title : i == 0 ? prevdayselected : newEvent.title }}</h5>
@@ -463,7 +463,7 @@
                 </div>
               </tab>
 
-              <tab style="width: 680px; height: 250px; overflow: auto; white-space: nowrap;" heading="Per Hour Overtime TL"*ngIf="overTimeSwitch">
+              <tab style="width: 680px; height: 250px; overflow: auto; white-space: nowrap;" heading="Per Hour Overtime TL"*ngIf="yesterdayOverTimeSwitch || overTimeSwitch">
                 <div class="form-group">
                   <div *ngFor="let shift of shiftOT; let i = index" class="hour-group mt-3">
                     <h5>{{ shift }} - {{isMonday ? newEvent.title : i == 0 ? prevdayselected : newEvent.title }}</h5>

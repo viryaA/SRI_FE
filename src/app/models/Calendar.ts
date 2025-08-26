@@ -16,6 +16,8 @@ export class dayCalendar{
   days: number;
   weekend: boolean;
   overtime: boolean;
+  isOvertimeYesterday: boolean;
+  isOvertimeShift3: boolean;
   detail: WorkDay;
   constructor( days: number, month: number, weekend: boolean, detail:WorkDay, overtime: boolean) {
     this.month = month;

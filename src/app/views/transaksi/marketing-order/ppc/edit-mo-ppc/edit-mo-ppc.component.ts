@@ -44,8 +44,10 @@ export class EditMoPpcComponent implements OnInit {
   @ViewChild('sortDmo') sortDmo = new MatSort();
   @ViewChild('paginatorDmo') paginatorDmo: MatPaginator;
   searchTextDmo: string = '';
+  originalRevision : number = 0;
 
   constructor(private router: Router, private activeRoute: ActivatedRoute, private fb: FormBuilder, private moService: MarketingOrderService, private parsingNumberService: ParsingNumberService) {
+
     this.formHeaderMo = this.fb.group({
       date: [null, []],
       type: [null, []],
@@ -143,6 +145,183 @@ export class EditMoPpcComponent implements OnInit {
     this.idMo = this.activeRoute.snapshot.paramMap.get('idMo');
     this.getAllData(this.idMo);
     this.getLastIdMo();
+  }
+  prevRevValue: number = 0;
+  validateRevision() {
+    const rawValue = this.formHeaderMo.get('revision')?.value;
+    const currentValue = Number(rawValue);
+
+    if (isNaN(currentValue)) {
+      this.formHeaderMo.get('revision')?.setValue(this.originalRevision);
+      return;
+    }
+
+    if (currentValue < this.originalRevision || currentValue > this.originalRevision + 1) {
+      this.formHeaderMo.get('revision')?.setValue(this.originalRevision);
+      if(this.prevRevValue != this.originalRevision) {
+        this.getAllData(this.idMo);
+      }
+      this.prevRevValue = this.originalRevision;
+      return;
+    } else if (currentValue === this.originalRevision) {
+      this.getAllData(this.idMo);
+    } else {
+      Swal.fire({
+        title: 'Loading...',
+        html: 'Please wait while fetching data marketing order.',
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading(),
+      });
+
+      Promise.all([
+        this.refreshMonthWorkDay(),
+        this.refreshDetailMO()
+      ]).then(() => {
+        Swal.close();
+      });
+    }
+    this.prevRevValue = currentValue;
+  }
+
+  refreshMonthWorkDay(){
+    const month0 = this.formHeaderMo.get('month_0')?.value;
+    const month1 = this.formHeaderMo.get('month_1')?.value;
+    const month2 = this.formHeaderMo.get('month_2')?.value;
+    const extractMonthYear = (monthYear: string) => {
+      const [year, month] = monthYear.split('-'); // Pisahkan tahun dan bulan
+      return { year: Number(year), month: Number(month) };
+    };
+
+    const { month: month1Val, year: year1Val } = extractMonthYear(month0);
+    const { month: month2Val, year: year2Val } = extractMonthYear(month1);
+    const { month: month3Val, year: year3Val } = extractMonthYear(month2);
+
+    const varWd = {
+      month1: month1Val,
+      year1: year1Val,
+      month2: month2Val,
+      year2: year2Val,
+      month3: month3Val,
+      year3: year3Val,
+    };
+    this.getWorkDays(varWd);
+  }
+
+  getWorkDays(data: any) {
+    this.moService.getWorkDay(data).subscribe(
+      (response) => {
+        if (response && response.data && response.data.length > 0) {
+          let workDataM0 = response.data[0];
+          let workDataM1 = response.data[1];
+          let workDataM2 = response.data[2];
+
+          this.formHeaderMo.patchValue({
+            nwd_0: this.parsingNumberService.separatorAndDecimalView(workDataM0.wdNormalTire),
+            nwt_0: this.parsingNumberService.separatorAndDecimalView(workDataM0.wdNormalTire),
+            tl_ot_wd_0: this.parsingNumberService.separatorAndDecimalView(workDataM0.wdOtTl),
+            tt_ot_wd_0: this.parsingNumberService.separatorAndDecimalView(workDataM0.wdOtTt),
+            total_tlwd_0: this.parsingNumberService.separatorAndDecimalView(workDataM0.totalWdTl),
+            total_ttwd_0: this.parsingNumberService.separatorAndDecimalView(workDataM0.totalWdTt),
+
+            nwd_1: this.parsingNumberService.separatorAndDecimalView(workDataM1.wdNormalTire),
+            nwt_1: this.parsingNumberService.separatorAndDecimalView(workDataM1.wdNormalTire),
+            tl_ot_wd_1: this.parsingNumberService.separatorAndDecimalView(workDataM1.wdOtTl),
+            tt_ot_wd_1: this.parsingNumberService.separatorAndDecimalView(workDataM1.wdOtTt),
+            total_tlwd_1: this.parsingNumberService.separatorAndDecimalView(workDataM1.totalWdTl),
+            total_ttwd_1: this.parsingNumberService.separatorAndDecimalView(workDataM1.totalWdTt),
+
+            nwd_2: this.parsingNumberService.separatorAndDecimalView(workDataM2.wdNormalTire),
+            nwt_2: this.parsingNumberService.separatorAndDecimalView(workDataM2.wdNormalTire),
+            tl_ot_wd_2: this.parsingNumberService.separatorAndDecimalView(workDataM2.wdOtTl),
+            tt_ot_wd_2: this.parsingNumberService.separatorAndDecimalView(workDataM2.wdOtTt),
+            total_tlwd_2: this.parsingNumberService.separatorAndDecimalView(workDataM2.totalWdTl),
+            total_ttwd_2: this.parsingNumberService.separatorAndDecimalView(workDataM2.totalWdTt),
+          });
+        } else {
+          Swal.fire({
+            icon: 'warning',
+            title: 'No Data',
+            text: 'No work data found.',
+          });
+        }
+      },
+      (error) => {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error Occurred',
+          text: 'Unable to retrieve work data. Please try again.',
+        });
+        console.error('Error fetching work days:', error);
+      }
+    );
+  }
+
+  refreshDetailMO(){
+    let month0full = this.formHeaderMo.get('month_0').value;
+    let month1full = this.formHeaderMo.get('month_1').value;
+    let month2full = this.formHeaderMo.get('month_2').value;
+    const monthFn = new Date(this.formHeaderMo.get('month_0').value).toLocaleDateString('en-US', { month: 'short' }).toUpperCase();
+
+
+    function formatToMMYYYY(dateString) {
+      const [year, month] = dateString.split('-');
+      return `${month}-${year}`;
+    }
+
+    month0full = formatToMMYYYY(month0full);
+    month1full = formatToMMYYYY(month1full);
+    month2full = formatToMMYYYY(month2full);
+
+    const totalHKTL1form = parseFloat(this.formHeaderMo.get('total_tlwd_0').value.replace(',', '.')) || 0;
+    const totalHKTL2from = parseFloat(this.formHeaderMo.get('total_tlwd_1').value.replace(',', '.')) || 0;
+    const totalHKTL3from = parseFloat(this.formHeaderMo.get('total_tlwd_2').value.replace(',', '.')) || 0;
+    const totalHKTT1from = parseFloat(this.formHeaderMo.get('total_ttwd_0').value.replace(',', '.')) || 0;
+    const totalHKTT2from = parseFloat(this.formHeaderMo.get('total_ttwd_1').value.replace(',', '.')) || 0;
+    const totalHKTT3from = parseFloat(this.formHeaderMo.get('total_ttwd_2').value.replace(',', '.')) || 0;
+    const totalHKTB1from = parseFloat(this.formHeaderMo.get('total_wt_0').value.replace(',', '.')) || 0;
+    const totalHKTB2form = parseFloat(this.formHeaderMo.get('total_wt_1').value.replace(',', '.')) || 0;
+    const totalHKTB3form = parseFloat(this.formHeaderMo.get('total_wt_2').value.replace(',', '.')) || 0;
+    const typeMoForm = this.formHeaderMo.get('type').value;
+
+    let data = {
+      monthYear0: month0full,
+      monthYear1: month1full,
+      monthYear2: month2full,
+      totalHKTT1: totalHKTT1from.toString(),
+      totalHKTT2: totalHKTT2from.toString(),
+      totalHKTT3: totalHKTT3from.toString(),
+      totalHKTL1: totalHKTL1form.toString(),
+      totalHKTL2: totalHKTL2from.toString(),
+      totalHKTL3: totalHKTL3from.toString(),
+      totalHKTB1: totalHKTB1from.toString(),
+      totalHKTB2: totalHKTB2form.toString(),
+      totalHKTB3: totalHKTB3form.toString(),
+      productMerk: typeMoForm,
+    };
+
+    this.moService.getDetailMarketingOrder(data).subscribe(
+      (response: ApiResponse<DetailMarketingOrder[]>) => {
+        this.detailMarketingOrder = response.data;
+        this.dataSourceDmo = new MatTableDataSource(this.detailMarketingOrder);
+        this.dataSourceDmo.sort = this.sortDmo;
+        this.dataSourceDmo.paginator = this.paginatorDmo;
+        this.detailMarketingOrder.forEach((item) => {
+          item.lockStatusM0 = 0;
+          item.lockStatusM1 = 0;
+          item.lockStatusM2 = 0;
+        });
+        // this.loadingShowData = false;
+      },
+      (error) => {
+        Swal.fire({
+          icon: 'error',
+          title: 'Failed to load detail Marketing Order',
+          text: error.message,
+          confirmButtonText: 'OK',
+        });
+        // this.loadingShowData = false;
+      }
+    );
   }
 
   get revisionControl() {
@@ -324,6 +503,8 @@ export class EditMoPpcComponent implements OnInit {
     });
 
     let typeProduct = data.type;
+    this.originalRevision = data.revisionPpc;
+    this.prevRevValue =data.revisionPpc;
     this.formHeaderMo.patchValue({
       date: new Date(data.dateValid).toISOString().split('T')[0],
       type: data.type,
@@ -405,6 +586,26 @@ export class EditMoPpcComponent implements OnInit {
 
     this.updateMonthNames(this.headerMarketingOrder);
   }
+  isMachineTypeRequired(mo: any): boolean {
+    if (!mo?.description) return false;
+
+    const needsMachineType =
+      mo.description.includes('FDR TB') || mo.description.includes('FED TB');
+
+    const machineTypeIsEmpty =
+      mo.machineType === null || mo.machineType === 'undefined' || mo.machineType === undefined;
+
+    return !needsMachineType && machineTypeIsEmpty;
+  }
+
+  private forceDot(value: any): number | null {
+    if (value == null) {
+      return null;
+    }
+    const normalized = value.toString().replace(',', '.');
+    return normalized;
+  }
+
 
   editMo(): void {
     const type = this.formHeaderMo.get('type')?.value;

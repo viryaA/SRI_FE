@@ -30,9 +30,11 @@ export class ViewCtCuringComponent implements OnInit {
   searchText: string = '';
   errorMessage: string | null = null;
   edtCTCuringObject: CT_Curing = new CT_Curing();
+  adCTCuringObject: CT_Curing = new CT_Curing();
   isEditMode: boolean = false;
   file: File | null = null;
   editCTCuringForm: FormGroup;
+  addCTCuringForm: FormGroup;
 
   // Pagination
   pageOfItems: Array<any>;
@@ -53,6 +55,44 @@ export class ViewCtCuringComponent implements OnInit {
 
   constructor(private ctcuringService: CTCuringService, private fb: FormBuilder, private item_curingService: ItemCuringService, private curing_machineService: CuringMachineService) {
     this.editCTCuringForm = this.fb.group({
+      wip: ['', Validators.required],
+      groupcounter: ['', Validators.required],
+      vargroupcounter: ['', Validators.required],
+      sequence: ['', Validators.required],
+      wct: ['', Validators.required],
+      operationshorttext: ['', Validators.required],
+      operationunit: ['', Validators.required],
+      basequantity: ['', Validators.required],
+      standardvalueunit: ['', Validators.required],
+      ctsec1: ['', Validators.required],
+      cthr1000: ['', Validators.required],
+      whnormalshift1: ['', Validators.required],
+      whnormalshift2: ['', Validators.required],
+      whnormalshift3: ['', Validators.required],
+      whshiftfriday: ['', Validators.required],
+      whtotalnormalshift: ['', Validators.required],
+      whtotalshiftfriday: ['', Validators.required],
+      allownormalshift1: ['', Validators.required],
+      allownormalshift2: ['', Validators.required],
+      allownormalshift3: ['', Validators.required],
+      allowtotal: ['', Validators.required],
+      optimenormalshift1: ['', Validators.required],
+      optimenormalshift2: ['', Validators.required],
+      optimenormalshift3: ['', Validators.required],
+      optimeshiftfriday: ['', Validators.required],
+      optimenormalshift: ['', Validators.required],
+      optimetotalshiftfriday: ['', Validators.required],
+      kapsnormalshift1: ['', Validators.required],
+      kapsnormalshift2: ['', Validators.required],
+      kapsnormalshift3: ['', Validators.required],
+      kapsshiftfriday: ['', Validators.required],
+      kapstotalnormalshift: ['', Validators.required],
+      kapstotalshiftfriday: ['', Validators.required],
+      waktutotalctnormal: ['', Validators.required],
+      waktutotalctfriday: ['', Validators.required],
+    });
+
+    this.addCTCuringForm = this.fb.group({
       wip: ['', Validators.required],
       groupcounter: ['', Validators.required],
       vargroupcounter: ['', Validators.required],
@@ -188,6 +228,27 @@ export class ViewCtCuringComponent implements OnInit {
     this.searchText = '';
     this.dataSource.filter = this.searchText.trim().toLowerCase();
   }
+  addCTCuring(){
+    this.ctcuringService.saveCTCuring(this.adCTCuringObject).subscribe(
+      (response) => {
+        // SweetAlert setelah update berhasil
+        Swal.fire({
+          title: 'Success!',
+          text: 'Data CT Curing successfully saved.',
+          icon: 'success',
+          confirmButtonText: 'OK',
+        }).then((result) => {
+          if (result.isConfirmed) {
+            $('#editModal').modal('hide');
+            window.location.reload();
+          }
+        });
+      },
+      (err) => {
+        Swal.fire('Error!', 'Error save data.', 'error');
+      }
+    );
+  }
 
   updateCTCuring(): void {
     this.ctcuringService.updateCTCuring(this.edtCTCuringObject).subscribe(
@@ -209,6 +270,15 @@ export class ViewCtCuringComponent implements OnInit {
         Swal.fire('Error!', 'Error updating data.', 'error');
       }
     );
+  }
+
+  openModalAdd(): void {
+    this.isEditMode = false;
+    this.adCTCuringObject = new CT_Curing();
+    this.adCTCuringObject.ct_CURING_ID = 0;
+    this.addCTCuringForm.reset();
+    // this.getCTCuringById(idCTCuring);
+    $('#addModal').modal('show');
   }
 
   openModalEdit(idCTCuring: number): void {

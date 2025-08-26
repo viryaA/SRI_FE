@@ -1,8 +1,8 @@
 <div class="animated fadeIn">
   <div class="col-md-12">
-    <div class="card">
+    <div class="card" [hidden]="true">
       <div class="card-header">
-        <strong>Add Header Monthly Palnning</strong>
+        <strong>Add Header Monthly Planning</strong>
       </div>
       <div class="card-body">
         <form id="formHeaderMp" class="form form-horizontal">
@@ -51,68 +51,6 @@
         </form>
       </div>
     </div>
-
-    <!-- <div class="card">
-      <div class="card-header">
-        <strong>Limits Presentage and Mould Change</strong>
-      </div>
-      <div class="card-body">
-        <form class="form form-horizontal">
-          <div class="form-group row">
-            <label class="col-md-3 col-form-label">Mould Change</label>
-            <div class="col-md-6">
-              <input class="form-control" [(ngModel)]="objVarLim.limitChange" type="number"  name="mould_change" placeholder="0" />
-            </div>
-          </div>
-
-          <div class="form-group row">
-            <label class="col-md-3 col-form-label"><strong>Range</strong></label>
-            <label class="col-md-3 col-form-label">Minimum Limit (%)</label>
-            <label class="col-md-3 col-form-label">Maximum Limit (%)</label>
-          </div>
-
-          <div class="form-group row">
-            <label class="col-md-3 col-form-label">0 - 2000</label>
-            <div class="col-md-3">
-              <input class="form-control" type="number"  [(ngModel)]="objVarLim.minA" name="minLimit_0_2000" placeholder="0" />
-            </div>
-            <div class="col-md-3">
-              <input class="form-control" type="number"  [(ngModel)]="objVarLim.maxA" name="maxLimit_0_2000" placeholder="0" />
-            </div>
-          </div>
-
-          <div class="form-group row">
-            <label class="col-md-3 col-form-label">2001 - 10.000</label>
-            <div class="col-md-3">
-              <input class="form-control" type="number"   [(ngModel)]="objVarLim.minB" name="minLimit_2001_10000" placeholder="0" />
-            </div>
-            <div class="col-md-3">
-              <input class="form-control" type="number"  [(ngModel)]="objVarLim.maxB" name="maxLimit_2001_10000" placeholder="0" />
-            </div>
-          </div>
-
-          <div class="form-group row">
-            <label class="col-md-3 col-form-label">10.001 - 100.000</label>
-            <div class="col-md-3">
-              <input class="form-control" type="number"   [(ngModel)]="objVarLim.minC" name="minLimit_10001_100000" placeholder="0" />
-            </div>
-            <div class="col-md-3">
-              <input class="form-control" type="number"   [(ngModel)]="objVarLim.maxC" name="maxLimit_10001_100000" placeholder="0" />
-            </div>
-          </div>
-
-          <div class="form-group row">
-            <label class="col-md-3 col-form-label">&gt; 100.000</label>
-            <div class="col-md-3">
-              <input class="form-control" type="number"  [(ngModel)]="objVarLim.minD" name="minLimit_gt_100000" placeholder="0" />
-            </div>
-            <div class="col-md-3">
-              <input class="form-control" type="number"  [(ngModel)]="objVarLim.maxD" name="maxLimit_gt_100000" placeholder="0" />
-            </div>
-          </div>
-          </form>
-      </div>
-    </div> -->
 
     <!-- Table Marketing Order -->
     <div class="card">
@@ -361,7 +299,7 @@
 
     <div *ngIf="showMonthlyPlanning" class="card">
       <div class="card-header">
-        <strong>Table Detail Monthly Palnning</strong>
+        <strong>Table Detail Monthly planning</strong>
       </div>
       <div class="card-body">
         <div class="d-flex justify-content-between mb-3">
@@ -374,7 +312,7 @@
             <!-- <button type="button" class="btn btn-success" (click)="generateMonthlyPlanning()">
               <i class="fa fa-file"></i> Generate Monthly Planning
             </button> -->
-            <button type="button" class="btn btn-primary ml-2" (click)="exportExcelMonthlyPlan()"><i class="fa fa-download fa-lg"></i> Generate to Excel</button>
+            <button type="button" class="btn btn-primary ml-2" (click)="exportExcelMonthlyPlan()" [hidden]="exportAction"><i class="fa fa-download fa-lg"></i> Generate to Excel</button>
 
 <!--            <button type="button" class="btn btn-primary ml-2"  (click)="viewDetail()" id="addButton"> Change Mould Data</button>-->
           </div>
@@ -447,7 +385,7 @@
   </div>
 
   <div class="col-md-12 pb-4">
-    <button (click)="navigateToViewMp()" class="btn btn-primary justify-content-start mr-2">Kembali</button>
+    <button (click)="navigateToViewMp()" class="btn btn-primary justify-content-start mr-2">Back</button>
     <button type="submit" class="btn btn-success">Submit</button>
   </div>
 </div>

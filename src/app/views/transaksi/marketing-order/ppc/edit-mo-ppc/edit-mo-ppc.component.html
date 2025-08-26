@@ -32,6 +32,7 @@
                 placeholder="1,2,3...."
                 (keypress)="allowOnlyNumbers($event)"
                 (paste)="blockNonNumbers($event)"
+                (blur)="validateRevision()"
               />
               <!-- Pesan error jika revision kosong atau hanya berisi spasi -->
               <div *ngIf="revisionControl?.hasError('required') && revisionControl?.touched" class="invalid-feedback">
@@ -388,11 +389,22 @@
             <!-- Machine Type Column -->
             <ng-container matColumnDef="machineType">
               <th *matHeaderCellDef rowspan="2" style="min-width: 100px" mat-sort-header>Machine Type</th>
-              <td class="text-center" *matCellDef="let mo">
-                <select [(ngModel)]="mo.machineType" class="form-control">
-                  <option [ngValue]="null" disabled></option>
-                  <option value="A/B">A/B</option>
-                  <option value="BOM">BOM</option>
+              <td *matCellDef="let mo; let i = index">
+                <select
+                  [(ngModel)]="mo.machineType"
+                  class="form-control"
+                  [ngClass]="{
+                    'is-invalid':  isMachineTypeRequired(mo)
+                  }"
+                  [matTooltip]="
+                     isMachineTypeRequired(mo) && !mo.machineType
+                      ? 'Machine Type is required for FDR TB or FED TB'
+                      : ''"
+                  matTooltipPosition="right"
+                >
+                  <option [ngValue]="null">None</option>
+                  <option [ngValue]="'A/B'">A/B</option>
+                  <option [ngValue]="'BOM'">BOM</option>
                 </select>
               </td>
             </ng-container>
@@ -553,7 +565,7 @@
           </table>
         </div>
         <!-- Pagination -->
-        <mat-paginator #paginatorDmo [pageSizeOptions]="[20, 100, 200]" showFirstLastButtons></mat-paginator>
+        <mat-paginator #paginatorDmo [pageSizeOptions]="[10, 20, 100, 200]" showFirstLastButtons></mat-paginator>
       </div>
     </div>
   </div>

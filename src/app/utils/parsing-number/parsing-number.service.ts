@@ -60,8 +60,14 @@ export class ParsingNumberService {
 }
 
 // parsing-date.util.ts
-export function toBackendTimestamp(dateString: string, timeString: string): string {
-  const utcDate = new Date(`${dateString}T${timeString}:00Z`); // Treat as UTC
+export function toBackendTimestamp(dateString: string, timeString: string, subtractHours: number = 0): string {
+  // Create date in UTC
+  let utcDate = new Date(`${dateString}T${timeString}:00Z`);
+
+  // Subtract hours if needed
+  if (subtractHours !== 0) {
+    utcDate.setUTCHours(utcDate.getUTCHours() - subtractHours);
+  }
 
   const year = utcDate.getUTCFullYear();
   const month = String(utcDate.getUTCMonth() + 1).padStart(2, '0');
@@ -73,6 +79,7 @@ export function toBackendTimestamp(dateString: string, timeString: string): stri
 
   return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}.${milliseconds}+0000`;
 }
+
 
 
 

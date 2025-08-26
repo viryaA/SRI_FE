@@ -57,8 +57,8 @@ export class PMStopMachineService {
       "created_BY": pmStopMachine.created_BY,
       "last_UPDATED_BY": name,
       date_STOP: toBackendTimestamp(pmStopMachine.date_STOP.toString(), '00:00'),
-      start_TIME: toBackendTimestamp(pmStopMachine.date_STOP.toString(), pmStopMachine.startTimeFormatted),
-      end_TIME: toBackendTimestamp(pmStopMachine.date_STOP.toString(), pmStopMachine.endTimeFormatted),
+      start_TIME: toBackendTimestamp(pmStopMachine.date_STOP.toString(), pmStopMachine.startTimeFormatted,7),
+      end_TIME: toBackendTimestamp(pmStopMachine.date_STOP.toString(), pmStopMachine.endTimeFormatted,7),
     };
     return this.http
       .post<ApiResponse<PMStopMachine>>(
@@ -93,8 +93,8 @@ export class PMStopMachineService {
       "created_BY": name,
       "last_UPDATED_BY": name,
       date_STOP: toBackendTimestamp(`${yyyy}-${mm}-${dd}`, '00:00'),
-      start_TIME: toBackendTimestamp(`${yyyy}-${mm}-${dd}`, pmStopMachine.start_TIME),
-      end_TIME: toBackendTimestamp(`${yyyy}-${mm}-${dd}`, pmStopMachine.end_TIME)
+      start_TIME: toBackendTimestamp(`${yyyy}-${mm}-${dd}`, pmStopMachine.start_TIME, 7),
+      end_TIME: toBackendTimestamp(`${yyyy}-${mm}-${dd}`, pmStopMachine.end_TIME, 7)
     };
     console.log(formattedData)
 

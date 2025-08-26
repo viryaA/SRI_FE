@@ -682,7 +682,8 @@
   <!-- End Header Marketing Order -->
 
   <!-- Detail Marketing Order -->
-  <div class="col-md-12">
+
+  <div class="col-md-12" >
     <div class="card">
       <div class="card-header">
         <strong>Edit Detail Marketing Order</strong>
@@ -894,7 +895,7 @@
 
   <div class="col-md-12 pb-4">
     <button (click)="navigateToViewAddMp()" class="btn btn-primary justify-content-start mr-2">Back</button>
-    <button (click)="finalizationMo()" [disabled]="loading" type="submit" class="btn btn-success">
+    <button (click)="finalizationMo()" [disabled]="loading "  type="submit" class="btn btn-success">
       <span *ngIf="loading" class="spinner-border spinner-border-sm mr-1"></span>
       Submit
     </button>

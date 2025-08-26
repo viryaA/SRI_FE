@@ -83,6 +83,11 @@
                   <div *ngIf="formHeaderMo.get('max_capa_tt_0')?.invalid && formHeaderMo.get('max_capa_tt_0')?.touched" class="invalid-feedback">Maximum Capacity Tire TT is required.</div>
                 </div>
                 <div class="col-md-4 min-height-form">
+                  <label for="text-input">Capacity Machine Airbag<span class="text-danger">*</span></label>
+                  <input type="text" formControlName="machine_airbag_m0" name="text-input" class="form-control" placeholder="0,00" [ngClass]="{ 'is-invalid': formHeaderMo.get('machine_airbag_m0')?.invalid && formHeaderMo.get('machine_airbag_m0')?.touched }" />
+                  <div *ngIf="formHeaderMo.get('machine_airbag_m0')?.invalid && formHeaderMo.get('machine_airbag_m0')?.touched" class="invalid-feedback">Capacity Airbag is required.</div>
+                </div>
+                <div class="col-md-4 min-height-form">
                   <label for="text-input">Note Order TL</label>
                   <input type="text" formControlName="note_order_tl_0" name="text-input" class="form-control" />
                 </div>
@@ -142,6 +147,11 @@
                   <div *ngIf="formHeaderMo.get('max_capa_tt_1')?.invalid && formHeaderMo.get('max_capa_tt_1')?.touched" class="invalid-feedback">Maximum Capacity Tire TT is required.</div>
                 </div>
                 <div class="col-md-4 min-height-form">
+                  <label for="text-input">Capacity Machine Airbag<span class="text-danger">*</span></label>
+                  <input type="text" formControlName="machine_airbag_m1" name="text-input" class="form-control" placeholder="0,00" [ngClass]="{ 'is-invalid': formHeaderMo.get('machine_airbag_m1')?.invalid && formHeaderMo.get('machine_airbag_m1')?.touched }" />
+                  <div *ngIf="formHeaderMo.get('machine_airbag_m1')?.invalid && formHeaderMo.get('machine_airbag_m1')?.touched" class="invalid-feedback">Capacity Airbag is required.</div>
+                </div>
+                <div class="col-md-4 min-height-form">
                   <label for="text-input">Note Order TL</label>
                   <input type="text" formControlName="note_order_tl_1" name="text-input" class="form-control" />
                 </div>
@@ -199,6 +209,11 @@
                   <label for="text-input">Maximum Capacity Tire TT<span class="text-danger">*</span></label>
                   <input type="text" formControlName="max_capa_tt_2" name="text-input" class="form-control" placeholder="0,00" [ngClass]="{ 'is-invalid': formHeaderMo.get('max_capa_tt_2')?.invalid && formHeaderMo.get('max_capa_tt_2')?.touched }" />
                   <div *ngIf="formHeaderMo.get('max_capa_tt_2')?.invalid && formHeaderMo.get('max_capa_tt_2')?.touched" class="invalid-feedback">Maximum Capacity Tire TT is required.</div>
+                </div>
+                <div class="col-md-4 min-height-form">
+                  <label for="text-input">Capacity Machine Airbag<span class="text-danger">*</span></label>
+                  <input type="text" formControlName="machine_airbag_m2" name="text-input" class="form-control" placeholder="0,00" [ngClass]="{ 'is-invalid': formHeaderMo.get('machine_airbag_m2')?.invalid && formHeaderMo.get('machine_airbag_m2')?.touched }" />
+                  <div *ngIf="formHeaderMo.get('machine_airbag_m2')?.invalid && formHeaderMo.get('machine_airbag_m2')?.touched" class="invalid-feedback">Capacity Airbag is required.</div>
                 </div>
                 <div class="col-md-4 min-height-form">
                   <label for="text-input">Note Order TL</label>
@@ -271,11 +286,22 @@
             <ng-container matColumnDef="machineType">
               <th *matHeaderCellDef rowspan="2" style="min-width: 100px" mat-sort-header>Machine Type</th>
               <td *matCellDef="let mo; let i = index">
-                <select [(ngModel)]="mo.machineType" class="form-control" [ngClass]="{ 'is-invalid': isSubmitted && !mo.machineType }" [matTooltip]="isSubmitted && !mo.machineType ? 'This field is Required' : ''" matTooltipPosition="right">
-                  <option [ngValue]="null" disabled></option>
-                  <option value="A/B">A/B</option>
-                  <option value="BOM">BOM</option>
-                </select>
+                <select
+                  [(ngModel)]="mo.machineType"
+                  class="form-control"
+                  [ngClass]="{
+                    'is-invalid': isSubmitted && isMachineTypeRequired(mo)
+                  }"
+                  [matTooltip]="
+                    isSubmitted && isMachineTypeRequired(mo) && !mo.machineType
+                      ? 'Machine Type is required for FDR TB or FED TB'
+                      : ''"
+                    matTooltipPosition="right"
+                  >
+                    <option [ngValue]="null">None</option>
+                    <option [ngValue]="'A/B'">A/B</option>
+                    <option [ngValue]="'BOM'">BOM</option>
+                  </select>
               </td>
             </ng-container>
 
@@ -383,7 +409,7 @@
           </table>
         </div>
         <!-- Pagination -->
-        <mat-paginator [pageSizeOptions]="[20, 100, 200]" showFirstLastButtons></mat-paginator>
+        <mat-paginator [pageSizeOptions]="[10, 20, 100, 200]" showFirstLastButtons></mat-paginator>
       </div>
       <div class="col-md-12 pb-4">
         <button (click)="navigateToViewMo()" class="btn btn-primary justify-content-start mr-2">Back</button>

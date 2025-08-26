@@ -69,6 +69,11 @@ export class MonthlyPlanCuringService {
       `${environment.apiUrlWebAdmin}/generate`,json
     );
   }
+  NotificationMP(json:any): Observable<ApiResponse<any>>{
+    return this.http.post<ApiResponse<any>>(
+      `${environment.apiUrlWebAdmin}/notificationMp`,json
+    );
+  }
   GetDetailMP(json:any): Observable<ApiResponse<any>>{
     return this.http.post<ApiResponse<any>>(
       `${environment.apiUrlWebAdmin}/getDetailMp`,json
@@ -88,6 +93,7 @@ export class MonthlyPlanCuringService {
     minD: number,
     maxD: number,
     versionMO: any,
+    versionGenerate,
   ): Observable<Blob> {
     const params = new HttpParams()
       .set('month', month.toString())  // Convert month to string
@@ -102,7 +108,7 @@ export class MonthlyPlanCuringService {
       .set('minD', minD != null ? minD.toString() : 0)
       .set('maxD', maxD != null ? maxD.toString() : 0)
       .set('versionMO', versionMO != null ? versionMO.toString() : 0)
-      .set('versionGenerate', 1);
+      .set('versionGenerate', versionGenerate != null ? versionGenerate.toString() : 0);
 
     return this.http.get<Blob>(
       `${environment.apiUrlWebAdmin}/exportMPExcel`,

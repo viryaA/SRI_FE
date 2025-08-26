@@ -1697,6 +1697,54 @@ export class AddMoFrontRearComponent implements OnInit {
     this.fileInput.nativeElement.value = '';
   }
 
+  selectedCheating(data: any): void {
+    console.log(data);
+
+    const cheatData = this.savedEntries.filter(
+      (entry) => entry.item_curing === data
+    );
+    console.log(cheatData);
+
+    if (cheatData.length > 0) {
+      let tableHtml = `
+      <table class="table table-bordered table-striped" style="width:100%; text-align:left;">
+        <thead>
+          <tr>
+            <th style="text-align:center;">Work Center</th>
+          </tr>
+        </thead>
+        <tbody>
+    `;
+
+      cheatData.forEach((row) => {
+        tableHtml += `
+        <tr>
+          <td style="text-align:center;">${row.work_CENTER_TEXT}</td>
+        </tr>
+      `;
+      });
+
+      tableHtml += `
+        </tbody>
+      </table>
+    `;
+
+      Swal.fire({
+        title: `Curing: ${data.item_curing}`,
+        html: tableHtml,
+        width: '50%',
+        confirmButtonText: 'Close',
+      });
+    } else {
+      Swal.fire({
+        icon: 'info',
+        title: 'No Data Found',
+        text: 'No matching curing entry found.',
+      });
+    }
+  }
+
+
   validate() {
     let curingGroupsM0: { [key: string]: number } = {};
 
@@ -1748,18 +1796,18 @@ export class AddMoFrontRearComponent implements OnInit {
   saveEntries(): void {
 
       let bufferMesin: { item_curing: string; work_CENTER_TEXT: string }[] = [];
-    
+
       this.machineEntries.forEach((buffer) => {
 
         const obj = {
           item_curing: this.selectedItemCuring,
           work_CENTER_TEXT: buffer.selectedMachine
         };
-    
+
         const isDuplicate = bufferMesin.find(
           (item) => item.item_curing === obj.item_curing && item.work_CENTER_TEXT === obj.work_CENTER_TEXT
         );
-    
+
         if (!isDuplicate && buffer.selectedGedung != '' && buffer.selectedMachine != '') {
           bufferMesin.push({ ...obj });
         }
@@ -1776,9 +1824,9 @@ export class AddMoFrontRearComponent implements OnInit {
         this.savedEntries = this.savedEntries.filter(
           (entry) => entry.item_curing !== this.selectedItemCuring
         );
-      
+
         this.savedEntries.push(...bufferMesin);
-      
+
         Swal.fire({
           icon: 'success',
           title: 'Data Saved',
@@ -1786,8 +1834,8 @@ export class AddMoFrontRearComponent implements OnInit {
           confirmButtonText: 'OK',
         });
       }
-    
-    
+
+
     $('#dmpModal').modal('hide');
   }
 
@@ -1855,9 +1903,16 @@ export class AddMoFrontRearComponent implements OnInit {
         this.mesinOptions = machines;
 
         // Set machines only for the latest added row
-        if (this.machineEntries.length > 0) {
+        if (machines.length > 0) {
           const lastEntry = this.machineEntries[this.machineEntries.length - 1];
           lastEntry.filteredMesinOptions = [...machines]; // Independent copy
+        }else{
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: `Item Curing : ${{itemCuring}} has not machine` ,
+            confirmButtonText: 'OK',
+          });
         }
       },
       (error) => {
@@ -1947,7 +2002,7 @@ export class AddMoFrontRearComponent implements OnInit {
     const uniqueMOID = [...new Set(this.dataSourceDmo.data.map(item => item.moId))];
     const frontrear = [...new Set(this.selectedList.map(item => item.frontRear))];
     let frontRearItems;
-    
+
     if (uniqueMOID.length < 2) {
         console.error("Not enough unique MO IDs to process.");
         return;
@@ -1993,7 +2048,7 @@ export class AddMoFrontRearComponent implements OnInit {
           });
         }
       });
-      
+
     } catch (err) {
         console.error("Error inserting data Front Rear:", err);
         Swal.fire('Error!', 'Error inserting data Front Rear.', 'error');
@@ -2032,7 +2087,7 @@ export class AddMoFrontRearComponent implements OnInit {
           text: 'Data Marketing Order successfully processed.',
           icon: 'success',
           confirmButtonText: 'OK',
-          
+
         }).then((result) => {
           if (result.isConfirmed) {
             this.navigateToViewMo();
@@ -2051,7 +2106,7 @@ export class AddMoFrontRearComponent implements OnInit {
   navigateToViewMo() {
     this.router.navigate(['/transaksi/add-monthly-planning']);
   }
-  
+
   async saveAll() {
     await this.saveDataFrontRear();
     await this.saveTempMachineProduct();

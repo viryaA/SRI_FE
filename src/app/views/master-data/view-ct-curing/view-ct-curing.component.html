@@ -15,6 +15,7 @@
         <!-- Right side: Download Template and Export Excel buttons -->
         <div>
           <button type="button" class="mb-3 btn btn-primary ml-2" (click)="tamplateExcel()"><i class="fa fa-download fa-lg"></i> Download Template</button>
+          <button type="button" class="mb-3 btn btn-primary ml-2" (click)="openModalAdd()">Add</button>
           <button type="button" class="mb-3 btn btn-primary ml-2" (click)="downloadExcel()"><i class="fa fa-download fa-lg"></i> Export Excel</button>
           <button type="button" class="mb-3 btn btn-success ml-2" data-toggle="modal" data-target="#uploadModal"><i class="fa fa-file-excel-o fa-lg"></i> Upload Excel</button>
         </div>
@@ -275,7 +276,7 @@
         <div class="modal-dialog" role="document">
           <div class="modal-content edit">
             <div class="modal-header">
-              <h5 class="modal-title" id="addModalLabel">Edit CT Curing</h5>
+              <h5 class="modal-title" id="editModalLabel">Edit CT Curing</h5>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
@@ -484,6 +485,224 @@
               <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
               <!-- Disable Update button if form is invalid -->
               <button type="button" class="btn btn-primary" [disabled]="editCTCuringForm.invalid" (click)="updateCTCuring()">Update CT Curing</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal fade" id="addModal" role="dialog" aria-labelledby="addModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content edit">
+            <div class="modal-header">
+              <h5 class="modal-title" id="addModalLabel">Edit CT Curing</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body per-hour-wrapper">
+              <!-- Form with Reactive Forms -->
+              <form [formGroup]="addCTCuringForm">
+                <div class="form-group per-hour-wrapper-item row">
+                  <div class="mx-3">
+                    <div class="form-group">
+                      <h6 for="wip">WIP</h6>
+                      <div class="col-md-13">
+                        <ng-select2 id="wip" name="wip" formControlName="wip" [(ngModel)]="adCTCuringObject.wip" [data]="uomOptionData[0]" [options]="options"> </ng-select2>
+                      </div>
+                      <div *ngIf="addCTCuringForm.get('wip').invalid && addCTCuringForm.get('wip').touched" class="invalid-feedback">WIP is required.</div>
+                    </div>
+                    <div class="form-group">
+                      <h6 for="groupcounter">Group Counter</h6>
+                      <input [(ngModel)]="adCTCuringObject.group_COUNTER" type="text" maxlength="19" class="form-control" id="groupcounter" formControlName="groupcounter" [ngClass]="{ 'is-invalid': addCTCuringForm.get('groupcounter').invalid && addCTCuringForm.get('groupcounter').touched }" />
+                      <div *ngIf="addCTCuringForm.get('groupcounter').invalid && addCTCuringForm.get('groupcounter').touched" class="invalid-feedback">Group Counter is required.</div>
+                    </div>
+                    <div class="form-group">
+                      <h6 for="vargroupcounter">Var Group Counter</h6>
+                      <input [(ngModel)]="adCTCuringObject.var_GROUP_COUNTER" maxlength="9" type="text" class="form-control" id="vargroupcounter" formControlName="vargroupcounter" [ngClass]="{ 'is-invalid': addCTCuringForm.get('vargroupcounter').invalid && addCTCuringForm.get('vargroupcounter').touched }" />
+                      <div *ngIf="addCTCuringForm.get('vargroupcounter').invalid && addCTCuringForm.get('vargroupcounter').touched" class="invalid-feedback">Var Group Counter is required.</div>
+                    </div>
+                    <div class="form-group">
+                      <h6 for="sequence">Sequence</h6>
+                      <input [(ngModel)]="adCTCuringObject.sequence" maxlength="19" type="text" (keypress)="validateNumberInput($event)" class="form-control" id="sequence" formControlName="sequence" [ngClass]="{ 'is-invalid': addCTCuringForm.get('sequence').invalid && addCTCuringForm.get('sequence').touched }" />
+                      <div *ngIf="addCTCuringForm.get('sequence').invalid && addCTCuringForm.get('sequence').touched" class="invalid-feedback">Sequence is required.</div>
+                    </div>
+                    <div class="form-group">
+                      <h6 for="wct">WCT</h6>
+                      <input [(ngModel)]="adCTCuringObject.wct" type="text" maxlength="19" class="form-control" id="wct" formControlName="wct" [ngClass]="{ 'is-invalid': addCTCuringForm.get('wct').invalid && addCTCuringForm.get('wct').touched }" />
+                      <div *ngIf="addCTCuringForm.get('wct').invalid && addCTCuringForm.get('wct').touched" class="invalid-feedback">WCT is required.</div>
+                    </div>
+                    <div class="form-group">
+                      <h6 for="operationshorttext">Operation Short Text</h6>
+                      <div class="col-md-13">
+                        <ng-select2 id="operationshorttext" name="operationshorttext" formControlName="operationshorttext" [(ngModel)]="adCTCuringObject.operation_SHORT_TEXT" [data]="uomOptionData[1]" [options]="options"> </ng-select2>
+                      </div>
+                      <div *ngIf="addCTCuringForm.get('operationshorttext').invalid && addCTCuringForm.get('operationshorttext').touched" class="invalid-feedback">Operation Short Text is required.</div>
+                    </div>
+                    <div class="form-group">
+                      <h6 for="operationunit">Operation Unit</h6>
+                      <input [(ngModel)]="adCTCuringObject.operation_UNIT" maxlength="9" type="text" class="form-control" id="operationunit" formControlName="operationunit" [ngClass]="{ 'is-invalid': addCTCuringForm.get('operationunit').invalid && addCTCuringForm.get('operationunit').touched }" />
+                      <div *ngIf="addCTCuringForm.get('operationunit').invalid && addCTCuringForm.get('operationunit').touched" class="invalid-feedback">Operation Unit is required.</div>
+                    </div>
+                  </div>
+
+                  <div class="mx-3">
+                    <div class="form-group">
+                      <h6 for="basequantity">Base Quantity</h6>
+                      <input [(ngModel)]="adCTCuringObject.base_QUANTITY" type="text" maxlength="19" (keypress)="validateNumberInput($event)" class="form-control" id="basequantity" formControlName="basequantity" [ngClass]="{ 'is-invalid': addCTCuringForm.get('basequantity').invalid && addCTCuringForm.get('basequantity').touched }" />
+                      <div *ngIf="addCTCuringForm.get('basequantity').invalid && addCTCuringForm.get('basequantity').touched" class="invalid-feedback">Base Quantity is required.</div>
+                    </div>
+                    <div class="form-group">
+                      <h6 for="standardvalueunit">Standard Value Unit</h6>
+                      <input [(ngModel)]="adCTCuringObject.standart_VALUE_UNIT" maxlength="9" type="text" class="form-control" id="standardvalueunit" formControlName="standardvalueunit" [ngClass]="{ 'is-invalid': addCTCuringForm.get('standardvalueunit').invalid && addCTCuringForm.get('standardvalueunit').touched }" />
+                      <div *ngIf="addCTCuringForm.get('standardvalueunit').invalid && addCTCuringForm.get('standardvalueunit').touched" class="invalid-feedback">Standard Value Unit is required.</div>
+                    </div>
+                    <div class="form-group">
+                      <h6 for="ctsec1">CT Sec 1</h6>
+                      <input [(ngModel)]="adCTCuringObject.ct_SEC1" type="text" maxlength="9" (keypress)="validateNumberInput($event)" class="form-control" id="ctsec1" formControlName="ctsec1" [ngClass]="{ 'is-invalid': addCTCuringForm.get('ctsec1').invalid && addCTCuringForm.get('ctsec1').touched }" />
+                      <div *ngIf="addCTCuringForm.get('ctsec1').invalid && addCTCuringForm.get('ctsec1').touched" class="invalid-feedback">CT Sec 1 is required.</div>
+                    </div>
+                    <div class="form-group">
+                      <h6 for="cthr1000">CT HR 1000</h6>
+                      <input [(ngModel)]="adCTCuringObject.ct_HR1000" type="text" maxlength="19" (keypress)="validateNumberInput($event)" class="form-control" id="cthr1000" formControlName="cthr1000" [ngClass]="{ 'is-invalid': addCTCuringForm.get('cthr1000').invalid && addCTCuringForm.get('cthr1000').touched }" />
+                      <div *ngIf="addCTCuringForm.get('cthr1000').invalid && addCTCuringForm.get('cthr1000').touched" class="invalid-feedback">CT HR 1000 is required.</div>
+                    </div>
+                    <div class="form-group">
+                      <h6 for="whnormalshift1">WH Normal Shift 1</h6>
+                      <input [(ngModel)]="adCTCuringObject.wh_NORMAL_SHIFT_0" type="text" maxlength="9" (keypress)="validateNumberInput($event)" class="form-control" id="whnormalshift1" formControlName="whnormalshift1" [ngClass]="{ 'is-invalid': addCTCuringForm.get('whnormalshift1').invalid && addCTCuringForm.get('whnormalshift1').touched }" />
+                      <div *ngIf="addCTCuringForm.get('whnormalshift1').invalid && addCTCuringForm.get('whnormalshift1').touched" class="invalid-feedback">WH Normal Shift 1 is required.</div>
+                    </div>
+                    <div class="form-group">
+                      <h6 for="whnormalshift2">WH Normal Shift 2</h6>
+                      <input [(ngModel)]="adCTCuringObject.wh_NORMAL_SHIFT_1" type="text" maxlength="9" (keypress)="validateNumberInput($event)" class="form-control" id="whnormalshift2" formControlName="whnormalshift2" [ngClass]="{ 'is-invalid': addCTCuringForm.get('whnormalshift2').invalid && addCTCuringForm.get('whnormalshift2').touched }" />
+                      <div *ngIf="addCTCuringForm.get('whnormalshift2').invalid && addCTCuringForm.get('whnormalshift2').touched" class="invalid-feedback">WH Normal Shift 3 is required.</div>
+                    </div>
+                    <div class="form-group">
+                      <h6 for="whnormalshift3">WH Normal Shift 3</h6>
+                      <input [(ngModel)]="adCTCuringObject.wh_NORMAL_SHIFT_2" type="text" maxlength="9" (keypress)="validateNumberInput($event)" class="form-control" id="whnormalshift3" formControlName="whnormalshift3" [ngClass]="{ 'is-invalid': addCTCuringForm.get('whnormalshift3').invalid && addCTCuringForm.get('whnormalshift3').touched }" />
+                      <div *ngIf="addCTCuringForm.get('whnormalshift3').invalid && addCTCuringForm.get('whnormalshift3').touched" class="invalid-feedback">WH Normal Shift 3 is required.</div>
+                    </div>
+                  </div>
+
+                  <div class="mx-3">
+                    <div class="form-group">
+                      <h6 for="whshiftfriday">WH Shift Friday</h6>
+                      <input [(ngModel)]="adCTCuringObject.wh_SHIFT_FRIDAY" type="text" maxlength="9" (keypress)="validateNumberInput($event)" class="form-control" id="whshiftfriday" formControlName="whshiftfriday" [ngClass]="{ 'is-invalid': addCTCuringForm.get('whshiftfriday').invalid && addCTCuringForm.get('whshiftfriday').touched }" />
+                      <div *ngIf="addCTCuringForm.get('whshiftfriday').invalid && addCTCuringForm.get('whshiftfriday').touched" class="invalid-feedback">WH Shift Friday is required.</div>
+                    </div>
+                    <div class="form-group">
+                      <h6 for="whtotalnormalshift">WH Total Normal Shift</h6>
+                      <input [(ngModel)]="adCTCuringObject.wh_TOTAL_NORMAL_SHIFT" type="text" maxlength="9" (keypress)="validateNumberInput($event)" class="form-control" id="whtotalnormalshift" formControlName="whtotalnormalshift" [ngClass]="{ 'is-invalid': addCTCuringForm.get('whtotalnormalshift').invalid && addCTCuringForm.get('whtotalnormalshift').touched }" />
+                      <div *ngIf="addCTCuringForm.get('whtotalnormalshift').invalid && addCTCuringForm.get('whtotalnormalshift').touched" class="invalid-feedback">WH Total Normal Shift is required.</div>
+                    </div>
+                    <div class="form-group">
+                      <h6 for="whtotalshiftfriday">WH Total Shift Friday</h6>
+                      <input [(ngModel)]="adCTCuringObject.wh_TOTAL_SHIFT_FRIDAY" type="text" maxlength="9" (keypress)="validateNumberInput($event)" class="form-control" id="whtotalshiftfriday" formControlName="whtotalshiftfriday" [ngClass]="{ 'is-invalid': addCTCuringForm.get('whtotalshiftfriday').invalid && addCTCuringForm.get('whtotalshiftfriday').touched }" />
+                      <div *ngIf="addCTCuringForm.get('whtotalshiftfriday').invalid && addCTCuringForm.get('whtotalshiftfriday').touched" class="invalid-feedback">WH Total Shift Friday is required.</div>
+                    </div>
+                    <div class="form-group">
+                      <h6 for="allownormalshift1">Allow Normal Shift 1</h6>
+                      <input [(ngModel)]="adCTCuringObject.allow_NORMAL_SHIFT_0" type="text" maxlength="9" (keypress)="validateNumberInput($event)" class="form-control" id="allownormalshift1" formControlName="allownormalshift1" [ngClass]="{ 'is-invalid': addCTCuringForm.get('allownormalshift1').invalid && addCTCuringForm.get('allownormalshift1').touched }" />
+                      <div *ngIf="addCTCuringForm.get('allownormalshift1').invalid && addCTCuringForm.get('allownormalshift1').touched" class="invalid-feedback">Allow Normal Shift 1 is required.</div>
+                    </div>
+                    <div class="form-group">
+                      <h6 for="allownormalshift2">Allow Normal Shift 2</h6>
+                      <input [(ngModel)]="adCTCuringObject.allow_NORMAL_SHIFT_1" type="text" maxlength="9" (keypress)="validateNumberInput($event)" class="form-control" id="allownormalshift2" formControlName="allownormalshift2" [ngClass]="{ 'is-invalid': addCTCuringForm.get('allownormalshift2').invalid && addCTCuringForm.get('allownormalshift2').touched }" />
+                      <div *ngIf="addCTCuringForm.get('allownormalshift2').invalid && addCTCuringForm.get('allownormalshift2').touched" class="invalid-feedback">Allow Normal Shift 2 is required.</div>
+                    </div>
+                    <div class="form-group">
+                      <h6 for="allownormalshift3">Allow Normal Shift 3</h6>
+                      <input [(ngModel)]="adCTCuringObject.allow_NORMAL_SHIFT_2" type="text" maxlength="9" (keypress)="validateNumberInput($event)" class="form-control" id="allownormalshift3" formControlName="allownormalshift3" [ngClass]="{ 'is-invalid': addCTCuringForm.get('allownormalshift3').invalid && addCTCuringForm.get('allownormalshift3').touched }" />
+                      <div *ngIf="addCTCuringForm.get('allownormalshift3').invalid && addCTCuringForm.get('allownormalshift3').touched" class="invalid-feedback">Allow Normal Shift 3 is required.</div>
+                    </div>
+                    <div class="form-group">
+                      <h6 for="allowtotal">Allow Total</h6>
+                      <input [(ngModel)]="adCTCuringObject.allow_TOTAL" type="text" maxlength="9" (keypress)="validateNumberInput($event)" class="form-control" id="allowtotal" formControlName="allowtotal" [ngClass]="{ 'is-invalid': addCTCuringForm.get('allowtotal').invalid && addCTCuringForm.get('allowtotal').touched }" />
+                      <div *ngIf="addCTCuringForm.get('allowtotal').invalid && addCTCuringForm.get('allowtotal').touched" class="invalid-feedback">Allow Total is required.</div>
+                    </div>
+                  </div>
+
+                  <div class="mx-3">
+                    <div class="form-group">
+                      <h6 for="optimenormalshift2">OP Time Normal Shift 1</h6>
+                      <input [(ngModel)]="adCTCuringObject.op_TIME_NORMAL_SHIFT_0" maxlength="9" type="text" (keypress)="validateNumberInput($event)" class="form-control" id="optimenormalshift1" formControlName="optimenormalshift1" [ngClass]="{ 'is-invalid': addCTCuringForm.get('optimenormalshift1').invalid && addCTCuringForm.get('optimenormalshift1').touched }" />
+                      <div *ngIf="addCTCuringForm.get('optimenormalshift1').invalid && addCTCuringForm.get('optimenormalshift1').touched" class="invalid-feedback">OP Time Normal Shift 1 is required.</div>
+                    </div>
+                    <div class="form-group">
+                      <h6 for="optimenormalshift2">OP Time Normal Shift 2</h6>
+                      <input [(ngModel)]="adCTCuringObject.op_TIME_NORMAL_SHIFT_1" type="text" maxlength="9" (keypress)="validateNumberInput($event)" class="form-control" id="optimenormalshift2" formControlName="optimenormalshift2" [ngClass]="{ 'is-invalid': addCTCuringForm.get('optimenormalshift2').invalid && addCTCuringForm.get('optimenormalshift2').touched }" />
+                      <div *ngIf="addCTCuringForm.get('optimenormalshift2').invalid && addCTCuringForm.get('optimenormalshift2').touched" class="invalid-feedback">OP Time Normal Shift 2 is required.</div>
+                    </div>
+                    <div class="form-group">
+                      <h6 for="optimenormalshift3">OP Time Normal Shift 3</h6>
+                      <input [(ngModel)]="adCTCuringObject.op_TIME_NORMAL_SHIFT_2" type="text" maxlength="9" (keypress)="validateNumberInput($event)" class="form-control" id="optimenormalshift3" formControlName="optimenormalshift3" [ngClass]="{ 'is-invalid': addCTCuringForm.get('optimenormalshift3').invalid && addCTCuringForm.get('optimenormalshift3').touched }" />
+                      <div *ngIf="addCTCuringForm.get('optimenormalshift3').invalid && addCTCuringForm.get('optimenormalshift3').touched" class="invalid-feedback">OP Time Normal Shift 3 is required.</div>
+                    </div>
+                    <div class="form-group">
+                      <h6 for="optimeshiftfriday">OP Time Shift Friday</h6>
+                      <input [(ngModel)]="adCTCuringObject.op_TIME_SHIFT_FRIDAY" type="text" maxlength="9" (keypress)="validateNumberInput($event)" class="form-control" id="optimeshiftfriday" formControlName="optimeshiftfriday" [ngClass]="{ 'is-invalid': addCTCuringForm.get('optimeshiftfriday').invalid && addCTCuringForm.get('optimeshiftfriday').touched }" />
+                      <div *ngIf="addCTCuringForm.get('optimeshiftfriday').invalid && addCTCuringForm.get('optimeshiftfriday').touched" class="invalid-feedback">OP Time Shift Friday is required.</div>
+                    </div>
+                    <div class="form-group">
+                      <h6 for="optimenormalshift">OP Time Total Normal Shift</h6>
+                      <input [(ngModel)]="adCTCuringObject.op_TIME_NORMAL_SHIFT" type="text" maxlength="9" (keypress)="validateNumberInput($event)" class="form-control" id="optimenormalshift" formControlName="optimenormalshift" [ngClass]="{ 'is-invalid': addCTCuringForm.get('optimenormalshift').invalid && addCTCuringForm.get('optimenormalshift').touched }" />
+                      <div *ngIf="addCTCuringForm.get('optimenormalshift').invalid && addCTCuringForm.get('optimenormalshift').touched" class="invalid-feedback">OP Time Total Normal Shift is required.</div>
+                    </div>
+                    <div class="form-group">
+                      <h6 for="optimetotalshiftfriday">OP Time Total Shift Friday</h6>
+                      <input [(ngModel)]="adCTCuringObject.op_TIME_TOTAL_SHIFT_FRIDAY" type="text" maxlength="9" [step]="0.0000000001" (keypress)="validateNumberInput($event)" class="form-control" id="optimetotalshiftfriday" formControlName="optimetotalshiftfriday" [ngClass]="{ 'is-invalid': addCTCuringForm.get('optimetotalshiftfriday').invalid && addCTCuringForm.get('optimetotalshiftfriday').touched }" />
+                      <div *ngIf="addCTCuringForm.get('optimetotalshiftfriday').invalid && addCTCuringForm.get('optimetotalshiftfriday').touched" class="invalid-feedback">OP Time Total Shift Friday is required.</div>
+                    </div>
+                    <div class="form-group">
+                      <h6 for="kapsnormalshift1">Kaps Normal Shift 1</h6>
+                      <input [(ngModel)]="adCTCuringObject.kaps_NORMAL_SHIFT_0" type="text" maxlength="9" (keypress)="validateNumberInput($event)" class="form-control" id="kapsnormalshift1" formControlName="kapsnormalshift1" [ngClass]="{ 'is-invalid': addCTCuringForm.get('kapsnormalshift1').invalid && addCTCuringForm.get('kapsnormalshift1').touched }" />
+                      <div *ngIf="addCTCuringForm.get('kapsnormalshift1').invalid && addCTCuringForm.get('kapsnormalshift1').touched" class="invalid-feedback">Kaps Normal Shift 1 is required.</div>
+                    </div>
+                  </div>
+
+                  <div class="mx-3">
+                    <div class="form-group">
+                      <h6 for="kapsnormalshift2">Kaps Normal Shift 2</h6>
+                      <input [(ngModel)]="adCTCuringObject.kaps_NORMAL_SHIFT_1" type="text" maxlength="9" (keypress)="validateNumberInput($event)" class="form-control" id="kapsnormalshift2" formControlName="kapsnormalshift2" [ngClass]="{ 'is-invalid': addCTCuringForm.get('kapsnormalshift2').invalid && addCTCuringForm.get('kapsnormalshift2').touched }" />
+                      <div *ngIf="addCTCuringForm.get('kapsnormalshift2').invalid && addCTCuringForm.get('kapsnormalshift2').touched" class="invalid-feedback">Kaps Normal Shift 2 is required.</div>
+                    </div>
+                    <div class="form-group">
+                      <h6 for="kapsnormalshift3">Kaps Normal Shift 3</h6>
+                      <input [(ngModel)]="adCTCuringObject.kaps_NORMAL_SHIFT_2" type="text" maxlength="9" (keypress)="validateNumberInput($event)" class="form-control" id="kapsnormalshift3" formControlName="kapsnormalshift3" [ngClass]="{ 'is-invalid': addCTCuringForm.get('kapsnormalshift3').invalid && addCTCuringForm.get('kapsnormalshift3').touched }" />
+                      <div *ngIf="addCTCuringForm.get('kapsnormalshift3').invalid && addCTCuringForm.get('kapsnormalshift3').touched" class="invalid-feedback">Kaps Normal Shift 3 is required.</div>
+                    </div>
+                    <div class="form-group">
+                      <h6 for="kapsshiftfriday">Kaps Shift Friday</h6>
+                      <input [(ngModel)]="adCTCuringObject.kaps_SHIFT_FRIDAY" type="text" maxlength="9" (keypress)="validateNumberInput($event)" class="form-control" id="kapsshiftfriday" formControlName="kapsshiftfriday" [ngClass]="{ 'is-invalid': addCTCuringForm.get('kapsshiftfriday').invalid && addCTCuringForm.get('kapsshiftfriday').touched }" />
+                      <div *ngIf="addCTCuringForm.get('kapsshiftfriday').invalid && addCTCuringForm.get('kapsshiftfriday').touched" class="invalid-feedback">Kaps Shift Friday is required.</div>
+                    </div>
+                    <div class="form-group">
+                      <h6 for="kapstotalnormalshift">Kaps Total Normal Shift</h6>
+                      <input [(ngModel)]="adCTCuringObject.kaps_TOTAL_NORMAL_SHIFT" type="text" maxlength="9" (keypress)="validateNumberInput($event)" class="form-control" id="kapstotalnormalshift" formControlName="kapstotalnormalshift" [ngClass]="{ 'is-invalid': addCTCuringForm.get('kapstotalnormalshift').invalid && addCTCuringForm.get('kapstotalnormalshift').touched }" />
+                      <div *ngIf="addCTCuringForm.get('kapstotalnormalshift').invalid && addCTCuringForm.get('kapstotalnormalshift').touched" class="invalid-feedback">Kaps Total Normal Shift is required.</div>
+                    </div>
+                    <div class="form-group">
+                      <h6 for="kapstotalshiftfriday">Kaps Total Shift Friday</h6>
+                      <input [(ngModel)]="adCTCuringObject.kaps_TOTAL_SHIFT_FRIDAY" maxlength="9" type="text" (keypress)="validateNumberInput($event)" class="form-control" id="kapstotalshiftfriday" formControlName="kapstotalshiftfriday" [ngClass]="{ 'is-invalid': addCTCuringForm.get('kapstotalshiftfriday').invalid && addCTCuringForm.get('kapstotalshiftfriday').touched }" />
+                      <div *ngIf="addCTCuringForm.get('kapstotalshiftfriday').invalid && addCTCuringForm.get('kapstotalshiftfriday').touched" class="invalid-feedback">Kaps Total Shift Friday is required.</div>
+                    </div>
+                    <div class="form-group">
+                      <h6 for="waktutotalctnormal">Time Total CT Normal</h6>
+                      <input [(ngModel)]="adCTCuringObject.waktu_TOTAL_CT_NORMAL" type="text" maxlength="9" (keypress)="validateNumberInput($event)" class="form-control" id="waktutotalctnormal" formControlName="waktutotalctnormal" [ngClass]="{ 'is-invalid': addCTCuringForm.get('waktutotalctnormal').invalid && addCTCuringForm.get('waktutotalctnormal').touched }" />
+                      <div *ngIf="addCTCuringForm.get('waktutotalctnormal').invalid && addCTCuringForm.get('waktutotalctnormal').touched" class="invalid-feedback">Time Total CT Normal is required.</div>
+                    </div>
+                    <div class="form-group">
+                      <h6 for="waktutotalctfriday">Time Total CT Friday</h6>
+                      <input [(ngModel)]="adCTCuringObject.waktu_TOTAL_CT_FRIDAY" type="text" maxlength="9" (keypress)="validateNumberInput($event)" class="form-control" id="waktutotalctfriday" formControlName="waktutotalctfriday" [ngClass]="{ 'is-invalid': addCTCuringForm.get('waktutotalctfriday').invalid && addCTCuringForm.get('waktutotalctfriday').touched }" />
+                      <div *ngIf="addCTCuringForm.get('waktutotalctfriday').invalid && addCTCuringForm.get('waktutotalctfriday').touched" class="invalid-feedback">Time Total CT Friday is required.</div>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              <!-- Disable Update button if form is invalid -->
+              <button type="button" class="btn btn-primary" [disabled]="addCTCuringForm.invalid" (click)="addCTCuring()">Add CT Curing</button>
             </div>
           </div>
         </div>

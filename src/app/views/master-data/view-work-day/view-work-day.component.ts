@@ -40,6 +40,7 @@ export class ViewWorkDayComponent implements OnInit {
   isSaturday = false;
   isMonday = false;
   overTimeSwitch = false;
+  yesterdayOverTimeSwitch = false;
   tlSwitches = Array(3).fill(true);
   tlReasons = Array(3).fill(new DWorkDay);
 
@@ -56,6 +57,7 @@ export class ViewWorkDayComponent implements OnInit {
   work_days_hours: WDHours;
   work_days_hoursTT: WDHours;
   work_days_hoursTL: WDHours;
+
   errorMessage: string | null = null;
 
   file: File | null = null;
@@ -65,8 +67,17 @@ export class ViewWorkDayComponent implements OnInit {
   async ngOnInit() {
     const currentDate = new Date();
     const currentYear = currentDate.getFullYear();
-    const currentMonth = currentDate.getMonth() + 1; // JavaScript months are 0-indexed
+    const currentMonth = currentDate.getMonth() + 1;
     this.calendar = this.calendarService.getCalendar(currentYear, currentMonth);
+    await this.loadWorkday();
+    this.Loading = false;
+  }
+
+  async CurrentReload(){
+    this.Loading = true;
+    // this.selectedDay = new dayCalendar(null,null,null,null,null);
+    const { year, month } = this.calendar;
+    this.calendar = this.calendarService.getCalendar(year, month);
     await this.loadWorkday();
     this.Loading = false;
   }
@@ -417,6 +428,7 @@ export class ViewWorkDayComponent implements OnInit {
     } catch (error) {
       this.errorMessage = 'Failed to load work day: ' + error.message;
     }
+    this.CurrentReload();
     this.Loading = false;
   }
 
@@ -465,10 +477,27 @@ export class ViewWorkDayComponent implements OnInit {
     } catch (error) {
       this.errorMessage = 'Failed to load work day: ' + error.message;
     }
+    this.CurrentReload();
     this.Loading = false;
   }
 
+  refreshOvertime(){
+    console.log("Refresh Overtime");
+    console.log("Data TT: ",this.ttperHourSwitches);
+    console.log("Data TL: ",this.tlperHourSwitches);
 
+    console.log("Data TT Switch: ",this.ttSwitches);
+    console.log("Data TL Switch: ",this.tlSwitches);
+    if(!this.selectedDay.isOvertimeShift3){
+      if(this.ttSwitches[1] == false && this.ttSwitches[2] == false &&
+        this.tlSwitches[1] == false && this.tlSwitches[2] == false){
+        this.selectedDay.overtime = false;
+      }else{
+        this.selectedDay.overtime = true;
+      }
+    }
+    // console.log("Data Work Days: ",this.work_days);
+  }
 
   monthNames: string[] = [
     'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus',
@@ -512,6 +541,19 @@ export class ViewWorkDayComponent implements OnInit {
       // Fetch workdays using the service
       const response = await this.workDayService.getAllWorkDaysByDateRange(fStartDate, fEndDate).toPromise();
 
+      const date = new Date(response.data[0].date_WD);
+      date.setDate(date.getDate() - 1);
+
+// Format to dd-MM-yyyy
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const year = date.getFullYear();
+      const yesterday = `${day}-${month}-${year}`;
+
+      const responseYesterday = await this.workDayService.getWorkDayByDate(yesterday).toPromise();
+
+      console.log(yesterday); // -> "17-07-2025"
+
       if (response?.data) {
         console.log(response.data);
         this.work_days = response.data;
@@ -522,6 +564,29 @@ export class ViewWorkDayComponent implements OnInit {
           week.forEach(day => {
             console.log("lenght: ",this.work_days.length);
             if (index < this.work_days.length) {
+              if (index === 0 && responseYesterday.data != null) {
+                day.isOvertimeYesterday = !!(
+                  responseYesterday?.data?.iot_TL_1 ||
+                  responseYesterday?.data?.iot_TL_2 ||
+                  this.work_days[index]?.iot_TL_3 ||
+                  responseYesterday?.data?.iot_TT_1 ||
+                  responseYesterday?.data?.iot_TT_2 ||
+                  this.work_days[index]?.iot_TT_3
+                );
+              } else {
+                const prev = this.work_days[index - 1];
+                day.isOvertimeYesterday = !!(
+                  prev?.iot_TL_1 ||
+                  prev?.iot_TL_2 ||
+                  this.work_days[index]?.iot_TL_3 ||
+                  prev?.iot_TT_1 ||
+                  prev?.iot_TT_2 ||
+                  this.work_days[index]?.iot_TT_3
+                );
+              }
+
+              console.log("kemarin ot ?: ", day.isOvertimeYesterday);
+
               day.detail = this.work_days[index];
               console.log("Shift 1 TL: ",day.detail.iot_TL_1);
               console.log("Shift 2 TL: ",day.detail.iot_TL_2);
@@ -538,6 +603,9 @@ export class ViewWorkDayComponent implements OnInit {
                 day.detail.iot_TT_2 ||
                 this.work_days[index + 1]?.iot_TT_3
               );
+              day.isOvertimeShift3 = !!(
+                this.work_days[index + 1]?.iot_TL_3 ||
+                this.work_days[index + 1]?.iot_TT_3)
               index++;
 
             }
@@ -932,7 +1000,7 @@ export class ViewWorkDayComponent implements OnInit {
       this.loadReason();
       this.loadSelectDay();
       if(this.tabset)
-      this.tabset.tabs[0].active = true;
+      this.tabset.tabs[1].active = true;
       if (day.weekend) {
         this.weekend = true;
         this.title = "OverTime TT and TL";
@@ -1018,7 +1086,8 @@ export class ViewWorkDayComponent implements OnInit {
     this.tlSwitches = [iot_TL_3, iot_TL_1, iot_TL_2];
 
     // Determine if any overtime switches are active
-    this.overTimeSwitch = [iot_TL_1, iot_TL_2, iot_TL_3, iot_TT_1, iot_TT_2, iot_TT_3].some(value => value === 1);
+    this.overTimeSwitch = this.selectedDay.overtime;
+    this.yesterdayOverTimeSwitch = this.selectedDay.isOvertimeYesterday;
 
     // Assign weekend and load hours
     this.weekend = this.selectedDay.weekend;
@@ -1107,21 +1176,49 @@ export class ViewWorkDayComponent implements OnInit {
       semi_OFF: semi_OFF,
     })
 
-    if(!this.overTimeSwitch){
-      try {
-        for (let i = 1; i <= 3; i++) {
-          const response = await this.workDayService.updateShiftTimes(
-            "00:00",
-            "00:00",
-            this.getdateselected(),
-            "WD_NORMAL",
-            i
-          ).toPromise();
-          this.perHourShift = response.data;
-        }
-      } catch (error) {
-        this.errorMessage = 'Failed to update work day specific: ' + error.message;
+    try {
+      for (let i = 1; i <= 3; i++) {
+        const response = await this.workDayService.updateShiftTimes(
+          "00:00",
+          "00:00",
+          i === 3 ? this.getdateselectedOffsetPlus1() : this.getdateselected(),
+          "WD_NORMAL",
+          i
+        ).toPromise();
+        this.perHourShift = response.data;
       }
+    } catch (error) {
+      this.errorMessage = 'Failed to update work day specific: ' + error.message;
+    }
+
+    try {
+      for (let i = 1; i <= 3; i++) {
+        const response = await this.workDayService.updateShiftTimes(
+          "00:00",
+          "00:00",
+          i === 3 ? this.getdateselectedOffsetPlus1() : this.getdateselected(),
+          "OT_TT",
+          i
+        ).toPromise();
+        this.perHourShift = response.data;
+      }
+    } catch (error) {
+      this.errorMessage = 'Failed to update work day specific: ' + error.message;
+    }
+
+    try {
+      for (let i = 1; i <= 3; i++) {
+        const response = await this.workDayService.updateShiftTimes(
+          "00:00",
+          "00:00",
+          i === 3 ? this.getdateselectedOffsetPlus1() : this.getdateselected(),
+          "OT_TL",
+          i
+        ).toPromise();
+        this.perHourShift = response.data;
+      }
+    } catch (error) {
+      this.errorMessage = 'Failed to update work day specific: ' + error.message;
     }
 
     try {

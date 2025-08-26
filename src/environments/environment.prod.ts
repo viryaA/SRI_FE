@@ -4,6 +4,8 @@
 
 export const environment = {
   production: true,
+  // apiUrlWebAdmin: 'http://localhost:8090/sri_starter_back',
+  // apiUrlLocalAdmin: 'http://localhost:8090/sri_starter_back',
   apiUrlWebAdmin: 'http://10.4.72.107:8080/sri_starter_back',
   apiUrlLocalAdmin: 'http://10.4.72.107:8080/sri_starter_back',
   token: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJBdXJlbCIsImV4cCI6MTczMzU3ODI0M30.mCyOz4yd5_PLUjWQ9KsxJ-mHkBeMrmyUGToFHi7o0LyVfsoPQH4_y8tMFoVfxSErGKyMl7hA_Bb16w91LfdjjA',

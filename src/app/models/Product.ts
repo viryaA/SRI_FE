@@ -1,4 +1,5 @@
 export class Product {
+  id: number;
   part_NUMBER: number;
   item_CURING: string;
   pattern_ID: string;

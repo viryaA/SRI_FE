@@ -52,6 +52,8 @@ export class AddMonthlyPlanningComponent implements OnInit {
 
   selectedND: any = null; // Ensure this is defined
 
+  exportAction: boolean = false;
+
   dataFrontRear = [
     { 'Paket': 'Data 1', 'Item Curing': ['Data 2', 'Data 3'] },
     { 'Paket': 'Data 4', 'Item Curing': ['Data 5', 'Data 6', 'Data 7'] }
@@ -86,7 +88,7 @@ export class AddMonthlyPlanningComponent implements OnInit {
     minC: null,
     minD: null
   };
-  displayedColumnsMOF: string[] = ['select', 'no', 'month0', 'month1', 'month2', 'action'];
+  displayedColumnsMOF: string[] = [ 'no', 'month0', 'month1', 'month2', 'action'];
   displayedColumnsMOQS: string[] = ['mo_V', 'month0', 'month1', 'month2'];
   displayedColumnsMOQSF: string[] = ['mo_V','month0', 'month1', 'month2', 'action'];
   displayedColumnsMP: string[] = ['no', 'partNumber', 'dateDailyMp', 'totalPlan'];
@@ -308,7 +310,7 @@ export class AddMonthlyPlanningComponent implements OnInit {
     // console.log(mo);
     const payload = {
       MO_ID: mo,              // Wrap mo in an array
-      CHEATING_ID: 0,    // Optional if needed
+      CHEATING_ID: cheating.version,    // Optional if needed
     };
 
     // Show loading dialog
@@ -322,20 +324,53 @@ export class AddMonthlyPlanningComponent implements OnInit {
     });
 
     this.mpService.GenerateMP(JSON.stringify(payload)).subscribe({
-      next: ( response ) => {
+      next: (response) => {
         console.log("API Response:", response);
-        // this.detailGenerateMp = response.data;
-        this.detailGenerateMp = response.data; // Example: assign it to a component variable
+
+        if(response.status === 400){
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Something went wrong!'
+          });
+          // ⬇️ panggil API kedua setelah selesai
+          this.mpService.NotificationMP(payload).subscribe({
+            next: (notif) => {
+              if (notif.data.length >= 1) {
+                const item = notif.data[0].ITEMCURING;
+                const mould = notif.data[0].MOULDNEEDED;
+                const order = notif.data[0].TOTALPLAN;
+
+                Swal.fire({
+                  icon: 'warning',
+                  title: 'Planning Stuck',
+                  text: `Planning Stuck at item ${item} with mould need: ${mould} and order ${order}`
+                });
+              }
+            },
+            error: (err) => {
+              Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Something went wrong!'
+              });
+            }
+          });
+          return;
+        }
+        this.detailGenerateMp = response.data;
         this.dataSourceGenerateMPDetail = new MatTableDataSource(this.detailGenerateMp);
         this.dataSourceGenerateMPDetail.sort = this.sortMPDetail;
         this.dataSourceGenerateMPDetail.paginator = this.paginatorMPDetail;
+        this.exportAction = true;
+
         Swal.fire({
           icon: 'success',
           title: 'Success',
           text: 'Monthly Plan generated!',
         });
       },
-      error: ( error ) => {
+      error: (error) => {
         Swal.fire({
           icon: 'error',
           title: 'Error',
@@ -343,6 +378,8 @@ export class AddMonthlyPlanningComponent implements OnInit {
         });
       }
     });
+
+
 
     // const moIdPayload = {
     //   moIds: mo
@@ -910,7 +947,7 @@ export class AddMonthlyPlanningComponent implements OnInit {
         month, year, limitChange,
         minA, maxA, minB,
         maxB, minC, maxC,
-        minD, maxD,this.executedVersion
+        minD, maxD,this.executedVersion,0
       )
       .subscribe(
         (response) => {
@@ -972,4 +1009,3 @@ export class AddMonthlyPlanningComponent implements OnInit {
   }
 
 }
-

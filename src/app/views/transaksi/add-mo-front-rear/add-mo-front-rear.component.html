@@ -835,11 +835,11 @@
               <th *matHeaderCellDef
                 style="min-width: 100px; background-color: rgb(255, 200, 81); color: rgb(0, 0, 0); text-align: center; vertical-align: middle;"
                 rowspan="2">Front Rear</th>
-              <td mat-cell *matCellDef="let mo" [ngStyle]="{ 
-                    'background-color': 'rgb(255, 247, 240)', 
-                    'color': 'rgb(0, 0, 0)', 
-                    'text-align': 'center', 
-                    'vertical-align': 'middle' 
+              <td mat-cell *matCellDef="let mo" [ngStyle]="{
+                    'background-color': 'rgb(255, 247, 240)',
+                    'color': 'rgb(0, 0, 0)',
+                    'text-align': 'center',
+                    'vertical-align': 'middle'
                   }">
                 <input type="checkbox" [(ngModel)]="mo.selected" />
               </td>
@@ -1000,6 +1000,8 @@
               <td *matCellDef="let mo" style="display: flex; justify-content: center; align-items: center;">
                 <button type="button" class="btn btn-md btn-secondary ml-2"
                   (click)="viewDetail(mo.itemCuring, mo.partNumber)" >Detail</button>
+                <button type="button" class="btn btn-md btn-primary ml-2"
+                        (click)="selectedCheating(mo.itemCuring)" >Cheated Data</button>
               </td>
             </ng-container>
             <tr align="center" style="height: 30px" mat-header-row *matHeaderRowDef="headersColumnsDmo; sticky: true">
@@ -1025,7 +1027,7 @@
                   <thead>
                     <tr>
                       <th>No</th>
-                      <th>Front Rear ID</th> 
+                      <th>Front Rear ID</th>
                       <th>Part Number</th>
                       <th>Description</th>
                     </tr>
@@ -1148,7 +1150,7 @@
                   </select>
                 </td>
                 <td>
-                  <select [disabled]="entry.selectedGedung == '' " class="form-control" name="machine_{{i}}" [(ngModel)]="entry.selectedMachine" 
+                  <select [disabled]="entry.selectedGedung == '' " class="form-control" name="machine_{{i}}" [(ngModel)]="entry.selectedMachine"
                   (change)="onMachineSelect($event.target.value)">
                     <option value="" [disabled]="true">Select Machine</option>
                     <option *ngFor="let mesin of entry.filteredMesinOptions" [value]="mesin">

@@ -25,9 +25,13 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { AddMoFrontRearComponent } from './add-mo-front-rear/add-mo-front-rear.component';
 import { AddArDefactRejectComponent } from './add-ar-defact-reject/add-ar-defact-reject.component';
 import { ViewDetailMonthlyPlanningComponent } from './view-detail-monthly-planning/view-detail-monthly-planning.component';
+import { ReplaceCommaPipe } from '../../utils/replace-comma.pipe';
+import { ReplaceMinPlusPipe } from '../../utils/replace-min-plus.pipe';
+import { DraggableDirective } from '../../utils/draggable-directive';
 
 @NgModule({
-  declarations: [ViewMoPpcComponent, AddMoPpcComponent, ViewMonthlyPlanningComponent, AddMonthlyPlanningComponent, ViewMoMarketingComponent, AddMoMarketingComponent, EditMoPpcComponent, EditMoMarketingComponent, ViewDetailRevisiPpcComponent, ViewDetailRevisiMarketingComponent, AddMoFrontRearComponent, AddArDefactRejectComponent, ViewDetailMonthlyPlanningComponent],
+  declarations: [ReplaceCommaPipe, DraggableDirective, ReplaceMinPlusPipe, ViewMoPpcComponent, AddMoPpcComponent, ViewMonthlyPlanningComponent, AddMonthlyPlanningComponent, ViewMoMarketingComponent, AddMoMarketingComponent, EditMoPpcComponent, EditMoMarketingComponent, ViewDetailRevisiPpcComponent, ViewDetailRevisiMarketingComponent, AddMoFrontRearComponent, AddArDefactRejectComponent, ViewDetailMonthlyPlanningComponent],
   imports: [CommonModule, FormsModule, ReactiveFormsModule, NgxSpinnerModule, NgSelect2Module, JwPaginationModule, TransaksiRoutingModule, TabsModule, ModalModule.forRoot(), ToastrModule.forRoot(), MatSortModule, MatTableModule, MatPaginatorModule, MatTooltipModule],
+  exports: [ReplaceCommaPipe, DraggableDirective, ReplaceMinPlusPipe]
 })
 export class TransaksiModule { }
