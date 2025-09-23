@@ -1800,42 +1800,42 @@ export class AddMoMarketingComponent implements OnInit {
 
     this.loading = true;
 
-    // Swal.fire({
-    //   icon: 'info',
-    //   title: 'Processing...',
-    //   html: 'Please wait while save data marketing order.',
-    //   allowOutsideClick: false,
-    //   didOpen: () => {
-    //     Swal.showLoading();
-    //   },
-    // });
-    // this.moService.saveMarketingOrderMarketing(this.detailMarketingOrder).subscribe(
-    //   (response) => {
-    //     Swal.close();
-    //     Swal.fire({
-    //       title: 'Success!',
-    //       text: 'Data Marketing Order Success added.',
-    //       icon: 'success',
-    //       allowOutsideClick: false,
-    //       confirmButtonText: 'OK',
-    //     }).then((result) => {
-    //       if (result.isConfirmed) {
-    //         this.navigateToView();
-    //       }
-    //     });
-    //     this.loading = false;
-    //   },
-    //   (error) => {
-    //     Swal.close();
-    //     Swal.fire({
-    //       icon: 'error',
-    //       title: 'Error',
-    //       text: 'Failed to add marketing order details: ' + error.message,
-    //       confirmButtonText: 'OK',
-    //     });
-    //     this.loading = false;
-    //   }
-    // );
+    Swal.fire({
+      icon: 'info',
+      title: 'Processing...',
+      html: 'Please wait while save data marketing order.',
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      },
+    });
+    this.moService.saveMarketingOrderMarketing(this.detailMarketingOrder).subscribe(
+      (response) => {
+        Swal.close();
+        Swal.fire({
+          title: 'Success!',
+          text: 'Data Marketing Order Success added.',
+          icon: 'success',
+          allowOutsideClick: false,
+          confirmButtonText: 'OK',
+        }).then((result) => {
+          if (result.isConfirmed) {
+            this.navigateToView();
+          }
+        });
+        this.loading = false;
+      },
+      (error) => {
+        Swal.close();
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Failed to add marketing order details: ' + error.message,
+          confirmButtonText: 'OK',
+        });
+        this.loading = false;
+      }
+    );
   }
 
   onFileChange(event: Event) {

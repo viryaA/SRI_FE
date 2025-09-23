@@ -218,9 +218,9 @@ export class AddMoFrontRearComponent implements OnInit {
   };
 
   // Pagination Detail Marketing Order
-  headersColumnsDmo: string[] = ['select', 'no', 'category','itemCuring', 'description', 'action'];
+  headersColumnsDmo: string[] = ['select', 'no','itemCuring', 'description', 'action'];
   childHeadersColumnsDmo: string[] = [];
-  rowDataDmo: string[] = ['select', 'no', 'category','itemCuring', 'description', 'action'];
+  rowDataDmo: string[] = ['select', 'no','itemCuring', 'description', 'action'];
   dataSourceDmo: MatTableDataSource<DetailMarketingOrder>;
   @ViewChild('sortDmo') sortDmo = new MatSort();
   @ViewChild('paginatorDmo') paginatorDmo: MatPaginator;
@@ -1969,7 +1969,6 @@ export class AddMoFrontRearComponent implements OnInit {
 
   addToSelectedList() {
     const selectedItems = this.dataSourceDmo.data.filter((mo) => mo.selected);
-
     if (selectedItems.length > 0) {
       this.isCheckboxInvalid = false; // Reset validasi jika ada data yang dicentang
       const currentFrontRear = this.frontRearCounter;
@@ -1997,6 +1996,22 @@ export class AddMoFrontRearComponent implements OnInit {
       });
     }
   }
+  deleteItem(index: number) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Are you sure?',
+      text: 'This item will be removed from the list.',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, delete it!',
+      cancelButtonText: 'Cancel'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.selectedList.splice(index, 1); // remove item by index
+        Swal.fire('Deleted!', 'The item has been removed.', 'success');
+      }
+    });
+  }
+
 
   async saveDataFrontRear() {
     const uniqueMOID = [...new Set(this.dataSourceDmo.data.map(item => item.moId))];

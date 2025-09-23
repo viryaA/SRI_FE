@@ -1025,20 +1025,26 @@
               <div class="table-responsive mt-3">
                 <table class="table table-bordered table-sm">
                   <thead>
-                    <tr>
-                      <th>No</th>
-                      <th>Front Rear ID</th>
-                      <th>Part Number</th>
-                      <th>Description</th>
-                    </tr>
+                  <tr>
+                    <th>No</th>
+                    <th>Front Rear ID</th>
+                    <th>Item Curing</th>
+                    <th>Description</th>
+                    <th class="text-center">Action</th> <!-- center header -->
+                  </tr>
                   </thead>
                   <tbody>
-                    <tr *ngFor="let item of selectedList; let i = index">
-                      <td>{{ i + 1 }}</td>
-                      <td>{{ item.frontRear }}</td>
-                      <td>{{ item.partNumber }}</td>
-                      <td>{{ item.description }}</td>
-                    </tr>
+                  <tr *ngFor="let item of selectedList; let i = index">
+                    <td>{{ i + 1 }}</td>
+                    <td>{{ item.frontRear }}</td>
+                    <td>{{ item.itemCuring }}</td>
+                    <td>{{ item.description }}</td>
+                    <td class="text-center"> <!-- center cell -->
+                      <button class="btn btn-danger btn-sm" (click)="deleteItem(i)">
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
                   </tbody>
                 </table>
               </div>
