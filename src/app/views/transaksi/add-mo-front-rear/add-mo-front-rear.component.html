@@ -835,11 +835,11 @@
               <th *matHeaderCellDef
                 style="min-width: 100px; background-color: rgb(255, 200, 81); color: rgb(0, 0, 0); text-align: center; vertical-align: middle;"
                 rowspan="2">Front Rear</th>
-              <td mat-cell *matCellDef="let mo" [ngStyle]="{ 
-                    'background-color': 'rgb(255, 247, 240)', 
-                    'color': 'rgb(0, 0, 0)', 
-                    'text-align': 'center', 
-                    'vertical-align': 'middle' 
+              <td mat-cell *matCellDef="let mo" [ngStyle]="{
+                    'background-color': 'rgb(255, 247, 240)',
+                    'color': 'rgb(0, 0, 0)',
+                    'text-align': 'center',
+                    'vertical-align': 'middle'
                   }">
                 <input type="checkbox" [(ngModel)]="mo.selected" />
               </td>
@@ -999,7 +999,9 @@
               <th *matHeaderCellDef style="min-width: 150px" rowspan="2" colspan="3">Detail</th>
               <td *matCellDef="let mo" style="display: flex; justify-content: center; align-items: center;">
                 <button type="button" class="btn btn-md btn-secondary ml-2"
-                  (click)="viewDetail(mo.itemCuring, mo.partNumber)">Detail</button>
+                  (click)="viewDetail(mo.itemCuring, mo.partNumber)" >Detail</button>
+                <button type="button" class="btn btn-md btn-primary ml-2"
+                        (click)="selectedCheating(mo.itemCuring)" >Cheated Data</button>
               </td>
             </ng-container>
             <tr align="center" style="height: 30px" mat-header-row *matHeaderRowDef="headersColumnsDmo; sticky: true">
@@ -1023,20 +1025,26 @@
               <div class="table-responsive mt-3">
                 <table class="table table-bordered table-sm">
                   <thead>
-                    <tr>
-                      <th>No</th>
-                      <th>Front Rear ID</th> 
-                      <th>Part Number</th>
-                      <th>Description</th>
-                    </tr>
+                  <tr>
+                    <th>No</th>
+                    <th>Front Rear ID</th>
+                    <th>Item Curing</th>
+                    <th>Description</th>
+                    <th class="text-center">Action</th> <!-- center header -->
+                  </tr>
                   </thead>
                   <tbody>
-                    <tr *ngFor="let item of selectedList; let i = index">
-                      <td>{{ i + 1 }}</td>
-                      <td>{{ item.frontRear }}</td>
-                      <td>{{ item.partNumber }}</td>
-                      <td>{{ item.description }}</td>
-                    </tr>
+                  <tr *ngFor="let item of selectedList; let i = index">
+                    <td>{{ i + 1 }}</td>
+                    <td>{{ item.frontRear }}</td>
+                    <td>{{ item.itemCuring }}</td>
+                    <td>{{ item.description }}</td>
+                    <td class="text-center"> <!-- center cell -->
+                      <button class="btn btn-danger btn-sm" (click)="deleteItem(i)">
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
                   </tbody>
                 </table>
               </div>
@@ -1139,24 +1147,25 @@
               <!-- Loop through machineEntries to create rows -->
               <tr *ngFor="let entry of machineEntries; let i = index">
                 <td>
-                  <select class="form-control" [(ngModel)]="entry.selectedGedung"
+                  <select class="form-control" name="gedung_{{i}}" [(ngModel)]="entry.selectedGedung"
                     (change)="onGedungSelect(entry, $event.target.value)">
-                    <option value="">Select Gedung</option>
+                    <option value="" [disabled]="true">Select Gedung</option>
                     <option *ngFor="let gedung of gedungOptions" [value]="gedung">
                       {{ gedung }}
                     </option>
                   </select>
                 </td>
                 <td>
-                  <select class="form-control" [(ngModel)]="entry.selectedMachine" (blur)="onMachineSelect($event.target.value)">
-                    <option value="">Select Machine</option>
+                  <select [disabled]="entry.selectedGedung == '' " class="form-control" name="machine_{{i}}" [(ngModel)]="entry.selectedMachine"
+                  (change)="onMachineSelect($event.target.value)">
+                    <option value="" [disabled]="true">Select Machine</option>
                     <option *ngFor="let mesin of entry.filteredMesinOptions" [value]="mesin">
                       {{ mesin }}
                     </option>
                   </select>
                 </td>
                 <td>
-                  <button (click)="removeEntry(entry)" class="btn btn-danger"
+                  <button (click)="removeEntry(entry)"name="remove_{{i}}" class="btn btn-danger"
                     style="font-size: 12px; padding: 3px 6px;">
                     Remove
                   </button>
@@ -1173,7 +1182,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary" id="saveMachineBtn" (click)="saveEntries()">Simpan</button>
+        <button [disabled]="machineEntries.length == 0" type="button" class="btn btn-primary" id="saveMachineBtn" (click)="saveEntries()">Simpan</button>
       </div>
     </div>
   </div>

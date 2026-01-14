@@ -93,6 +93,9 @@ export class AddMoPpcComponent implements OnInit {
       total_ttwd_1: [null, []],
       total_tlwd_2: [null, []],
       total_ttwd_2: [null, []],
+      machine_airbag_m0: [null, [Validators.required]],
+      machine_airbag_m1: [null, [Validators.required]],
+      machine_airbag_m2: [null, [Validators.required]],
       max_tube_capa_0: [null, [Validators.required]],
       max_tube_capa_1: [null, [Validators.required]],
       max_tube_capa_2: [null, [Validators.required]],
@@ -137,6 +140,11 @@ export class AddMoPpcComponent implements OnInit {
     this.formHeaderMo.get('month_0')?.valueChanges.subscribe((value) => {
       this.calculateNextMonths(value);
     });
+
+    this.subscribeToValueChanges('machine_airbag_m0');
+    this.subscribeToValueChanges('machine_airbag_m1');
+    this.subscribeToValueChanges('machine_airbag_m2');
+
     this.subscribeToValueChanges('max_tube_capa_0');
     this.subscribeToValueChanges('max_capa_tl_0');
     this.subscribeToValueChanges('max_capa_tt_0');
@@ -149,6 +157,12 @@ export class AddMoPpcComponent implements OnInit {
     this.subscribeToValueChanges('max_capa_tl_2');
     this.subscribeToValueChanges('max_capa_tt_2');
   }
+
+  isSpecialDescription(description: string): boolean {
+    if (!description) return false;
+    return description.includes('FDR TB') || description.includes('FED TB');
+  }
+
 
   resetFileInput() {
     this.fileInput.nativeElement.value = '';
@@ -468,11 +482,14 @@ export class AddMoPpcComponent implements OnInit {
     month2full = formatToMMYYYY(month2full);
 
     const totalHKTL1form = parseFloat(this.formHeaderMo.get('total_tlwd_0').value.replace(',', '.')) || 0;
-    const totalHKTL2form = parseFloat(this.formHeaderMo.get('total_tlwd_1').value.replace(',', '.')) || 0;
-    const totalHKTL3form = parseFloat(this.formHeaderMo.get('total_tlwd_2').value.replace(',', '.')) || 0;
+    const totalHKTL2from = parseFloat(this.formHeaderMo.get('total_tlwd_1').value.replace(',', '.')) || 0;
+    const totalHKTL3from = parseFloat(this.formHeaderMo.get('total_tlwd_2').value.replace(',', '.')) || 0;
     const totalHKTT1from = parseFloat(this.formHeaderMo.get('total_ttwd_0').value.replace(',', '.')) || 0;
-    const totalHKTT2form = parseFloat(this.formHeaderMo.get('total_ttwd_1').value.replace(',', '.')) || 0;
-    const totalHKTT3form = parseFloat(this.formHeaderMo.get('total_ttwd_2').value.replace(',', '.')) || 0;
+    const totalHKTT2from = parseFloat(this.formHeaderMo.get('total_ttwd_1').value.replace(',', '.')) || 0;
+    const totalHKTT3from = parseFloat(this.formHeaderMo.get('total_ttwd_2').value.replace(',', '.')) || 0;
+    const totalHKTB1from = parseFloat(this.formHeaderMo.get('total_wt_0').value.replace(',', '.')) || 0;
+    const totalHKTB2form = parseFloat(this.formHeaderMo.get('total_wt_1').value.replace(',', '.')) || 0;
+    const totalHKTB3form = parseFloat(this.formHeaderMo.get('total_wt_2').value.replace(',', '.')) || 0;
     const typeMoForm = this.formHeaderMo.get('type').value;
 
     let data = {
@@ -480,11 +497,14 @@ export class AddMoPpcComponent implements OnInit {
       monthYear1: month1full,
       monthYear2: month2full,
       totalHKTT1: totalHKTT1from.toString(),
-      totalHKTT2: totalHKTT2form.toString(),
-      totalHKTT3: totalHKTT3form.toString(),
+      totalHKTT2: totalHKTT2from.toString(),
+      totalHKTT3: totalHKTT3from.toString(),
       totalHKTL1: totalHKTL1form.toString(),
-      totalHKTL2: totalHKTL2form.toString(),
-      totalHKTL3: totalHKTL3form.toString(),
+      totalHKTL2: totalHKTL2from.toString(),
+      totalHKTL3: totalHKTL3from.toString(),
+      totalHKTB1: totalHKTB1from.toString(),
+      totalHKTB2: totalHKTB2form.toString(),
+      totalHKTB3: totalHKTB3form.toString(),
       productMerk: typeMoForm,
     };
 
@@ -513,12 +533,51 @@ export class AddMoPpcComponent implements OnInit {
     );
   }
 
+  isMachineTypeRequired(mo: any): boolean {
+    if (!mo?.description) return false;
+
+    const needsMachineType =
+      mo.description.includes('FDR TB') || mo.description.includes('FED TB');
+
+    const machineTypeIsEmpty =
+      mo.machineType === null || mo.machineType === 'undefined' || mo.machineType === undefined;
+
+    return !needsMachineType && machineTypeIsEmpty;
+  }
+
   saveAllMo() {
     this.isSubmitted = true;
 
-    const hasInvalidMinOrderOrMachineType = this.detailMarketingOrder.some((item) => item.minOrder === null || item.minOrder === 0 || item.machineType === null);
+    // const hasInvalidMinOrderOrMachineType = this.detailMarketingOrder.some((item) => item.minOrder === null || item.minOrder === 0 || item.machineType === null);
+    const invalidItems = this.detailMarketingOrder.filter(
+      (item) => {
+        const desc = item.description || '';
+        const needsMachineType = desc.includes('FDR TB') || desc.includes('FED TB');
 
-    if (hasInvalidMinOrderOrMachineType) {
+        return (
+          item.minOrder === null ||
+          item.minOrder === 0 ||
+          (!needsMachineType && (item.machineType === null || item.machineType === 'undefined'))
+        );
+      }
+    );
+    console.log(invalidItems);
+    const hasInvalid = this.detailMarketingOrder.some(
+      (item) => {
+        const desc = item.description || '';
+        const needsMachineType = desc.includes('FDR TB') || desc.includes('FED TB');
+
+        return (
+          item.minOrder === null ||
+          item.minOrder === 0 ||
+          (!needsMachineType && (item.machineType === null || item.machineType === 'undefined'))
+        );
+      }
+    );
+
+    // console.log(invalidItems);
+    // console.log(this.detailMarketingOrder);
+    if (hasInvalid) {
       Swal.fire({
         title: 'Warning!',
         text: 'Please fill in all fields in the Marekting Order form.',
@@ -663,6 +722,7 @@ export class AddMoPpcComponent implements OnInit {
         maxCapTl: this.parseFormattedValue(this.formHeaderMo.get(`max_capa_tl_${i}`)?.value || ''),
         maxCapTt: this.parseFormattedValue(this.formHeaderMo.get(`max_capa_tt_${i}`)?.value || ''),
         noteOrderTl: this.formHeaderMo.get(`note_order_tl_${i}`)?.value,
+        airbagMachine: this.parseFormattedValue(this.formHeaderMo.get(`machine_airbag_m${i}`)?.value),
       });
     }
 
@@ -671,6 +731,14 @@ export class AddMoPpcComponent implements OnInit {
       item.moId = this.lastIdMo;
       item.minOrder = item.minOrder ? Number(item.minOrder.toString().replace('.', '')) : 0;
     });
+  }
+
+  private forceDot(value: any): number | null {
+    if (value == null) {
+      return null;
+    }
+    const normalized = value.toString().replace(',', '.');
+    return normalized;
   }
 
   downloadTemplate() {
@@ -758,12 +826,13 @@ export class AddMoPpcComponent implements OnInit {
     worksheet.getCell('N7').font = { name: 'Calibri Body', size: 11, bold: true, italic: true };
     setBorder(worksheet.getCell('N7'));
 
-    worksheet.getCell('Q7').value = this.formHeaderMo.get('nwd_0')?.value; // "Month 1"
-    worksheet.getCell('R7').value = this.formHeaderMo.get('nwd_1')?.value; // "Month 2"
-    worksheet.getCell('S7').value = this.formHeaderMo.get('nwd_2')?.value; // "Month 3"
-    worksheet.getCell('Q7').numFmt = '0.00';
-    worksheet.getCell('R7').numFmt = '0.00';
-    worksheet.getCell('S7').numFmt = '0.00';
+    worksheet.getCell('Q7').value = this.forceDot(this.formHeaderMo.get('nwd_0')?.value);
+    worksheet.getCell('R7').value = this.forceDot(this.formHeaderMo.get('nwd_1')?.value);
+    worksheet.getCell('S7').value = this.forceDot(this.formHeaderMo.get('nwd_2')?.value);
+ // // "Month 3"
+ //    worksheet.getCell('Q7').numFmt = '0.00';
+ //    worksheet.getCell('R7').numFmt = '0.00';
+ //    worksheet.getCell('S7').numFmt = '0.00';
 
     worksheet.mergeCells('N8:P8');
     worksheet.getCell('N8').value = 'Normal Working Day Tube';
@@ -771,9 +840,10 @@ export class AddMoPpcComponent implements OnInit {
     worksheet.getCell('N8').font = { name: 'Calibri Body', size: 11, bold: true, italic: true };
     setBorder(worksheet.getCell('N8'));
 
-    worksheet.getCell('Q8').value = this.formHeaderMo.get('nwt_0')?.value; // "Month 1"
-    worksheet.getCell('R8').value = this.formHeaderMo.get('nwt_1')?.value; // "Month 2"
-    worksheet.getCell('S8').value = this.formHeaderMo.get('nwt_2')?.value; // "Month 3"
+    worksheet.getCell('Q8').value = this.forceDot(this.formHeaderMo.get('nwt_0')?.value); // "Month 1"
+    worksheet.getCell('R8').value = this.forceDot(this.formHeaderMo.get('nwt_1')?.value); // "Month 2"
+    worksheet.getCell('S8').value = this.forceDot(this.formHeaderMo.get('nwt_2')?.value); // "Month 3"
+
     worksheet.getCell('Q8').numFmt = '0.00';
     worksheet.getCell('R8').numFmt = '0.00';
     worksheet.getCell('S8').numFmt = '0.00';
@@ -783,9 +853,12 @@ export class AddMoPpcComponent implements OnInit {
     worksheet.getCell('N9').alignment = { vertical: 'middle', horizontal: 'left' };
     worksheet.getCell('N9').font = { name: 'Calibri Body', size: 11, bold: true, italic: true };
     setBorder(worksheet.getCell('N9'));
-    worksheet.getCell('Q9').value = this.formHeaderMo.get('ot_wt_0')?.value; // "Month 1"
-    worksheet.getCell('R9').value = this.formHeaderMo.get('ot_wt_1')?.value; // "Month 2"
-    worksheet.getCell('S9').value = this.formHeaderMo.get('ot_wt_2')?.value; // "Month 3"
+
+
+    worksheet.getCell('Q9').value = this.forceDot(this.formHeaderMo.get('ot_wt_0')?.value); // "Month 1"
+    worksheet.getCell('R9').value = this.forceDot(this.formHeaderMo.get('ot_wt_1')?.value); // "Month 2"
+    worksheet.getCell('S9').value = this.forceDot(this.formHeaderMo.get('ot_wt_2')?.value); // "Month 3"
+
     worksheet.getCell('Q9').numFmt = '0.00';
     worksheet.getCell('R9').numFmt = '0.00';
     worksheet.getCell('S9').numFmt = '0.00';
@@ -795,9 +868,9 @@ export class AddMoPpcComponent implements OnInit {
     worksheet.getCell('N10').alignment = { vertical: 'middle', horizontal: 'left' };
     worksheet.getCell('N10').font = { name: 'Calibri Body', size: 11, bold: true, italic: true };
     setBorder(worksheet.getCell('N10'));
-    worksheet.getCell('Q10').value = this.formHeaderMo.get('tl_ot_wd_0')?.value; // "Month 1"
-    worksheet.getCell('R10').value = this.formHeaderMo.get('tl_ot_wd_1')?.value; // "Month 2"
-    worksheet.getCell('S10').value = this.formHeaderMo.get('tl_ot_wd_2')?.value; // "Month 3"
+    worksheet.getCell('Q10').value = this.forceDot(this.formHeaderMo.get('tl_ot_wd_0')?.value); // "Month 1"
+    worksheet.getCell('R10').value = this.forceDot(this.formHeaderMo.get('tl_ot_wd_1')?.value); // "Month 2"
+    worksheet.getCell('S10').value = this.forceDot(this.formHeaderMo.get('tl_ot_wd_2')?.value); // "Month 3"
     worksheet.getCell('Q10').numFmt = '0.00';
     worksheet.getCell('R10').numFmt = '0.00';
     worksheet.getCell('S10').numFmt = '0.00';
@@ -806,9 +879,9 @@ export class AddMoPpcComponent implements OnInit {
     worksheet.getCell('N11').value = 'Workday Overtime TT';
     worksheet.getCell('N11').alignment = { vertical: 'middle', horizontal: 'left' };
     setBorder(worksheet.getCell('N11'));
-    worksheet.getCell('Q11').value = this.formHeaderMo.get('tt_ot_wd_0')?.value; // "Month 1"
-    worksheet.getCell('R11').value = this.formHeaderMo.get('tt_ot_wd_1')?.value; // "Month 2"
-    worksheet.getCell('S11').value = this.formHeaderMo.get('tt_ot_wd_2')?.value; // "Month 3"
+    worksheet.getCell('Q11').value = this.forceDot(this.formHeaderMo.get('tt_ot_wd_0')?.value); // "Month 1"
+    worksheet.getCell('R11').value = this.forceDot(this.formHeaderMo.get('tt_ot_wd_1')?.value); // "Month 2"
+    worksheet.getCell('S11').value = this.forceDot(this.formHeaderMo.get('tt_ot_wd_2')?.value); // "Month 3"
     worksheet.getCell('Q11').numFmt = '0.00';
     worksheet.getCell('R11').numFmt = '0.00';
     worksheet.getCell('S11').numFmt = '0.00';
@@ -817,9 +890,9 @@ export class AddMoPpcComponent implements OnInit {
     worksheet.getCell('N12').value = 'Total Workday Tube';
     worksheet.getCell('N12').alignment = { vertical: 'middle', horizontal: 'left' };
     setBorder(worksheet.getCell('N12'));
-    worksheet.getCell('Q12').value = this.formHeaderMo.get('total_wt_0')?.value ?? 0; // "Month 1"
-    worksheet.getCell('R12').value = this.formHeaderMo.get('total_wt_1')?.value ?? 0; // "Month 2"
-    worksheet.getCell('S12').value = this.formHeaderMo.get('total_wt_2')?.value ?? 0; // "Month 3"
+    worksheet.getCell('Q12').value = this.forceDot(this.formHeaderMo.get('total_wt_0')?.value )?? 0; // "Month 1"
+    worksheet.getCell('R12').value = this.forceDot(this.formHeaderMo.get('total_wt_1')?.value )?? 0; // "Month 2"
+    worksheet.getCell('S12').value = this.forceDot(this.formHeaderMo.get('total_wt_2')?.value )?? 0; // "Month 3"
     worksheet.getCell('Q12').numFmt = '0.00';
     worksheet.getCell('R12').numFmt = '0.00';
     worksheet.getCell('S12').numFmt = '0.00';
@@ -828,9 +901,9 @@ export class AddMoPpcComponent implements OnInit {
     worksheet.getCell('N13').value = 'Total Workday Tire TL';
     worksheet.getCell('N13').alignment = { vertical: 'middle', horizontal: 'left' };
     setBorder(worksheet.getCell('N13'));
-    worksheet.getCell('Q13').value = this.formHeaderMo.get('total_tlwd_0')?.value; // "Month 1"
-    worksheet.getCell('R13').value = this.formHeaderMo.get('total_tlwd_1')?.value; // "Month 2"
-    worksheet.getCell('S13').value = this.formHeaderMo.get('total_tlwd_2')?.value; // "Month 3"
+    worksheet.getCell('Q13').value = this.forceDot(this.formHeaderMo.get('total_tlwd_0')?.value); // "Month 1"
+    worksheet.getCell('R13').value = this.forceDot(this.formHeaderMo.get('total_tlwd_1')?.value); // "Month 2"
+    worksheet.getCell('S13').value = this.forceDot(this.formHeaderMo.get('total_tlwd_2')?.value); // "Month 3"
     worksheet.getCell('Q13').numFmt = '0.00';
     worksheet.getCell('R13').numFmt = '0.00';
     worksheet.getCell('S13').numFmt = '0.00';
@@ -839,9 +912,9 @@ export class AddMoPpcComponent implements OnInit {
     worksheet.getCell('N14').value = 'Total Workday Tire TT';
     worksheet.getCell('N14').alignment = { vertical: 'middle', horizontal: 'left' };
     setBorder(worksheet.getCell('N14'));
-    worksheet.getCell('Q14').value = this.formHeaderMo.get('total_ttwd_0')?.value; // "Month 1"
-    worksheet.getCell('R14').value = this.formHeaderMo.get('total_ttwd_1')?.value; // "Month 2"
-    worksheet.getCell('S14').value = this.formHeaderMo.get('total_ttwd_2')?.value; // "Month 3"
+    worksheet.getCell('Q14').value = this.forceDot(this.formHeaderMo.get('total_ttwd_0')?.value); // "Month 1"
+    worksheet.getCell('R14').value = this.forceDot(this.formHeaderMo.get('total_ttwd_1')?.value); // "Month 2"
+    worksheet.getCell('S14').value = this.forceDot(this.formHeaderMo.get('total_ttwd_2')?.value); // "Month 3"
     worksheet.getCell('Q14').numFmt = '0.00';
     worksheet.getCell('R14').numFmt = '0.00';
     worksheet.getCell('S14').numFmt = '0.00';
@@ -850,9 +923,9 @@ export class AddMoPpcComponent implements OnInit {
     worksheet.getCell('N15').value = 'Max Capacity Tube';
     worksheet.getCell('N15').alignment = { vertical: 'middle', horizontal: 'left' };
     setBorder(worksheet.getCell('N15'));
-    worksheet.getCell('Q15').value = this.formHeaderMo.get('max_tube_capa_0')?.value; // "Month 1"
-    worksheet.getCell('R15').value = this.formHeaderMo.get('max_tube_capa_1')?.value; // "Month 2"
-    worksheet.getCell('S15').value = this.formHeaderMo.get('max_tube_capa_2')?.value; // "Month 3"
+    worksheet.getCell('Q15').value = this.forceDot(this.formHeaderMo.get('max_tube_capa_0')?.value); // "Month 1"
+    worksheet.getCell('R15').value = this.forceDot(this.formHeaderMo.get('max_tube_capa_1')?.value); // "Month 2"
+    worksheet.getCell('S15').value = this.forceDot(this.formHeaderMo.get('max_tube_capa_2')?.value); // "Month 3"
     worksheet.getCell('Q15').numFmt = '#,##0';
     worksheet.getCell('R15').numFmt = '#,##0';
     worksheet.getCell('S15').numFmt = '#,##0';
@@ -877,9 +950,9 @@ export class AddMoPpcComponent implements OnInit {
     worksheet.getCell('N16').value = 'Max Capacity Tire TL';
     worksheet.getCell('N16').alignment = { vertical: 'middle', horizontal: 'left' };
     setBorder(worksheet.getCell('N16'));
-    worksheet.getCell('Q16').value = this.formHeaderMo.get('max_capa_tl_0')?.value; // "Month 1"
-    worksheet.getCell('R16').value = this.formHeaderMo.get('max_capa_tl_1')?.value; // "Month 2"
-    worksheet.getCell('S16').value = this.formHeaderMo.get('max_capa_tl_2')?.value; // "Month 3"
+    worksheet.getCell('Q16').value = this.forceDot(this.formHeaderMo.get('max_capa_tl_0')?.value); // "Month 1"
+    worksheet.getCell('R16').value = this.forceDot(this.formHeaderMo.get('max_capa_tl_1')?.value); // "Month 2"
+    worksheet.getCell('S16').value = this.forceDot(this.formHeaderMo.get('max_capa_tl_2')?.value); // "Month 3"
     worksheet.getCell('Q16').numFmt = '#,##0';
     worksheet.getCell('R16').numFmt = '#,##0';
     worksheet.getCell('S16').numFmt = '#,##0';
@@ -903,9 +976,9 @@ export class AddMoPpcComponent implements OnInit {
     worksheet.getCell('N17').value = 'Max Capacity Tire TT';
     worksheet.getCell('N17').alignment = { vertical: 'middle', horizontal: 'left' };
     setBorder(worksheet.getCell('N17'));
-    worksheet.getCell('Q17').value = this.formHeaderMo.get('max_capa_tt_0')?.value; // "Month 1"
-    worksheet.getCell('R17').value = this.formHeaderMo.get('max_capa_tt_1')?.value; // "Month 2"
-    worksheet.getCell('S17').value = this.formHeaderMo.get('max_capa_tt_2')?.value; // "Month 3"
+    worksheet.getCell('Q17').value = this.forceDot(this.formHeaderMo.get('max_capa_tt_0')?.value); // "Month 1"
+    worksheet.getCell('R17').value = this.forceDot(this.formHeaderMo.get('max_capa_tt_1')?.value); // "Month 2"
+    worksheet.getCell('S17').value = this.forceDot(this.formHeaderMo.get('max_capa_tt_2')?.value); // "Month 3"
     worksheet.getCell('Q17').numFmt = '#,##0';
     worksheet.getCell('R17').numFmt = '#,##0';
     worksheet.getCell('S17').numFmt = '#,##0';
@@ -1448,11 +1521,16 @@ export class AddMoPpcComponent implements OnInit {
           // Membaca data dari kolom M hingga S
           for (let row = startRow - 1; row <= endRow; row++) {
             const partNumber = Number(worksheet[`C${row + 1}`]?.v) || null; // Kolom C
-            const machineType = String(worksheet[`E${row + 1}`]?.v) || null; // Kolom I
+            const description = String(worksheet[`D${row + 1}`]?.v).trim(); // Kolom D
+            const rawMachineType = String(worksheet[`E${row + 1}`]?.v).trim();
+
+            const allowedMachineTypes = ['A/B', 'BOM'];
+
+            const machineType = allowedMachineTypes.includes(rawMachineType) ? rawMachineType : null;
             const minOrder = Number(worksheet[`I${row + 1}`]?.v) || null; // Kolom E
 
             // Mencari dan memperbarui nilai dalam detailMarketingOrder
-            const detail = this.detailMarketingOrder.find((item) => item.partNumber === partNumber);
+            const detail = this.detailMarketingOrder.find((item) => item.partNumber === partNumber && item.description === description);
             if (detail) {
               detail.minOrder = minOrder;
               detail.machineType = machineType;

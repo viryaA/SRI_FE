@@ -29,6 +29,24 @@ export class CTCuringService {
     return this.http.get<ApiResponse<CT_Curing[]>>(environment.apiUrlWebAdmin + '/getAllCTCuring', { headers: this.getHeaders() });
   }
 
+  saveCTCuring(ctcuring: CT_Curing): Observable<ApiResponse<CT_Curing>> {
+    console.log(ctcuring);
+    return this.http
+      .post<ApiResponse<CT_Curing>>(
+        environment.apiUrlWebAdmin + '/saveCTCuring',
+        ctcuring,
+        { headers: this.getHeaders() } // Menyertakan header
+      )
+      .pipe(
+        map((response) => {
+          return response;
+        }),
+        catchError((err) => {
+          return throwError(err);
+        })
+      );
+  }
+
   //Method Update plant
   updateCTCuring(ctcuring: CT_Curing): Observable<ApiResponse<CT_Curing>> {
     console.log(ctcuring);

@@ -48,7 +48,7 @@
             <!-- Revision Marketing Column -->
             <ng-container matColumnDef="revisionMarketing">
               <th *matHeaderCellDef style="min-width: 100px" mat-sort-header>Revision Marketing</th>
-              <td *matCellDef="let mo">{{ mo.revisionMarketing }}</td>
+              <td *matCellDef="let mo">{{ mo.revisionMarketing == 0 ? 0 : mo.revisionMarketing - 1 }}</td>
             </ng-container>
 
             <!-- Month 1 Column -->
@@ -73,8 +73,8 @@
             <ng-container matColumnDef="action">
               <th *matHeaderCellDef style="min-width: 120px">Action</th>
               <td *matCellDef="let mo">
-                <button *ngIf="mo.statusFilled === 1" type="button" (click)="navigateToAdd(mo.moId)" class="btn btn-md btn-success ml-2">Add</button>
-                <button *ngIf="mo.statusFilled === 2" type="button" (click)="navigateToEdit(mo.moId)" class="btn btn-md btn-warning ml-2">Revision</button>
+                <button *ngIf="mo.revisionMarketing === 0 && mo.statusFilled !== 3" type="button" (click)="navigateToAdd(mo.moId)" class="btn btn-md btn-success ml-2">Add</button>
+                <button *ngIf="mo.revisionMarketing > 0 && mo.statusFilled !== 3" type="button" (click)="navigateToEdit(mo.moId)" class="btn btn-md btn-warning ml-2">Revision</button>
                 <button *ngIf="mo.statusFilled === 3" type="button" (click)="navigateToDetail(mo.month0, mo.month1, mo.month2, mo.type)" class="btn btn-md btn-secondary ml-2">Detail</button>
               </td>
             </ng-container>

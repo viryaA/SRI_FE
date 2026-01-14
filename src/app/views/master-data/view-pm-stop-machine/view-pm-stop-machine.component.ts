@@ -28,11 +28,13 @@ import { MatPaginator } from '@angular/material/paginator';
 })
 export class ViewPmStopMachineComponent implements OnInit {
   //Variable Declaration
+  today: string = new Date().toISOString().split('T')[0];
   pmStopMachines: PMStopMachine[] = [];
   searchText: string = '';
   errorMessage: string | null = null;
   edtPmStopMachineObject: PMStopMachine = new PMStopMachine();
   AddPmStopMachineObject: PMStopMachine = new PMStopMachine();
+  endDate: Date;
   isEditMode: boolean = false;
   isAddMode: boolean = false;
   file: File | null = null;
@@ -52,7 +54,7 @@ export class ViewPmStopMachineComponent implements OnInit {
   pageOfItems: Array<any>;
   pageSize: number = 5;
   totalPages: number = 5;
-  displayedColumns: string[] = ['no', 'stop_MACHINE_ID', 'work_CENTER_TEXT', 'start_DATE', 'start_TIME', 'end_DATE', 'end_TIME', 'status', 'action'];
+  displayedColumns: string[] = ['no', 'work_CENTER_TEXT', 'date_STOP', 'start_TIME', 'end_TIME', 'status', 'action'];
   dataSource: MatTableDataSource<PMStopMachine>;
 
   @ViewChild(MatSort) sort: MatSort;
@@ -62,10 +64,9 @@ export class ViewPmStopMachineComponent implements OnInit {
     this.edtPmStopMachineFrom = this.fb.group(
       {
         work_CENTER_TEXTedit: ['', Validators.required],
-        start_DATE: ['', Validators.required],
-        start_TIME: ['', Validators.required],
-        end_DATE: ['', Validators.required],
-        end_TIME: ['', Validators.required],
+        date_STOP: ['', Validators.required],
+        startTimeFormatted: ['', Validators.required],
+        endTimeFormatted: ['', Validators.required],
       },
       {
         validators: [this.timeValidator], // Tambahkan validator khusus di sini
@@ -74,13 +75,13 @@ export class ViewPmStopMachineComponent implements OnInit {
     this.AddPmStopMachineForm = this.fb.group(
       {
         work_CENTER_TEXTadd: ['', Validators.required],
-        start_DATE: ['', Validators.required],
+        date_STOP: ['', Validators.required],
+        endDate: ['', Validators.required],
         start_TIME: ['', Validators.required],
-        end_DATE: ['', Validators.required],
         end_TIME: ['', Validators.required],
       },
       {
-        validators: [this.timeValidator, this.minStartDate, this.dateValidator], // Tambahkan validator khusus di sini
+        validators: [ this.dateValidator, this.timeValidator], // Tambahkan validator khusus di sini
       }
     );
     curingMachineService.getAllMachineCuring().subscribe(
@@ -89,33 +90,7 @@ export class ViewPmStopMachineComponent implements OnInit {
           id: element.work_CENTER_TEXT, // Ensure the ID is a string
           text: element.work_CENTER_TEXT, // Set the text to the work center text
         }));
-
-        tassMachineService.getAllMachineTass().subscribe(
-          (response: ApiResponse<MachineTass[]>) => {
-            const tassOptions = response.data.map((element) => ({
-              id: element.id_MACHINE_TASS, // Ensure the ID is a string
-              text: element.id_MACHINE_TASS, // Set the text to the machine ID
-            }));
-
-            extrudingMachineService.getAllMachineExtruding().subscribe(
-              (response: ApiResponse<MachineExtruding[]>) => {
-                const extrudingOptions = response.data.map((element) => ({
-                  id: element.ID_machine_ext, // Ensure the ID is a string
-                  text: element.type, // Set the text to the machine ID
-                }));
-
-                // Combine both options into uomOptions
-                this.uomOptionData = [...curingOptions, ...tassOptions, ...extrudingOptions];
-              },
-              (error) => {
-                this.errorMessage = 'Failed to load tass machine: ' + error.message;
-              }
-            );
-          },
-          (error) => {
-            this.errorMessage = 'Failed to load tass machine: ' + error.message;
-          }
-        );
+        this.uomOptionData = [...curingOptions];
       },
       (error) => {
         this.errorMessage = 'Failed to load curing machine: ' + error.message;
@@ -126,7 +101,7 @@ export class ViewPmStopMachineComponent implements OnInit {
 
   // Method untuk debug atau aksi pada perubahan input
   onDateChange(): void {
-    const startDateControl = this.AddPmStopMachineForm.get('start_DATE');
+    const startDateControl = this.AddPmStopMachineForm.get('date_STOP');
     if (startDateControl?.hasError('invalidMinDate')) {
       console.error('Start date must not be earlier than today.');
     }
@@ -134,12 +109,12 @@ export class ViewPmStopMachineComponent implements OnInit {
 
   private timeValidator(control: AbstractControl): ValidationErrors | null {
     const startTime = control.get('start_TIME')?.value; // Format HH:mm
-    const endTime = control.get('end_TIME')?.value; // Format HH:mm
-    const startDate = control.get('start_DATE')?.value; // Format YYYY-MM-DD
-    const endDate = control.get('end_DATE')?.value; // Format YYYY-MM-DD
+    const endTime = control.get('end_TIME')?.value;     // Format HH:mm
+    const startDate = control.get('date_STOP')?.value;
+    const endDate = control.get('endDate')?.value;
 
     if (!startTime || !endTime || !startDate || !endDate) {
-      return null; // Tidak ada cukup data untuk validasi
+      return null;
     }
 
     const now = new Date();
@@ -151,25 +126,27 @@ export class ViewPmStopMachineComponent implements OnInit {
     const fullStartTime = new Date(dateStart);
     fullStartTime.setHours(startHours, startMinutes, 0, 0);
 
-    // Validasi jika startTime kurang dari waktu sekarang
-    if (fullStartTime < now) {
-      console.log('Waktu sekarang: ', now);
-      return { invalidStartTime: true };
-    }
+    // Gabungkan endTime dengan endDate
+    const [endHours, endMinutes] = endTime.split(':').map(Number);
+    const fullEndTime = new Date(dateEnd);
+    fullEndTime.setHours(endHours, endMinutes, 0, 0);
 
-    // Validasi jika tanggal mulai dan akhir sama
-    if (dateStart.getTime() === dateEnd.getTime()) {
-      const [endHours, endMinutes] = endTime.split(':').map(Number);
-      const fullEndTime = new Date(dateEnd);
-      fullEndTime.setHours(endHours, endMinutes, 0, 0);
+    // Validasi jika waktu mulai kurang dari waktu sekarang
+    // if (fullStartTime < now) {
+    //   console.log('Waktu sekarang: ', now);
+    //   return { invalidStartTime: true };
+    // }
 
-      if (fullStartTime >= fullEndTime) {
-        return { invalidTimeRange: true }; // Error rentang waktu tidak valid
+    // Validasi jika tanggal sama, maka endTime harus lebih besar dari startTime
+    if (dateStart.toDateString() === dateEnd.toDateString()) {
+      if (fullEndTime <= fullStartTime) {
+        return { invalidEndTime: true };
       }
     }
 
     return null; // Valid
   }
+
 
   ngOnInit(): void {
     this.getAllPmStopMachine();
@@ -183,24 +160,12 @@ export class ViewPmStopMachineComponent implements OnInit {
       this.edtPmStopMachineFrom.get('end_TIME')?.updateValueAndValidity({ onlySelf: true });
     });
 
-    this.edtPmStopMachineFrom.get('start_DATE')?.valueChanges.subscribe(() => {
-      this.edtPmStopMachineFrom.get('end_DATE')?.updateValueAndValidity({ onlySelf: true });
-    });
-  }
-  private minStartDate(control: AbstractControl): ValidationErrors | null {
-    const startDate = control.get('start_DATE')?.value;
-    const today = new Date();
-    const min = today.toISOString().split('T')[0];
-
-    if (startDate < min) {
-      return { invalidStartDate: true };
-    }
-    return null;
+    this.edtPmStopMachineFrom.get('date_STOP')?.valueChanges.subscribe(() => {});
   }
 
   private dateValidator(control: AbstractControl): ValidationErrors | null {
-    const startDate = control.get('start_DATE')?.value;
-    const endDate = control.get('end_DATE')?.value;
+    const startDate = control.get('date_STOP')?.value;
+    const endDate = control.get('endDate')?.value;
 
     if (startDate && endDate) {
       const start = new Date(startDate);
@@ -228,8 +193,8 @@ export class ViewPmStopMachineComponent implements OnInit {
         this.pmStopMachines = response.data.map((Element) => {
           return {
             ...Element,
-            formattedStartDate: new Date(Element.start_DATE).toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric' }).replace(/\//g, '-'),
-            formattedEndDate: new Date(Element.end_DATE).toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric' }).replace(/\//g, '-'),
+            formattedStartDate: new Date(Element.date_STOP).toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric' }).replace(/\//g, '-'),
+            // formattedEndDate: new Date(Element.end_DATE).toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric' }).replace(/\//g, '-'),
           };
         });
         this.dataSource = new MatTableDataSource(this.pmStopMachines);
@@ -258,6 +223,7 @@ export class ViewPmStopMachineComponent implements OnInit {
   }
 
   updatePMStopMachine(): void {
+    console.log(this.edtPmStopMachineFrom)
     this.pmStopService.updatePMStopMachine(this.edtPmStopMachineObject).subscribe(
       (response) => {
         // SweetAlert setelah update berhasil
@@ -281,26 +247,86 @@ export class ViewPmStopMachineComponent implements OnInit {
   }
 
   savePmStopMachine(): void {
-    this.pmStopService.SavePMStopMachine(this.AddPmStopMachineObject).subscribe(
-      (response) => {
-        // SweetAlert setelah update berhasil
-        Swal.fire({
-          title: 'Success!',
-          text: 'Data PM Stop Machine successfully Saved.',
-          icon: 'success',
-          confirmButtonText: 'OK',
-        }).then((result) => {
-          if (result.isConfirmed) {
-            $('#editModal').modal('hide');
-            window.location.reload();
-          }
-        });
-      },
-      (err) => {
-        Swal.fire('Error!', 'Error Saving data.', 'error');
+    console.log(this.AddPmStopMachineObject);
+    console.log(this.endDate);
+
+    const startDate = new Date(this.AddPmStopMachineObject.date_STOP);
+    const endDate = new Date(this.endDate);
+
+    const timeDiff = endDate.getTime() - startDate.getTime(); // in milliseconds
+    const dayDiff = timeDiff / (1000 * 3600 * 24); // convert to days
+
+    console.log(`Date range is ${dayDiff} day(s)`);
+
+    // If date range is 0, just send the original object
+    if (dayDiff === 0) {
+      this.pmStopService.SavePMStopMachine(this.AddPmStopMachineObject).subscribe(
+        (response) => {
+          Swal.fire({
+            title: 'Success!',
+            text: 'Data PM Stop Machine successfully Saved.',
+            icon: 'success',
+            confirmButtonText: 'OK',
+          }).then((result) => {
+            if (result.isConfirmed) {
+              $('#editModal').modal('hide');
+              window.location.reload();
+            }
+          });
+        },
+        (err) => {
+          Swal.fire('Error!', 'Error Saving data.', 'error');
+        }
+      );
+      return;
+    }
+
+    // More than 1 day, split the record
+    let currentDate = new Date(startDate);
+    let index = 0;
+
+    while (currentDate <= endDate) {
+      const newObject = { ...this.AddPmStopMachineObject }; // clone object
+
+      const formattedDate = currentDate.toISOString().split('T')[0];
+      newObject.date_STOP = currentDate;
+
+      if (index === 0) {
+        // First date
+        newObject.end_TIME = "23:59";
+      } else if (formattedDate === endDate.toISOString().split('T')[0]) {
+        // Last date
+        newObject.start_TIME = "00:01";
+      } else {
+        // Middle dates
+        newObject.start_TIME = "00:01";
+        newObject.end_TIME = "23:59";
       }
-    );
+
+      this.pmStopService.SavePMStopMachine(newObject).subscribe(
+        (response) => {
+          Swal.fire({
+            title: 'Success!',
+            text: 'Data PM Stop Machine successfully Saved.',
+            icon: 'success',
+            confirmButtonText: 'OK',
+          }).then((result) => {
+            if (result.isConfirmed) {
+              $('#editModal').modal('hide');
+              window.location.reload();
+            }
+          });
+        },
+        (err) => {
+          Swal.fire('Error!', 'Error Saving data.', 'error');
+        }
+      );
+
+      currentDate.setDate(currentDate.getDate() + 1);
+      index++;
+    }
   }
+
 
   openModalEdit(work_CENTER_TEXT: number): void {
     this.isEditMode = true;
@@ -331,18 +357,18 @@ export class ViewPmStopMachineComponent implements OnInit {
       (response: ApiResponse<PMStopMachine>) => {
         this.edtPmStopMachineObject = response.data;
 
-        const formattedStartDate = this.formatedate(this.edtPmStopMachineObject.start_DATE);
-        const formattedEndDate = this.formatedate(this.edtPmStopMachineObject.end_DATE);
+        const formattedStartDate = this.formatedate(this.edtPmStopMachineObject.date_STOP);
+        // const formattedEndDate = this.formatedate(this.edtPmStopMachineObject.end_DATE);
 
         // Default nilai waktu ke null jika tidak ada
-        const startTime = this.edtPmStopMachineObject.start_TIME || null;
-        const endTime = this.edtPmStopMachineObject.end_TIME || null;
+        const startTime = this.edtPmStopMachineObject.startTimeFormatted || null;
+        const endTime = this.edtPmStopMachineObject.endTimeFormatted || null;
         // const wct = this.edtPmStopMachineObject.work_CENTER_TEXT || "null";
 
         this.edtPmStopMachineFrom.patchValue({
           // work_CENTER_TEXT: wct,
-          start_DATE: formattedStartDate,
-          end_DATE: formattedEndDate,
+          date_STOP: formattedStartDate,
+          // end_DATE: formattedEndDate,
           start_TIME: startTime,
           end_TIME: endTime,
         });

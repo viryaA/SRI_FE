@@ -23,6 +23,7 @@ import { DatePipe } from '@angular/common';
 })
 export class AddArDefactRejectComponent implements OnInit {
   idMo: String;
+  canSubmit: boolean = false;
   dateValidFed: string;
   dateValidFdr: string;
   dateMoMonth0: string;
@@ -298,7 +299,6 @@ export class AddArDefactRejectComponent implements OnInit {
       }
     );
   }
-
   ngOnInit(): void {
     this.idMo = this.activeRoute.snapshot.paramMap.get('idMo');
     this.dateMoMonth0 = this.activeRoute.snapshot.paramMap.get('month0');
@@ -384,7 +384,19 @@ export class AddArDefactRejectComponent implements OnInit {
         this.hmoFdr = response.data.headerMarketingOrderFdr;
         this.dmoFdr = response.data.detailMarketingOrderFdr;
 
-        this.setData();
+
+        if (response.data.headerMarketingOrderFed === 0 || response.data.moFed === null || response.data.detailMarketingOrderFed === 0 ||
+          response.data.headerMarketingOrderFdr === 0 || response.data.moFdr === null || response.data.detailMarketingOrderFdr === 0) {
+          Swal.fire({
+            icon: 'warning',
+            title: 'Warning',
+            text: 'Marketing order data is not fully filled in. Please review and complete the form.',
+            confirmButtonText: 'OK',
+          });
+          this.navigateToViewAddMp();
+          return;
+        }
+          this.setData();
       },
       (error) => {
         Swal.close();

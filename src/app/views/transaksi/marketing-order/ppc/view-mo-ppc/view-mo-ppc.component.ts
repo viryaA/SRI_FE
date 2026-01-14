@@ -18,7 +18,7 @@ export class ViewMoPpcComponent implements OnInit {
   //Declaration
   marketingOrders: MarketingOrder[] = [];
   searchText: string = '';
-
+  
   // Pagination
   pageOfItems: Array<any>;
   pageSize: number = 5;

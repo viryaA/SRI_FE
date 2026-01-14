@@ -52,4 +52,34 @@ export class ParsingNumberService {
   separatorTableView(value: number): string {
     return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
   }
+
+  toBackendTimestamp (dateString: string, timeString: string): string {
+    const iso = new Date(`${dateString}T${timeString}:00Z`).toISOString(); // UTC
+    return iso.replace('Z', '+0000'); // Convert to format like "2025-06-21T18:41:00.000+0000"
+  }
 }
+
+// parsing-date.util.ts
+export function toBackendTimestamp(dateString: string, timeString: string, subtractHours: number = 0): string {
+  // Create date in UTC
+  let utcDate = new Date(`${dateString}T${timeString}:00Z`);
+
+  // Subtract hours if needed
+  if (subtractHours !== 0) {
+    utcDate.setUTCHours(utcDate.getUTCHours() - subtractHours);
+  }
+
+  const year = utcDate.getUTCFullYear();
+  const month = String(utcDate.getUTCMonth() + 1).padStart(2, '0');
+  const day = String(utcDate.getUTCDate()).padStart(2, '0');
+  const hours = String(utcDate.getUTCHours()).padStart(2, '0');
+  const minutes = String(utcDate.getUTCMinutes()).padStart(2, '0');
+  const seconds = String(utcDate.getUTCSeconds()).padStart(2, '0');
+  const milliseconds = String(utcDate.getUTCMilliseconds()).padStart(3, '0');
+
+  return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}.${milliseconds}+0000`;
+}
+
+
+
+

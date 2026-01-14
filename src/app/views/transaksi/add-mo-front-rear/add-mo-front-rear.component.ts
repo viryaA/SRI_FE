@@ -70,7 +70,6 @@ export class AddMoFrontRearComponent implements OnInit {
   selectedItemCuring: string = '';
   selectedPartNumber: number = 0;
   savedEntries: any[] = [];
-  data1 : any[] = [];
   showMappingMachine: boolean = false;
 
   //Cheating front rear
@@ -219,9 +218,9 @@ export class AddMoFrontRearComponent implements OnInit {
   };
 
   // Pagination Detail Marketing Order
-  headersColumnsDmo: string[] = ['select', 'no', 'category','itemCuring', 'description', 'action'];
+  headersColumnsDmo: string[] = ['select', 'no','itemCuring', 'description', 'action'];
   childHeadersColumnsDmo: string[] = [];
-  rowDataDmo: string[] = ['select', 'no', 'category','itemCuring', 'description', 'action'];
+  rowDataDmo: string[] = ['select', 'no','itemCuring', 'description', 'action'];
   dataSourceDmo: MatTableDataSource<DetailMarketingOrder>;
   @ViewChild('sortDmo') sortDmo = new MatSort();
   @ViewChild('paginatorDmo') paginatorDmo: MatPaginator;
@@ -623,7 +622,6 @@ export class AddMoFrontRearComponent implements OnInit {
       detailMoFdr: this.dmoFdr,
     };
 
-    console.log(this.dmoFed[0])
 
     this.loading = true;
     Swal.fire({
@@ -1699,6 +1697,54 @@ export class AddMoFrontRearComponent implements OnInit {
     this.fileInput.nativeElement.value = '';
   }
 
+  selectedCheating(data: any): void {
+    console.log(data);
+
+    const cheatData = this.savedEntries.filter(
+      (entry) => entry.item_curing === data
+    );
+    console.log(cheatData);
+
+    if (cheatData.length > 0) {
+      let tableHtml = `
+      <table class="table table-bordered table-striped" style="width:100%; text-align:left;">
+        <thead>
+          <tr>
+            <th style="text-align:center;">Work Center</th>
+          </tr>
+        </thead>
+        <tbody>
+    `;
+
+      cheatData.forEach((row) => {
+        tableHtml += `
+        <tr>
+          <td style="text-align:center;">${row.work_CENTER_TEXT}</td>
+        </tr>
+      `;
+      });
+
+      tableHtml += `
+        </tbody>
+      </table>
+    `;
+
+      Swal.fire({
+        title: `Curing: ${data.item_curing}`,
+        html: tableHtml,
+        width: '50%',
+        confirmButtonText: 'Close',
+      });
+    } else {
+      Swal.fire({
+        icon: 'info',
+        title: 'No Data Found',
+        text: 'No matching curing entry found.',
+      });
+    }
+  }
+
+
   validate() {
     let curingGroupsM0: { [key: string]: number } = {};
 
@@ -1749,57 +1795,54 @@ export class AddMoFrontRearComponent implements OnInit {
   // Function to save the current selections
   saveEntries(): void {
 
-    console.log(this.mesinSelect);
+      let bufferMesin: { item_curing: string; work_CENTER_TEXT: string }[] = [];
 
-    this.mesinSelect.forEach((mesin) => {
-      const obj = {
-        item_curing: this.selectedItemCuring,
-        work_CENTER_TEXT: mesin
-      };
-      const isDuplicate = this.data1.find(
-        (item) => item.item_curing === obj.item_curing && item.work_CENTER_TEXT === obj.work_CENTER_TEXT
-      );
+      this.machineEntries.forEach((buffer) => {
 
-      if (!isDuplicate) {
-        this.data1.push({...obj});
-      }
-    });
-    this.savedEntries = this.data1;
-    Swal.fire({
-      icon: 'success',
-      title: 'Data Saved',
-      text: 'Machine details have been successfully saved.',
-      confirmButtonText: 'OK',
-    });
-    console.log(this.savedEntries);
-    this.mesinSelect = [];
-  }
+        const obj = {
+          item_curing: this.selectedItemCuring,
+          work_CENTER_TEXT: buffer.selectedMachine
+        };
 
-  loadSavedEntries(): void {
-    console.table("yooooo " + this.savedEntries);
-    if (this.savedEntries.length > 0) {
-      // Restore saved entries to machineEntries
-      this.machineEntries = this.savedEntries.map(entry => ({
-        selectedGedung: entry.selectedGedung,
-        selectedMachine: entry.selectedMachine,
-        filteredMesinOptions: [], // Ensure options are preserved
-      }));
-    } else {
-      Swal.fire({
-        icon: 'info',
-        title: 'No Data',
-        text: 'No saved data found. Starting with a fresh entry.',
-        confirmButtonText: 'OK',
+        const isDuplicate = bufferMesin.find(
+          (item) => item.item_curing === obj.item_curing && item.work_CENTER_TEXT === obj.work_CENTER_TEXT
+        );
+
+        if (!isDuplicate && buffer.selectedGedung != '' && buffer.selectedMachine != '') {
+          bufferMesin.push({ ...obj });
+        }
       });
-    }
+
+      if(bufferMesin.length == 0){
+        Swal.fire({
+          icon: 'info',
+          title: 'No Data Available',
+          text: 'No machine details have been saved.',
+          confirmButtonText: 'OK',
+        });
+      }else{
+        this.savedEntries = this.savedEntries.filter(
+          (entry) => entry.item_curing !== this.selectedItemCuring
+        );
+
+        this.savedEntries.push(...bufferMesin);
+
+        Swal.fire({
+          icon: 'success',
+          title: 'Data Saved',
+          text: 'Machine details have been successfully saved.',
+          confirmButtonText: 'OK',
+        });
+      }
+
+
+    $('#dmpModal').modal('hide');
   }
 
   viewDetail(itemCuring: string, partNumber: number): void {
     this.selectedItemCuring = itemCuring; // Save selected itemCuring
     this.selectedPartNumber = partNumber; // Save selected partnumber
 
-    console.log('Item Curing:', itemCuring);
-    console.log('Partnumber:', partNumber);
 
     if (itemCuring) {
       this.machineEntries = []; // Clear existing data
@@ -1824,10 +1867,10 @@ export class AddMoFrontRearComponent implements OnInit {
   machineEntries: Array<{ selectedGedung: string, filteredMesinOptions: string[], selectedMachine: string }> = [];
   selectedMachine: string = '';
   mesinOptions: string[] = [];
-  mesinSelect: string[] = []; // All machines from the API
 
   // Method for selecting Gedung
   onGedungSelect(entry: any, selectedGedung: string): void {
+    entry.selectedMachine = ''
     entry.filteredMesinOptions = this.filterMachines(selectedGedung);
   }
 
@@ -1860,9 +1903,16 @@ export class AddMoFrontRearComponent implements OnInit {
         this.mesinOptions = machines;
 
         // Set machines only for the latest added row
-        if (this.machineEntries.length > 0) {
+        if (machines.length > 0) {
           const lastEntry = this.machineEntries[this.machineEntries.length - 1];
           lastEntry.filteredMesinOptions = [...machines]; // Independent copy
+        }else{
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: `Item Curing : ${{itemCuring}} has not machine` ,
+            confirmButtonText: 'OK',
+          });
         }
       },
       (error) => {
@@ -1880,17 +1930,16 @@ export class AddMoFrontRearComponent implements OnInit {
   // Add row functionality
   addRow(): void {
     if (this.selectedItemCuring) {
-      // Add new row with independent filteredMesinOptions
-      this.machineEntries.push({
-        selectedGedung: '',
-        filteredMesinOptions: [...this.mesinOptions], // Create a fresh copy
-        selectedMachine: ''
-      });
-
-      // Fetch machines for the selected item curing (if not already fetched)
       if (!this.mesinOptions.length) {
+
         this.getMachine(this.selectedItemCuring);
       }
+      this.machineEntries.push({
+        selectedGedung: "",
+        filteredMesinOptions: [...this.mesinOptions],
+        selectedMachine: ""
+      });
+
     } else {
       Swal.fire({
         icon: 'error',
@@ -1912,25 +1961,14 @@ export class AddMoFrontRearComponent implements OnInit {
 
 
   onMachineSelect(mesin: string): void {
-    console.log('Selected Machine:', mesin);
-
     // Contoh: Lakukan tindakan berdasarkan mesin yang dipilih
-    if (mesin) {
-      this.mesinSelect.push(mesin);
-      console.log(`Machine selected: ${mesin}`);
-    } else {
-      console.log('No machine selected.');
-    }
   }
 
   frontRearCounter: number = 1;
   i: number = 1;
 
-  //FRONT REAR  
-  // FRONT REAR  
   addToSelectedList() {
     const selectedItems = this.dataSourceDmo.data.filter((mo) => mo.selected);
-
     if (selectedItems.length > 0) {
       this.isCheckboxInvalid = false; // Reset validasi jika ada data yang dicentang
       const currentFrontRear = this.frontRearCounter;
@@ -1958,20 +1996,34 @@ export class AddMoFrontRearComponent implements OnInit {
       });
     }
   }
+  deleteItem(index: number) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Are you sure?',
+      text: 'This item will be removed from the list.',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, delete it!',
+      cancelButtonText: 'Cancel'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.selectedList.splice(index, 1); // remove item by index
+        Swal.fire('Deleted!', 'The item has been removed.', 'success');
+      }
+    });
+  }
+
 
   async saveDataFrontRear() {
     const uniqueMOID = [...new Set(this.dataSourceDmo.data.map(item => item.moId))];
     const frontrear = [...new Set(this.selectedList.map(item => item.frontRear))];
     let frontRearItems;
-    
+
     if (uniqueMOID.length < 2) {
         console.error("Not enough unique MO IDs to process.");
         return;
     }
-    console.log(uniqueMOID);
 
     try {
-      console.log(this.selectedList);
 
       frontRearItems = this.selectedList.map(item => ({
         mo_id_1: uniqueMOID[0],
@@ -1987,7 +2039,6 @@ export class AddMoFrontRearComponent implements OnInit {
           item_curing: "No FrontRear"
         }
       }
-      console.log("Final frontRearItems:", frontRearItems);
 
       this.frontrear.saveFrontRearItems(frontRearItems).subscribe({
         next: (saveResult) => {
@@ -2012,7 +2063,7 @@ export class AddMoFrontRearComponent implements OnInit {
           });
         }
       });
-      
+
     } catch (err) {
         console.error("Error inserting data Front Rear:", err);
         Swal.fire('Error!', 'Error inserting data Front Rear.', 'error');
@@ -2051,7 +2102,7 @@ export class AddMoFrontRearComponent implements OnInit {
           text: 'Data Marketing Order successfully processed.',
           icon: 'success',
           confirmButtonText: 'OK',
-          
+
         }).then((result) => {
           if (result.isConfirmed) {
             this.navigateToViewMo();
@@ -2070,7 +2121,7 @@ export class AddMoFrontRearComponent implements OnInit {
   navigateToViewMo() {
     this.router.navigate(['/transaksi/add-monthly-planning']);
   }
-  
+
   async saveAll() {
     await this.saveDataFrontRear();
     await this.saveTempMachineProduct();

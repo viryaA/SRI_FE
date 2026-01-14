@@ -1,388 +1,224 @@
 import { Component, OnInit } from '@angular/core';
 import { getStyle, hexToRgba } from '@coreui/coreui/dist/js/coreui-utilities';
 import { CustomTooltips } from '@coreui/coreui-plugin-chartjs-custom-tooltips';
+import { DashboardPPIC } from '../../services/dashboard/pic.service';
+import { CommonModule } from '@angular/common';
+import { NgModule } from '@angular/core';
+import Swal from 'sweetalert2';
+import { Select2OptionData } from 'ng-select2';
+import { Options } from 'select2';
+import { FormGroup, FormBuilder } from '@angular/forms';
+import { ProductType } from '../../models/ProductType';
+import { ProductTypeService } from '../../services/master-data/productType/productType.service';
+import { ApiResponse } from '../../response/Response';
 
 @Component({
-  templateUrl: 'dashboard.component.html'
+  templateUrl: 'dashboard.component.html',
 })
 export class DashboardComponent implements OnInit {
-
-  radioModel: string = 'Month';
-
-  // lineChart1
-  public lineChart1Data: Array<any> = [
-    {
-      data: [65, 59, 84, 84, 51, 55, 40],
-      label: 'Series A'
-    }
+  filterForm: FormGroup;
+  typeOptions: any[] = [
+    { label: 'FED', value: 'FED' },
+    { label: 'FDR', value: 'FDR' },
   ];
-  public lineChart1Labels: Array<any> = ['January', 'February', 'March', 'April', 'May', 'June', 'July'];
-  public lineChart1Options: any = {
-    tooltips: {
-      enabled: false,
-      custom: CustomTooltips
-    },
-    maintainAspectRatio: false,
-    scales: {
-      xAxes: [{
-        gridLines: {
-          color: 'transparent',
-          zeroLineColor: 'transparent'
-        },
-        ticks: {
-          fontSize: 2,
-          fontColor: 'transparent',
-        }
+  errorMessage: string | null = null;
+  categoryOptions: any[] = []; // Data untuk dropdown Category
+  marketingOrders: any[] = []; // Data produk dari database
+  filteredMarketingOrders: any[] = []; // Data produk yang sudah difilter
+  type: string = ''; // Tambahkan ini
+  category: string = ''; // Tambahkan ini
 
-      }],
-      yAxes: [{
-        display: false,
-        ticks: {
-          display: false,
-          min: 40 - 5,
-          max: 84 + 5,
-        }
-      }],
-    },
-    elements: {
-      line: {
-        borderWidth: 1
-      },
-      point: {
-        radius: 4,
-        hitRadius: 10,
-        hoverRadius: 4,
-      },
-    },
-    legend: {
-      display: false
-    }
-  };
-  public lineChart1Colours: Array<any> = [
-    {
-      backgroundColor: getStyle('--primary'),
-      borderColor: 'rgba(255,255,255,.55)'
-    }
-  ];
-  public lineChart1Legend = false;
-  public lineChart1Type = 'line';
-
-  // lineChart2
-  public lineChart2Data: Array<any> = [
-    {
-      data: [1, 18, 9, 17, 34, 22, 11],
-      label: 'Series A'
-    }
-  ];
-  public lineChart2Labels: Array<any> = ['January', 'February', 'March', 'April', 'May', 'June', 'July'];
-  public lineChart2Options: any = {
-    tooltips: {
-      enabled: false,
-      custom: CustomTooltips
-    },
-    maintainAspectRatio: false,
-    scales: {
-      xAxes: [{
-        gridLines: {
-          color: 'transparent',
-          zeroLineColor: 'transparent'
-        },
-        ticks: {
-          fontSize: 2,
-          fontColor: 'transparent',
-        }
-
-      }],
-      yAxes: [{
-        display: false,
-        ticks: {
-          display: false,
-          min: 1 - 5,
-          max: 34 + 5,
-        }
-      }],
-    },
-    elements: {
-      line: {
-        tension: 0.00001,
-        borderWidth: 1
-      },
-      point: {
-        radius: 4,
-        hitRadius: 10,
-        hoverRadius: 4,
-      },
-    },
-    legend: {
-      display: false
-    }
-  };
-  public lineChart2Colours: Array<any> = [
-    { // grey
-      backgroundColor: getStyle('--info'),
-      borderColor: 'rgba(255,255,255,.55)'
-    }
-  ];
-  public lineChart2Legend = false;
-  public lineChart2Type = 'line';
-
-
-  // lineChart3
-  public lineChart3Data: Array<any> = [
-    {
-      data: [78, 81, 80, 45, 34, 12, 40],
-      label: 'Series A'
-    }
-  ];
-  public lineChart3Labels: Array<any> = ['January', 'February', 'March', 'April', 'May', 'June', 'July'];
-  public lineChart3Options: any = {
-    tooltips: {
-      enabled: false,
-      custom: CustomTooltips
-    },
-    maintainAspectRatio: false,
-    scales: {
-      xAxes: [{
-        display: false
-      }],
-      yAxes: [{
-        display: false
-      }]
-    },
-    elements: {
-      line: {
-        borderWidth: 2
-      },
-      point: {
-        radius: 0,
-        hitRadius: 10,
-        hoverRadius: 4,
-      },
-    },
-    legend: {
-      display: false
-    }
-  };
-  public lineChart3Colours: Array<any> = [
-    {
-      backgroundColor: 'rgba(255,255,255,.2)',
-      borderColor: 'rgba(255,255,255,.55)',
-    }
-  ];
-  public lineChart3Legend = false;
-  public lineChart3Type = 'line';
-
-
-  // barChart1
-  public barChart1Data: Array<any> = [
-    {
-      data: [78, 81, 80, 45, 34, 12, 40, 78, 81, 80, 45, 34, 12, 40, 12, 40],
-      label: 'Series A',
-      barPercentage: 0.6,
-    }
-  ];
-  public barChart1Labels: Array<any> = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16'];
-  public barChart1Options: any = {
-    tooltips: {
-      enabled: false,
-      custom: CustomTooltips
-    },
-    maintainAspectRatio: false,
-    scales: {
-      xAxes: [{
-        display: false,
-      }],
-      yAxes: [{
-        display: false
-      }]
-    },
-    legend: {
-      display: false
-    }
-  };
-  public barChart1Colours: Array<any> = [
-    {
-      backgroundColor: 'rgba(255,255,255,.3)',
-      borderWidth: 0
-    }
-  ];
-  public barChart1Legend = false;
-  public barChart1Type = 'bar';
-
-  // mainChart
-
-  public mainChartElements = 27;
   public mainChartData1: Array<number> = [];
   public mainChartData2: Array<number> = [];
   public mainChartData3: Array<number> = [];
+  public mainChartData4: Array<number> = [];
+  public mainChartData5: Array<number> = [];
+  public mainChartData6: Array<number> = [];
 
-  public mainChartData: Array<any> = [
-    {
-      data: this.mainChartData1,
-      label: 'Current'
-    },
-    {
-      data: this.mainChartData2,
-      label: 'Previous'
-    },
-    {
-      data: this.mainChartData3,
-      label: 'BEP'
-    }
-  ];
-  /* tslint:disable:max-line-length */
-  public mainChartLabels: Array<any> = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday', 'Monday', 'Thursday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-  /* tslint:enable:max-line-length */
-  public mainChartOptions: any = {
-    tooltips: {
-      enabled: false,
-      custom: CustomTooltips,
-      intersect: true,
-      mode: 'index',
-      position: 'nearest',
-      callbacks: {
-        labelColor: function(tooltipItem, chart) {
-          return { backgroundColor: chart.data.datasets[tooltipItem.datasetIndex].borderColor };
-        }
-      }
-    },
-    responsive: true,
-    maintainAspectRatio: false,
-    scales: {
-      xAxes: [{
-        gridLines: {
-          drawOnChartArea: false,
-        },
-        ticks: {
-          callback: function(value: any) {
-            return value.charAt(0);
-          }
-        }
-      }],
-      yAxes: [{
-        ticks: {
-          beginAtZero: true,
-          maxTicksLimit: 5,
-          stepSize: Math.ceil(250 / 5),
-          max: 250
-        }
-      }]
-    },
-    elements: {
-      line: {
-        borderWidth: 2
-      },
-      point: {
-        radius: 0,
-        hitRadius: 10,
-        hoverRadius: 4,
-        hoverBorderWidth: 3,
-      }
-    },
-    legend: {
-      display: false
-    }
+  select2Options = {
+    placeholder: 'Pilih Type...', // Teks placeholder
+    allowClear: true, // Memungkinkan pengguna menghapus pilihan
+    width: '100%', // Lebar dropdown
   };
-  public mainChartColours: Array<any> = [
-    { // brandInfo
-      backgroundColor: hexToRgba(getStyle('--info'), 10),
-      borderColor: getStyle('--info'),
-      pointHoverBackgroundColor: '#fff'
-    },
-    { // brandSuccess
-      backgroundColor: 'transparent',
-      borderColor: getStyle('--success'),
-      pointHoverBackgroundColor: '#fff'
-    },
-    { // brandDanger
-      backgroundColor: 'transparent',
-      borderColor: getStyle('--danger'),
-      pointHoverBackgroundColor: '#fff',
-      borderWidth: 1,
-      borderDash: [8, 5]
-    }
-  ];
-  public mainChartLegend = false;
-  public mainChartType = 'line';
 
-  // social box charts
-
-  public brandBoxChartData1: Array<any> = [
-    {
-      data: [65, 59, 84, 84, 51, 55, 40],
-      label: 'Facebook'
-    }
-  ];
-  public brandBoxChartData2: Array<any> = [
-    {
-      data: [1, 13, 9, 17, 34, 41, 38],
-      label: 'Twitter'
-    }
-  ];
-  public brandBoxChartData3: Array<any> = [
-    {
-      data: [78, 81, 80, 45, 34, 12, 40],
-      label: 'LinkedIn'
-    }
-  ];
-  public brandBoxChartData4: Array<any> = [
-    {
-      data: [35, 23, 56, 22, 97, 23, 64],
-      label: 'Google+'
-    }
-  ];
-
-  public brandBoxChartLabels: Array<any> = ['January', 'February', 'March', 'April', 'May', 'June', 'July'];
-  public brandBoxChartOptions: any = {
-    tooltips: {
-      enabled: false,
-      custom: CustomTooltips
-    },
-    responsive: true,
-    maintainAspectRatio: false,
-    scales: {
-      xAxes: [{
-        display: false,
-      }],
-      yAxes: [{
-        display: false,
-      }]
-    },
-    elements: {
-      line: {
-        borderWidth: 2
-      },
-      point: {
-        radius: 0,
-        hitRadius: 10,
-        hoverRadius: 4,
-        hoverBorderWidth: 3,
-      }
-    },
-    legend: {
-      display: false
-    }
+  constructor(private fb: FormBuilder, private dashboardPPIC: DashboardPPIC, private productType: ProductTypeService) {
+    this.loadProductType();
+  }
+  public uomOptionData: Array<Select2OptionData>;
+  public options: Options = {
+    width: '100%',
+    minimumResultsForSearch: 0,
   };
-  public brandBoxChartColours: Array<any> = [
-    {
-      backgroundColor: 'rgba(255,255,255,.1)',
-      borderColor: 'rgba(255,255,255,.55)',
-      pointHoverBackgroundColor: '#fff'
-    }
-  ];
-  public brandBoxChartLegend = false;
-  public brandBoxChartType = 'line';
+  productTypes: ProductType[];
 
-  public random(min: number, max: number) {
-    return Math.floor(Math.random() * (max - min + 1) + min);
+  private loadProductType(): void {
+    this.productType.getAllProductType().subscribe(
+      (response: ApiResponse<ProductType[]>) => {
+        this.productTypes = response.data;
+        if (!this.uomOptionData) {
+          this.uomOptionData = [];
+        }
+        this.uomOptionData = this.productTypes.map((element) => ({
+          id: element.category.toString(), // Ensure the ID is a string
+          text: element.category, // Set the text to the name (or other property)
+        }));
+      },
+      (error) => {
+        this.errorMessage = 'Failed to load product type: ' + error.message;
+      }
+    );
+  }
+
+  selectedYear: number = new Date().getFullYear(); // Default tahun ini
+  availableYears: number[] = []; // Daftar tahun
+  formattedYear: string = `Year: ${new Date().getFullYear()}`;
+
+  setYear(event: any) {
+    this.selectedYear = event.getFullYear();
+    this.formatYear();
+    this.fetchWorkDays(this.selectedYear);
+  }
+
+  selectedMonth: string = '01-NOV-24';
+  selectedType: string = 'FDR';
+  selectedCategory: string = 'FDR TR TT';
+
+  // getMarketingOrders() {
+  //   this.dashboardPPIC.getMoByTypeCategory(this.selectedMonth, this.selectedType, this.selectedCategory).subscribe(
+  //     (data) => {
+  //       console.log(data);
+  //       this.marketingOrders = data; // Menyimpan data yang diterima ke dalam array marketingOrders
+  //       console.log('Marketing Orders: ', this.marketingOrders);
+  //     },
+  //     (error) => {
+  //       console.error('Error fetching marketing orders:', error);
+  //     }
+  //   );
+  // }
+
+  convertMonthYear(input) {
+    const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+
+    let [year, month] = input.split('-');
+    let shortYear = year.slice(-2); // Ambil dua digit terakhir dari tahun
+    let shortMonth = months[parseInt(month) - 1]; // Ambil nama bulan
+
+    return `01-${shortMonth}-${shortYear}`;
+  }
+
+  // Apply filter based on form values
+  applyFilter(): void {
+    Swal.fire({
+      title: 'Loading...',
+      html: 'Please wait while fetching data Mo and MP.',
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      },
+    });
+    const filterValue = this.filterForm.value;
+    filterValue.monthYear = this.convertMonthYear(filterValue.monthYear);
+    console.log('FILTER: ', filterValue.monthYear, filterValue.type, filterValue.category);
+
+    this.dashboardPPIC.getMoByTypeCategory(filterValue.monthYear, filterValue.type, filterValue.category).subscribe(
+      (data) => {
+        Swal.close();
+        console.log('data: ', data);
+        this.marketingOrders = data;
+      },
+      (error) => {
+        Swal.close();
+        console.error('Error fetching marketing orders:', error);
+        this.errorMessage = 'Error fetching marketing orders.';
+      }
+    );
+  }
+
+  // Method untuk meng-update formattedYear sesuai kebutuhan format
+  formatYear(): void {
+    this.formattedYear = `Year: ${this.selectedYear}`;
+  }
+
+  generateYears() {
+    const currentYear = new Date().getFullYear();
+    for (let i = currentYear - 5; i <= currentYear + 5; i++) {
+      this.availableYears.push(i);
+    }
+  }
+  onYearChange(event: any) {
+    const fullDate = event.target.value; // Format: "YYYY-MM-DD"
+    this.selectedYear = parseInt(fullDate.split('-')[0], 10); // Ambil hanya tahunnya
+    this.fetchWorkDays(this.selectedYear);
   }
 
   ngOnInit(): void {
-    // generate random values for mainChart
-    for (let i = 0; i <= this.mainChartElements; i++) {
-      this.mainChartData1.push(this.random(50, 200));
-      this.mainChartData2.push(this.random(80, 100));
-      this.mainChartData3.push(65);
-    }
+    this.filterForm = this.fb.group({
+      monthYear: [''], // Input bulan dan tahun
+      type: [''], // Dropdown type
+      category: [''], // Dropdown category
+    });
+
+    this.generateYears();
+    this.applyFilter();
+    this.fetchWorkDays(this.selectedYear); // Ambil data untuk tahun default
   }
+
+  fetchWorkDays(year: number) {
+    Swal.fire({
+      title: 'Loading...',
+      html: 'Please wait while fetching data Mo and MP.',
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      },
+    });
+    this.dashboardPPIC.getWorkDayAllMonth(year).subscribe((data) => {
+      this.mainChartData1 = data.map((d: any) => d.totalWdTl);
+      this.mainChartData2 = data.map((d: any) => d.totalWdTt);
+      this.mainChartData3 = data.map((d: any) => d.wdNormalTire);
+      this.mainChartData4 = data.map((d: any) => d.wdOtTt);
+      this.mainChartData5 = data.map((d: any) => d.wdOtTl);
+      this.mainChartData6 = data.map((d: any) => d.wdNormalTube);
+
+      Swal.close();
+      this.updateChart();
+    });
+  }
+
+  updateChart() {
+    this.mainChartData = [
+      { data: this.mainChartData1, label: 'Total WD TL' },
+      { data: this.mainChartData2, label: 'Total WD TT' },
+      { data: this.mainChartData3, label: 'WD Normal Tire' },
+      { data: this.mainChartData4, label: 'WD OT TT' },
+      { data: this.mainChartData5, label: 'WD OT TL' },
+      { data: this.mainChartData6, label: 'WD Normal Tube' },
+    ];
+    console.log('Filter NIH: ');
+  }
+
+  public mainChartData: Array<any> = [];
+  public mainChartLabels: Array<any> = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+  // Opsi untuk bar chart
+  public mainChartOptions: any = {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      xAxes: [
+        {
+          gridLines: { drawOnChartArea: false },
+        },
+      ],
+      yAxes: [
+        {
+          ticks: { beginAtZero: true, maxTicksLimit: 5 },
+        },
+      ],
+    },
+    legend: { display: true },
+  };
+
+  // Ubah chart type menjadi 'bar'
+  public mainChartType = 'bar';
 }

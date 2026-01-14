@@ -5,6 +5,42 @@
       <div class="card-header">
         <strong>Header Marketing Order</strong>
       </div>
+      <div appDraggable  style="top: 50px; left: 50px; width: auto;">
+        <div class="card shadow-sm">
+          <div class="card-header bg-primary text-white fw-bold text-center d-flex justify-content-center align-items-center">
+            Remaining Capacity
+          </div>
+          <div class="card-body p-0">
+            <table class="table table-sm table-bordered table-hover mb-0 text-center align-middle">
+              <thead class="table-primary">
+              <tr>
+                <th>Month</th>
+                <th>Tube</th>
+                <th>TL</th>
+                <th>TT</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr *ngFor="let monthData of remainingCapacity">
+                <td class="bg-white">{{ monthData.month }}</td>
+
+                <td [ngStyle]="getCellStyle(monthData.data[0].value)">
+                  {{ monthData.data[0].value | number:'1.0-2' | replaceComma | ReplaceMinPlusPipe }}
+                </td>
+
+                <td [ngStyle]="getCellStyle(monthData.data[1].value)">
+                  {{ monthData.data[1].value | number:'1.0-2' | replaceComma | ReplaceMinPlusPipe }}
+                </td>
+
+                <td [ngStyle]="getCellStyle(monthData.data[2].value)">
+                  {{ monthData.data[2].value | number:'1.0-2' | replaceComma | ReplaceMinPlusPipe }}
+                </td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
       <div class="card-body">
         <form [formGroup]="formHeaderMo" class="form form-horizontal">
           <div class="form-group row">
@@ -203,20 +239,40 @@
       <div class="card-header">
         <strong>Marketing Order</strong>
       </div>
-      <div class="card-body">
-        <div class="d-flex justify-content-between mb-3">
-          <!-- Bagian kiri: Pencarian dan Reset -->
-          <div class="d-flex align-items-center">
-            <input type="text" class="form-control col-md-12 col-lg-12" [(ngModel)]="searchText" (input)="onSearchChange()" placeholder="Find here..." />
-            <button type="submit" class="btn btn-primary ml-2" (click)="resetSearch()">Reset</button>
-          </div>
-          <!-- Bagian kanan: Download dan Upload -->
-          <div class="d-flex">
-            <button type="button" (click)="downloadTemplate()" class="btn btn-primary ml-2"><i class="fa fa-download fa-lg"></i> Download Template</button>
-            <button type="button" class="btn btn-success ml-2" data-toggle="modal" data-target="#uploadModal"><i class="fa fa-file-excel-o fa-lg"></i> Upload Excel</button>
-          </div>
-        </div>
 
+      <div class="card-body">
+        <div class="row align-items-center mb-3">
+
+          <!-- Left: Search -->
+          <div class="col-md-4 d-flex">
+            <input type="text"
+                   class="form-control"
+                   [(ngModel)]="searchText"
+                   (input)="onSearchChange()"
+                   placeholder="Find here..." />
+            <button type="button"
+                    class="btn btn-primary ml-2"
+                    (click)="resetSearch()">Reset</button>
+          </div>
+
+          <div class="col-md-4 text-center">
+          </div>
+
+          <!-- Right: Buttons -->
+          <div class="col-md-4 d-flex justify-content-end">
+            <button type="button"
+                    (click)="downloadTemplate()"
+                    class="btn btn-primary ml-2">
+              <i class="fa fa-download fa-lg"></i> Download Template
+            </button>
+            <button type="button"
+                    class="btn btn-success ml-2"
+                    data-toggle="modal"
+                    data-target="#uploadModal">
+              <i class="fa fa-file-excel-o fa-lg"></i> Upload Excel
+            </button>
+          </div>
+        </div> <!-- ✅ close the row -->
         <!-- Table -->
         <div class="table-responsive">
           <table mat-table [dataSource]="dataSource" matSort class="table table-bordered table-sm">
@@ -379,7 +435,7 @@
           </table>
         </div>
         <!-- Pagination -->
-        <mat-paginator [pageSizeOptions]="[20, 100, 200]" showFirstLastButtons></mat-paginator>
+        <mat-paginator [pageSizeOptions]="[10, 20, 100, 200]" showFirstLastButtons></mat-paginator>
       </div>
       <div class="col-md-12 pb-4">
         <button (click)="navigateToViewMo()" class="btn btn-primary justify-content-start mr-2">Back</button>

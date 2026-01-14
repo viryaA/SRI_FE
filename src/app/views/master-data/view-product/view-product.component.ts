@@ -50,7 +50,8 @@ export class ViewProductComponent implements OnInit {
   pageOfItems: Array<any>;
   pageSize: number = 5;
   totalPages: number = 5;
-  displayedColumns: string[] = ['no', 'part_NUMBER', 'item_CURING', 'pattern_ID', 'size_ID', 'product_TYPE_ID', 'description', 'qty_PER_RAK', 'upper_CONSTANT', 'lower_CONSTANT', 'ext_DESCRIPTION', 'item_EXT', 'item_ASSY', 'wib_TUBE', 'rim', 'status', 'action'];
+// , 'pattern_ID'
+  displayedColumns: string[] = ['no', 'part_NUMBER', 'item_CURING', 'size_ID', 'product_TYPE_ID', 'description', 'qty_PER_RAK', 'upper_CONSTANT', 'lower_CONSTANT', 'ext_DESCRIPTION', 'item_EXT', 'item_ASSY', 'wib_TUBE', 'rim', 'status', 'action'];
   dataSource: MatTableDataSource<Product>;
 
   @ViewChild(MatSort) sort: MatSort;
@@ -59,22 +60,30 @@ export class ViewProductComponent implements OnInit {
   constructor(private productService: ProductService, private fb: FormBuilder, private itemCuring: ItemCuringService, private pattern: PatternService, private size: SizeService, private productType: ProductTypeService) {
     this.editProductTypeForm = this.fb.group({
       curing: ['', Validators.required],
-      pattern: ['', Validators.required],
-      size: ['', Validators.required],
+      // curing: [''],
+      // pattern: ['', Validators.required],
+      // size: ['', Validators.required],
+      size: [''],
       productType: ['', Validators.required],
       description: ['', Validators.required],
       qty: ['', Validators.required],
-      upper: ['', Validators.required],
-      lower: ['', Validators.required],
-      desc: ['', Validators.required],
-      itemExt: ['', Validators.required],
-      itemAssy: ['', Validators.required],
-      wibTube: ['', Validators.required],
+      // upper: ['', Validators.required],
+      upper: [''],
+      // lower: ['', Validators.required],
+      lower: [''],
+      // desc: ['', Validators.required],
+      desc: [''],
+      // itemExt: ['', Validators.required],
+      itemExt: [''],
+      // itemAssy: ['', Validators.required],
+      itemAssy: [''],
+      // wibTube: ['', Validators.required],
+      wibTube: [''],
       rim: ['', Validators.required],
     });
 
     this.loadItemCuring();
-    this.loadPattern();
+    // this.loadPattern();
     this.loadSize();
     this.loadProductType();
   }
@@ -87,6 +96,17 @@ export class ViewProductComponent implements OnInit {
       event.preventDefault();
     }
   }
+
+  clearItemCuring() {
+    this.editProductObject.item_CURING = null;
+    this.editProductTypeForm.get('curing')?.reset();
+  }
+
+  clearSize() {
+    this.editProductObject.size_ID = null;
+    this.editProductTypeForm.get('size')?.reset();
+  }
+
 
   private loadItemCuring(): void {
     this.itemCuring.getAllItemCuring().subscribe(
@@ -125,7 +145,7 @@ export class ViewProductComponent implements OnInit {
       }
     );
   }
-  
+
   private loadProductType(): void {
     this.productType.getAllProductType().subscribe(
       (response: ApiResponse<ProductType[]>) => {
@@ -209,12 +229,12 @@ export class ViewProductComponent implements OnInit {
       (response: ApiResponse<Product[]>) => {
         Swal.close();
         this.products = response.data.map((produk) => {
-          const pattern2 = this.patterns.find((p) => p.pattern_ID == Number(produk.pattern_ID));
+          // const pattern2 = this.patterns.find((p) => p.pattern_ID == Number(produk.pattern_ID));
           const size_id = this.sizes.find((s) => Number(s.size_ID) === produk.size_ID);
           const product_type = this.productTypes.find((pt) => pt.product_TYPE_ID === produk.product_TYPE_ID);
           return {
             ...produk,
-            pattern_name: pattern2 ? pattern2.pattern_NAME : 'Unknow',
+            // pattern_name: pattern2 ? pattern2.pattern_NAME : 'Unknow',
             size_name: size_id ? size_id.description : 'Unknow',
             product_type_name: product_type ? product_type.category : 'Unknow',
           };

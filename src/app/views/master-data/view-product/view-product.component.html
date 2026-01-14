@@ -8,15 +8,15 @@
       <!-- Wrapper for the input and buttons in one row -->
       <div class="d-flex justify-content-between mb-3">
         <div class="d-flex align-items-center">
-          <input type="text" class="form-control col-md-12 col-lg-12" [(ngModel)]="searchText" (input)="onSearchChange()" placeholder="Find here..." />
-          <button type="submit" class="btn btn-primary ml-2" (click)="resetSearch()">Reset</button>
+          <input type="text" class="mb-3 form-control col-md-12 col-lg-12" [(ngModel)]="searchText" (input)="onSearchChange()" placeholder="Find here..." />
+          <button type="submit" class="mb-3 btn btn-primary ml-2" (click)="resetSearch()">Reset</button>
         </div>
 
         <!-- Right side: Download Template and Export Excel buttons -->
         <div>
-          <button type="button" class="btn btn-primary ml-2" (click)="tamplateExcel()"><i class="fa fa-download fa-lg"></i> Download Template</button>
-          <button type="button" class="btn btn-primary ml-2" (click)="downloadExcel()"><i class="fa fa-download fa-lg"></i> Export Excel</button>
-          <button type="button" class="btn btn-success ml-2" data-toggle="modal" data-target="#uploadModal"><i class="fa fa-file-excel-o fa-lg"></i> Upload Excel</button>
+          <button type="button" class="mb-3 btn btn-primary ml-2" (click)="tamplateExcel()"><i class="fa fa-download fa-lg"></i> Download Template</button>
+          <button type="button" class="mb-3 btn btn-primary ml-2" (click)="downloadExcel()"><i class="fa fa-download fa-lg"></i> Export Excel</button>
+          <button type="button" class="mb-3 btn btn-success ml-2" data-toggle="modal" data-target="#uploadModal"><i class="fa fa-file-excel-o fa-lg"></i> Upload Excel</button>
         </div>
       </div>
 
@@ -43,10 +43,10 @@
           </ng-container>
 
           <!-- Pattern ID Column -->
-          <ng-container matColumnDef="pattern_ID">
-            <th *matHeaderCellDef style="min-width: 130px" mat-sort-header>Pattern</th>
-            <td align="left" *matCellDef="let element">{{ element.pattern_name }}</td>
-          </ng-container>
+<!--          <ng-container matColumnDef="pattern_ID">-->
+<!--            <th *matHeaderCellDef style="min-width: 130px" mat-sort-header>Pattern</th>-->
+<!--            <td align="left" *matCellDef="let element">{{ element.pattern_name }}</td>-->
+<!--          </ng-container>-->
 
           <!-- Size ID Column -->
           <ng-container matColumnDef="size_ID">
@@ -126,7 +126,7 @@
           <ng-container matColumnDef="action">
             <th style="min-width: 200px" *matHeaderCellDef>Action</th>
             <td *matCellDef="let element">
-              <button type="button" class="btn btn-md btn-secondary" (click)="openModalEdit(element.part_NUMBER)">Update</button>
+              <button type="button" class="btn btn-md btn-secondary" (click)="openModalEdit(element.id)">Update</button>
               <button type="button" class="btn btn-md ml-3" [ngClass]="{ 'btn-danger': element.status === 1, 'btn-success': element.status !== 1 }" (click)="element.status === 1 ? deleteData(element) : activateData(element)">
                 {{ element.status === 1 ? 'Delete' : 'Activate' }}
               </button>
@@ -158,29 +158,65 @@
         <!-- Form with Reactive Forms -->
         <form [formGroup]="editProductTypeForm">
           <div class="form-group">
-            <h6 for="curing">Item Curing</h6>
-            <div class="col-md-13">
-              <ng-select2 id="curing" name="curing" formControlName="curing" [(ngModel)]="editProductObject.item_CURING" [data]="uomOptionData[0]" [options]="options"> </ng-select2>
+            <label for="curing">
+              <h6>Item Curing</h6>
+            </label>
+            <div class="d-flex align-items-center gap-2">
+              <ng-select2
+                id="curing"
+                name="curing"
+                formControlName="curing"
+                [(ngModel)]="editProductObject.item_CURING"
+                [data]="uomOptionData[0]"
+                [options]="options"
+                class="flex-grow-1">
+              </ng-select2>
+              <button
+                type="button"
+                class="btn btn-danger btn-sm"
+                (click)="clearItemCuring()">
+                Clear
+              </button>
             </div>
           </div>
+
+          <!--          <div class="form-group">-->
+<!--            <h6 for="pattern">Pattern</h6>-->
+<!--            <div class="col-md-13">-->
+<!--              <ng-select2 id="pattern" name="pattern" formControlName="pattern" [(ngModel)]="editProductObject.pattern_ID" [data]="uomOptionData[1]" [options]="options"> </ng-select2>-->
+<!--            </div>-->
+<!--          </div>-->
+
           <div class="form-group">
-            <h6 for="pattern">Pattern</h6>
-            <div class="col-md-13">
-              <ng-select2 id="pattern" name="pattern" formControlName="pattern" [(ngModel)]="editProductObject.pattern_ID" [data]="uomOptionData[1]" [options]="options"> </ng-select2>
+            <label for="size">
+              <h6>Size</h6>
+            </label>
+            <div class="d-flex align-items-center gap-2">
+              <ng-select2
+                id="size"
+                name="size"
+                formControlName="size"
+                [(ngModel)]="editProductObject.size_ID"
+                [data]="uomOptionData[2]"
+                [options]="options"
+                class="flex-grow-1">
+              </ng-select2>
+              <button
+                type="button"
+                class="btn btn-danger btn-sm"
+                (click)="clearSize()">
+                Clear
+              </button>
             </div>
           </div>
-          <div class="form-group">
-            <h6 for="size">Size</h6>
-            <div class="col-md-13">
-              <ng-select2 id="size" name="size" formControlName="size" [(ngModel)]="editProductObject.size_ID" [data]="uomOptionData[2]" [options]="options"> </ng-select2>
-            </div>
-          </div>
+
           <div class="form-group">
             <h6 for="productType">Product Type</h6>
             <div class="col-md-13">
               <ng-select2 id="productType" name="productType" formControlName="productType" [(ngModel)]="editProductObject.product_TYPE_ID" [data]="uomOptionData[3]" [options]="options"> </ng-select2>
             </div>
           </div>
+
           <div class="form-group">
             <h6 for="qty">Qty Per Rak</h6>
             <input [(ngModel)]="editProductObject.qty_PER_RAK" type="text" (keypress)="validateNumberInput($event)" maxlength="9" class="form-control" id="qty" formControlName="qty" [ngClass]="{ 'is-invalid': editProductTypeForm.get('qty').invalid && editProductTypeForm.get('qty').touched }" />
